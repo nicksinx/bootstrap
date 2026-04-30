@@ -1,0 +1,17 @@
+# Support Matrix
+
+| Component | Supported |
+|---|---|
+| OS | macOS 13+ (BSD tools); Linux with GNU coreutils |
+| Shell | `bash` 4+ (declare via `#!/usr/bin/env bash`) |
+| Python | 3.10+ |
+| `gh` CLI | 2.40+ (only when `--with-github` is set) |
+| `git` | 2.30+ |
+| Cursor | 1.x with MCP support |
+
+## Notes
+
+- BSD `sed` and GNU `sed` differ for in-place edits; the launcher avoids
+  in-place edits and prefers Python helpers where portability matters.
+- Lock file uses PID liveness check via `kill -0`, which is portable across
+  macOS and Linux.

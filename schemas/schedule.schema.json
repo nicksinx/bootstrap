@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/schedule.schema.json",
+  "title": "Schedule",
+  "description": "MCP scheduled task definitions with safety guardrails.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "schedules"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "project_id": { "type": "string" },
+    "max_concurrent_runs": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "retry_budget": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 3
+    },
+    "backoff_jitter_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 30
+    },
+    "blackout_windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["start", "end"],
+        "properties": {
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "timezone": { "type": "string" }
+        }
+      }
+    },
+    "kill_switch": { "type": "boolean", "default": false },
+    "schedules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "task_id", "cron"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SCH-[0-9]{4,}$"
+          },
+          "task_id": {
+            "type": "string",
+            "pattern": "^TASK-[0-9]{4,}$"
+          },
+          "cron": { "type": "string" },
+          "timezone": { "type": "string" },
+          "enabled": { "type": "boolean", "default": true },
+          "allow_repo_mutation": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  }
+}

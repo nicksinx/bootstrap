@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/audit-event.schema.json",
+  "title": "AuditEvent",
+  "description": "Immutable audit event emitted by the MCP server for every policy-relevant action.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "project_id",
+    "actor",
+    "action",
+    "decision",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "event_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": { "enum": ["user", "automation", "scheduler", "system"] },
+        "id": { "type": "string" }
+      }
+    },
+    "action": { "type": "string" },
+    "decision": {
+      "enum": [
+        "allow",
+        "deny",
+        "require_approval",
+        "applied",
+        "rejected"
+      ]
+    },
+    "reason_code": { "type": "string" },
+    "before": {},
+    "after": {},
+    "timestamp": { "type": "string", "format": "date-time" },
+    "signature": { "type": "string" }
+  }
+}

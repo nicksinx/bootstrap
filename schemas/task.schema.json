@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/task.schema.json",
+  "title": "Task",
+  "description": "Frontmatter contract for backlog/tasks/TASK-XXXX.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "title",
+    "status",
+    "priority",
+    "risk",
+    "sdlc_stage",
+    "verification_type",
+    "approval_required"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "task_id": {
+      "type": "string",
+      "pattern": "^TASK-[0-9]{4,}$"
+    },
+    "mcp_task_id": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": [
+        "draft",
+        "ready",
+        "classified",
+        "planned",
+        "assigned",
+        "queued",
+        "running",
+        "awaiting_review",
+        "approved",
+        "rejected",
+        "applied",
+        "closed",
+        "cancelled",
+        "failed",
+        "expired",
+        "blocked",
+        "superseded"
+      ]
+    },
+    "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+    "risk": { "enum": ["low", "medium", "high"] },
+    "sdlc_stage": {
+      "enum": [
+        "requirements",
+        "quality",
+        "architecture",
+        "api",
+        "implementation_planning",
+        "implementation",
+        "verification",
+        "security",
+        "release",
+        "observability"
+      ]
+    },
+    "agent_hint": { "type": "string" },
+    "required_skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^TASK-[0-9]{4,}$"
+      }
+    },
+    "context_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "approval_required": { "type": "boolean" },
+    "verification_type": {
+      "enum": ["automated", "manual", "hybrid"]
+    },
+    "created_by": { "type": "string" },
+    "created_at": { "type": ["string", "null"] },
+    "updated_at": { "type": ["string", "null"] }
+  }
+}

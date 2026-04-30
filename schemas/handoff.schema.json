@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/handoff.schema.json",
+  "title": "Handoff",
+  "description": "Versioned input/output contract for agent handoffs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "input", "output"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task", "context"],
+      "properties": {
+        "task": { "type": "object" },
+        "context": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "verification"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "proposed_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "kind"],
+            "properties": {
+              "path": { "type": "string" },
+              "kind": { "enum": ["create", "update", "delete"] },
+              "diff": { "type": "string" }
+            }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["checklist"],
+          "properties": {
+            "checklist": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["item", "passed"],
+                "properties": {
+                  "item": { "type": "string" },
+                  "passed": { "type": "boolean" },
+                  "evidence": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["severity", "message"],
+            "properties": {
+              "severity": { "enum": ["info", "warn", "critical"] },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

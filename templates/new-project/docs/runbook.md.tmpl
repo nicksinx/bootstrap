@@ -1,0 +1,33 @@
+# Runbook
+
+## Bootstrap Failures
+
+| Symptom | Likely Cause | Action |
+|---|---|---|
+| Exit code 2 | Bad CLI input | Check `--name` validity and required flags |
+| Exit code 3 | Missing dep (`gh`, `python3`) | Install dependency, re-run launcher |
+| Exit code 4 | GitHub bootstrap failed | Check `gh auth status`; rerun with `--with-github` |
+| Exit code 5 | Scaffold write blocked | Check protected sections and permissions |
+| Exit code 6 | MCP registration failed | Check MCP server `mcp-health` |
+| Exit code 9 | Validation failed | Run `make validate-launch` and read JSON error line |
+| Exit code 10 | Unsafe operation blocked | Read JSON error `hint` field; do not bypass |
+
+## MCP Worker Issues
+
+- Hanging task: check `make mcp-review-runs` and `task_get_audit_log`.
+- Stale schedule: inspect `schedules` resource; flip `kill_switch` if needed.
+- Repeated policy denials: reload `policy_pack` and rerun `mcp-register`.
+
+## Local Worker Issues
+
+- Missing Codex/Claude CLI: set `WORKER_CODEX_BIN` or `WORKER_CLAUDE_BIN` to a valid executable.
+- Need a no-op test path: run `WORKER_CODEX_BIN=true make worker-start TASK=TASK-0001`.
+- Dispatch failure from queue: confirm task exists in `backlog/queue.yaml` and is `ready`.
+- Unexpected parallelism: tune `WORKER_MAX_GLOBAL` and `WORKER_MAX_PER_AGENT`.
+- Blocked command execution: verify executable path is included in `WORKER_COMMAND_ALLOWLIST` (if set).
+
+## Rollback
+
+- Keep `.launch.lock` removed only after the launcher exits cleanly.
+- For partial bootstraps, re-run the launcher with `--dry-run` first to confirm
+  the converged plan, then rerun without `--dry-run`.

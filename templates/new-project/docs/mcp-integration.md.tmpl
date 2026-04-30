@@ -1,0 +1,41 @@
+# MCP Integration
+
+## Server
+
+- Name: `__MCP_SERVER_NAME__`
+- Transport: `__MCP_TRANSPORT__`
+- Command: `__MCP_COMMAND__`
+- Auth profile: `__MCP_AUTH_PROFILE__`
+- Token source: `__MCP_TOKEN_SOURCE__`
+
+## Generated Files
+
+- `.cursor/mcp.json.example` is always generated.
+- `.cursor/mcp.json` is only generated when the launcher is run with
+  `--with-mcp-config`. It is gitignored to avoid leaking auth-bearing
+  configuration.
+
+## Tools
+
+Project: `project_register`, `project_get`, `project_list`, `project_update`,
+`project_health_check`, `project_archive`.
+
+Backlog: `backlog_import`, `backlog_sync` with `mode = validate_only|import|sync`
+and `conflict_policy = fail|warn|overwrite_mcp|overwrite_local`.
+
+Tasks: `task_create`, `task_plan`, `task_assign`, `task_claim_next`,
+`task_status`, `task_list`, `task_cancel`, `task_review`, `task_approve`,
+`task_reject`, `task_get_artifacts`, `task_get_evidence`, `task_get_audit_log`.
+
+## Resources
+
+`aitask://projects`, `aitask://projects/{id}`, `/backlog`, `/tasks`,
+`/schedules`, `/evidence`, `/quality-dashboard`, `/improvement-reports`.
+
+## Delivery Boundary
+
+- This project ships MCP wrapper scripts and contracts.
+- Full MCP foundation hardening (authn/authz enforcement, strict project isolation,
+  durable audit/event persistence, and transport convergence) is an external server
+  dependency and must be completed in the MCP server codebase before default
+  non-readonly automation is enabled.

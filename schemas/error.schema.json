@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/error.schema.json",
+  "title": "Error",
+  "description": "Single-line JSON error event written to stderr by launcher and MCP wrappers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "message", "correlation_id"],
+  "properties": {
+    "code": { "type": "string", "pattern": "^E[0-9]{3,4}$" },
+    "exit_code": { "type": "integer" },
+    "message": { "type": "string", "minLength": 1 },
+    "hint": { "type": "string" },
+    "doc_url": { "type": "string" },
+    "correlation_id": { "type": "string" },
+    "context": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

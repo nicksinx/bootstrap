@@ -1,0 +1,30 @@
+# Governance
+
+## Maintainers
+
+<!-- BOOTSTRAP-PROTECTED-BEGIN: maintainers -->
+- Add maintainers here. The launcher preserves this list on rerun.
+<!-- BOOTSTRAP-PROTECTED-END: maintainers -->
+
+## Decision Boundaries
+
+- Launcher contract (CLI flags, exit codes): requires ADR before change.
+- Backlog schema and queue invariants: requires ADR and migration plan.
+- Worker policy and apply-boundary: requires security review.
+- New external integrations: require threat review.
+
+## Breaking Changes
+
+A change is breaking if it modifies any of:
+
+- Launcher CLI flag names or exit codes
+- Schema field names, removals, or required fields
+- Apply boundary or approval policy semantics
+- MCP tool names, signatures, or resource URIs
+
+Breaking changes require:
+
+- ADR
+- Migration script (`scripts/migrate_project.sh`)
+- Version bump in `template_version` and `profile_version`
+- `CHANGELOG.md` entry under a new release heading

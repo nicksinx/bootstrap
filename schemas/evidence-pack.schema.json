@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/evidence-pack.schema.json",
+  "title": "EvidencePack",
+  "description": "Reproducibility-grade evidence emitted by the MCP server for each task run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "project_id",
+    "inputs_hash",
+    "model_id",
+    "prompt_digest",
+    "tool_calls",
+    "artifacts",
+    "policy_decisions",
+    "verifier_results",
+    "timestamps"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "task_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "inputs_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "model_id": { "type": "string" },
+    "prompt_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "input_digest", "output_digest", "started_at", "ended_at"],
+        "properties": {
+          "name": { "type": "string" },
+          "input_digest": { "type": "string" },
+          "output_digest": { "type": "string" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "ended_at": { "type": "string", "format": "date-time" },
+          "ok": { "type": "boolean" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "kind": { "type": "string" }
+        }
+      }
+    },
+    "policy_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action", "decision", "reason_code"],
+        "properties": {
+          "action": { "type": "string" },
+          "decision": { "enum": ["allow", "deny", "require_approval"] },
+          "reason_code": { "type": "string" }
+        }
+      }
+    },
+    "verifier_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "passed"],
+        "properties": {
+          "name": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "details": { "type": "string" }
+        }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at"],
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "sealed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "sealed": { "type": "boolean", "default": false }
+  }
+}

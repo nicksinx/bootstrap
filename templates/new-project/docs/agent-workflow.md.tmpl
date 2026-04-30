@@ -1,0 +1,25 @@
+# Agent Workflow
+
+## Lifecycle
+
+`draft -> classified -> planned -> assigned -> queued -> running ->
+awaiting_review -> approved -> applied -> closed`.
+
+Terminals: `cancelled`, `failed`, `expired`, `blocked`, `superseded`.
+
+## Rules
+
+- Background workers never auto-commit and never auto-push.
+- Workers produce artifacts and an evidence pack for review.
+- Cursor remains the orchestrator for final edits and merge decisions.
+- Every policy-relevant action emits an immutable audit event.
+- Worker runs write `runs/<agent>/<run-id>/manifest.json` and `runs/status/*.json`.
+- Worker dispatch supports `start`, `start-next`, `status`, `stop`, and `review`.
+
+## Handoff
+
+Inputs and outputs follow `schemas/handoff.schema.json`. Acceptance requires:
+
+- no unresolved critical blockers
+- verification checklist complete
+- referenced file paths must exist

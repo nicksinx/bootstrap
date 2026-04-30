@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/project.schema.json",
+  "title": "Project",
+  "description": "Per-project configuration written to project.config.yaml on launch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "name",
+    "template_version",
+    "profile",
+    "generated_by",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "template_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "profile": { "type": "string", "minLength": 1 },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "default_branch": { "type": "string", "default": "main" },
+    "generated_by": { "type": "string", "const": "launch_project" },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "owner": { "type": "string" },
+        "visibility": { "enum": ["private", "public"] },
+        "create_labels": { "type": "boolean" },
+        "create_templates": { "type": "boolean" }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "server_name": { "type": "string" },
+        "transport": { "enum": ["stdio", "http"] },
+        "command": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "data_dir": { "type": "string" },
+        "auth_profile": {
+          "enum": ["none", "local-token", "mtls", "oauth"]
+        },
+        "token_source": { "enum": ["env", "keychain"] }
+      }
+    },
+    "compat_mode": {
+      "enum": ["strict", "warn", "legacy"],
+      "default": "strict"
+    }
+  }
+}

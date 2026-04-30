@@ -1,0 +1,47 @@
+---
+schema_version: 1
+task_id: TASK-0001
+mcp_task_id: null
+title: Validate launch scaffold idempotency
+status: ready
+priority: P0
+risk: medium
+sdlc_stage: verification
+agent_hint: Verification & Security Agent
+required_skills:
+  - test-strategy-composer
+depends_on: []
+context_paths:
+  - scripts/launch_project.sh
+  - scripts/validate_launch.sh
+expected_artifacts:
+  - test_plan
+  - validation_report
+approval_required: false
+verification_type: automated
+created_by: launch_project
+created_at: "__GENERATED_AT__"
+updated_at: "__GENERATED_AT__"
+---
+
+# Goal
+
+Validate that repeated launch runs converge without duplicate or unstable
+artifacts and that schema and queue invariants hold.
+
+# Inputs
+
+- Launcher script
+- Generated scaffold
+- Validation script
+
+# Done Criteria
+
+- Re-running launcher does not duplicate files or mutate protected sections.
+- Queue remains valid against `schemas/queue.schema.json`.
+- All schema validations pass.
+- Logs are deterministic except for timestamps and run IDs.
+
+# Notes
+
+This task should be imported into the MCP server before execution.

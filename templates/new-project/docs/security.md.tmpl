@@ -1,0 +1,32 @@
+# Security
+
+## Trust Zones
+
+- Launcher host environment.
+- Generated project filesystem.
+- External services (`gh`, remote APIs).
+- Agent CLI invocation boundary.
+
+## Forbidden Patterns
+
+- Unbounded shell interpolation of model output.
+- Unvalidated path execution.
+- Echoing secrets to stdout, stderr, or generated files.
+- Auto-applied diffs without human approval.
+
+## Auth and Transport
+
+- Auth profiles: `none`, `local-token`, `mtls`, `oauth`.
+- HTTP transport requires TLS.
+- `stdio` transport restricted to local sockets with file permission checks.
+
+## Secrets
+
+- Sourced from environment variables or platform keychain only.
+- Never persisted to generated project files.
+- Redacted in logs by `scripts/lib/log.sh`.
+
+## Threat Review
+
+Adding any new external integration or any MCP tool that mutates external
+state requires a threat review and an explicit policy entry.

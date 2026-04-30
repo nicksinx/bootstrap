@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/worker-manifest.schema.json",
+  "title": "WorkerRunManifest",
+  "description": "Metadata for a single background agent worker run under runs/<agent>/<run-id>/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "project_id",
+    "agent",
+    "phase",
+    "task_file",
+    "output_dir",
+    "allow_git_mutation",
+    "timeout_seconds",
+    "retry_attempt",
+    "correlation_id"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "run_id": {
+      "type": "string",
+      "minLength": 4,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^TASK-[0-9]{4,}$"
+    },
+    "project_id": { "type": "string", "minLength": 1 },
+    "agent": { "enum": ["codex", "claude"] },
+    "phase": {
+      "enum": [
+        "pending",
+        "starting",
+        "running",
+        "completed",
+        "failed",
+        "stopped",
+        "timeout",
+        "skipped"
+      ]
+    },
+    "pid": { "type": ["integer", "null"] },
+    "started_at": { "type": ["string", "null"] },
+    "ended_at": { "type": ["string", "null"] },
+    "task_file": { "type": "string", "minLength": 1 },
+    "output_dir": { "type": "string", "minLength": 1 },
+    "command": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "exit_code": { "type": ["integer", "null"] },
+    "timeout_seconds": { "type": "integer", "minimum": 1 },
+    "allow_git_mutation": { "type": "boolean" },
+    "retry_attempt": { "type": "integer", "minimum": 0 },
+    "correlation_id": { "type": "string", "minLength": 8 },
+    "error_message": { "type": ["string", "null"] },
+    "manifest_path": { "type": ["string", "null"] },
+    "stdout_log": { "type": ["string", "null"] },
+    "stderr_log": { "type": ["string", "null"] }
+  }
+}

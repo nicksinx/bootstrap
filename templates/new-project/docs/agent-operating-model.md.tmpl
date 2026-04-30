@@ -1,0 +1,30 @@
+# Agent Operating Model
+
+This project uses a five-agent operating model orchestrated by the
+`software-engineering-orchestrator` skill via the AI Task MCP server.
+
+## Roles
+
+- Requirements & Scope Agent: `requirement-to-story-spec`, `quality-attribute-accessibility-planner`.
+- Architecture & API Agent: `system-design-adr-generator`, `api-contract-designer`.
+- Implementation Agent: `change-plan-task-slicer`, `safe-code-generator-refactoring-engineer`.
+- Verification & Security Agent: `test-strategy-composer`, `threat-model-secure-review`.
+- Delivery & Reliability Agent: `supply-chain-release-gate`, `observability-slo-incident-improvement`.
+
+## Routing Order
+
+requirements -> quality -> architecture -> API -> implementation planning ->
+code/refactor -> testing -> security -> release -> observability.
+
+## Apply Boundary
+
+- MCP produces proposal artifacts only.
+- `approved -> applied` is a human action in Cursor unless an explicitly
+  authorized automation token is permitted by policy.
+- `applied -> closed` requires post-apply verifier results to pass.
+
+## Skill Fallback
+
+If a required skill is unavailable, the task is set to `blocked` with reason,
+an audit event is emitted, and a recommendation appears in the quality
+dashboard. Silent degradation is forbidden.

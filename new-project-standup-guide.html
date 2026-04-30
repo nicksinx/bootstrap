@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Project Standup Guide (Bootstrap + MCP)</title>
+  <style>
+    :root {
+      --bg: #111317;
+      --panel: #171a21;
+      --panel-2: #1c2130;
+      --text: #e6eaf2;
+      --muted: #a7b0c0;
+      --accent: #6ea8fe;
+      --accent-2: #a78bfa;
+      --ok: #36c98f;
+      --warn: #f7c948;
+      --border: #2a3245;
+      --code: #0f1320;
+      --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at 20% -20%, #22293d 0%, var(--bg) 35%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    h1, h2, h3 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 28px; letter-spacing: 0.2px; }
+    h2 {
+      margin-top: 24px;
+      font-size: 20px;
+      color: #d7e2ff;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    h3 { margin-top: 16px; font-size: 17px; color: #d2dcf8; }
+
+    p, li { color: var(--text); }
+    .muted { color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: #141928;
+      color: #b7c4ea;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .step {
+      background: linear-gradient(145deg, #161b2a, #151925);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 18px 16px;
+      margin: 14px 0;
+    }
+
+    .step-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #e9eeff;
+      margin-bottom: 10px;
+    }
+
+    .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      background: linear-gradient(160deg, var(--accent), var(--accent-2));
+      color: #0b1020;
+    }
+
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 10px 0 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      color: #d8e4ff;
+    }
+
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: #131b30;
+      border: 1px solid #2a3a66;
+      border-left-width: 3px;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .card {
+      background: #131826;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul { margin: 8px 0 0 18px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>New Project Standup Guide</h1>
+      <p class="muted">
+        Step-by-step setup for creating a new project using <strong>Bootstrap outputs</strong>
+        and pairing it with the live MCP server on GitHub.
+      </p>
+      <span class="badge">Bootstrap Launcher</span>
+      <span class="badge">GitHub</span>
+      <span class="badge">MCP (PASS)</span>
+      <span class="badge">Cursor-first workflow</span>
+    </section>
+
+    <h2>Prerequisites</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Local Tooling</h3>
+        <ul>
+          <li><code>git</code>, <code>gh</code>, <code>bash</code>, <code>python3</code></li>
+          <li>Optional: Node.js/npm for MCP local runtime checks</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Access</h3>
+        <ul>
+          <li>GitHub account authenticated via <code>gh auth status</code></li>
+          <li>Access to Bootstrap repo and MCP repo</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Security Inputs</h3>
+        <ul>
+          <li><code>AITASK_HTTP_API_KEY</code></li>
+          <li><code>AITASK_HTTP_AUTH_MODE=all_requests</code></li>
+          <li><code>AITASK_MCP_API_KEY</code> (for MCP tool auth)</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Step-by-Step</h2>
+
+    <section class="step">
+      <div class="step-title"><span class="num">1</span>Clone Bootstrap and choose project id</div>
+      <p>Create a new working folder and pick a lowercase dashed project id.</p>
+      <pre><code>git clone &lt;your-bootstrap-repo-url&gt; bootstrap
+cd bootstrap
+PROJECT_ID="acme-signals-api"
+TARGET_DIR="$HOME/projects/$PROJECT_ID"</code></pre>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">2</span>Generate the project scaffold from Bootstrap</div>
+      <p>Run the launcher to generate project files, scripts, backlog, docs, and schemas.</p>
+      <pre><code>./scripts/launch_project.sh \
+  --name "$PROJECT_ID" \
+  --profile default \
+  --target-dir "$TARGET_DIR" \
+  --non-interactive</code></pre>
+      <div class="callout">
+        Generated outputs include: <code>scripts/</code>, <code>schemas/</code>, <code>backlog/</code>, <code>docs/</code>,
+        and project <code>Makefile</code> targets for validation and worker operations.
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">3</span>Create and wire the GitHub repository</div>
+      <p>From the generated project directory, create a new GitHub repo and push initial code.</p>
+      <pre><code>cd "$TARGET_DIR"
+gh repo create "$PROJECT_ID" --private --source=. --remote=origin --push</code></pre>
+      <p class="muted">If you need org ownership, use: <code>gh repo create your-org/$PROJECT_ID --private --source=. --remote=origin --push</code>.</p>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">4</span>Configure secure MCP environment</div>
+      <p>Use hardened mode defaults for production-like usage.</p>
+      <pre><code>export AITASK_HTTP_API_KEY="&lt;strong-secret&gt;"
+export AITASK_HTTP_AUTH_MODE="all_requests"
+export AITASK_MCP_API_KEY="&lt;strong-secret&gt;"
+# Optional project allowlist:
+export AITASK_MCP_ALLOWED_PROJECT_IDS="$PROJECT_ID"</code></pre>
+      <p class="warn"><strong>Do not</strong> rely on insecure dev flags for shared or production environments.</p>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">5</span>Attach MCP to the generated project</div>
+      <p>Generate MCP config and point to your live MCP server runtime mode (stdio or HTTP workflow).</p>
+      <pre><code>./scripts/launch_project.sh \
+  --name "$PROJECT_ID" \
+  --profile default \
+  --target-dir "$TARGET_DIR" \
+  --with-mcp \
+  --with-mcp-config \
+  --non-interactive</code></pre>
+      <div class="callout">
+        Review generated <code>.cursor/mcp.json</code> and <code>docs/mcp-integration.md</code> in the project.
+      </div>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">6</span>Run validation and launch checks</div>
+      <pre><code>make validate-launch
+make test-launch
+make release-gate</code></pre>
+      <p class="ok">Expected: deterministic validation passes with no schema or queue invariant errors.</p>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">7</span>Seed and dispatch initial backlog work</div>
+      <pre><code>make backlog-init
+make worker-next
+make worker-status
+make review-runs</code></pre>
+      <p>This confirms Bootstrap outputs and worker contracts are live for the new project.</p>
+    </section>
+
+    <section class="step">
+      <div class="step-title"><span class="num">8</span>Cursor operating pattern</div>
+      <ul>
+        <li>Plan and approve in Cursor first.</li>
+        <li>Use MCP/project-scoped tools for execution and evidence retrieval.</li>
+        <li>Review generated artifacts before merge.</li>
+        <li>Keep secure MCP env vars in CI and deployment contexts.</li>
+      </ul>
+    </section>
+
+    <h2>Quick Verification Checklist</h2>
+    <ul>
+      <li>[ ] GitHub repo created and <code>origin</code> push succeeded</li>
+      <li>[ ] <code>.cursor/mcp.json</code> present and reviewed</li>
+      <li>[ ] <code>make validate-launch</code> passed</li>
+      <li>[ ] Worker dispatch/status/review flow succeeded</li>
+      <li>[ ] Secure MCP env vars configured (no insecure flags in shared env)</li>
+    </ul>
+
+    <h2>References</h2>
+    <ul>
+      <li>Bootstrap outputs: generated <code>README.md</code>, <code>docs/agent-workflow.md</code>, <code>docs/mcp-integration.md</code></li>
+      <li>MCP release and readiness evidence: use your MCP repo’s <code>docs/RELEASE_GATE.md</code> and CI provenance artifact.</li>
+    </ul>
+  </div>
+</body>
+</html>

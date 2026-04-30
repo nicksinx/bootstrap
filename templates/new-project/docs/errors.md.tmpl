@@ -1,0 +1,32 @@
+# Errors
+
+The launcher and MCP wrappers emit a single JSON line to stderr on failure
+that conforms to `schemas/error.schema.json`.
+
+## Stable Codes
+
+| Code | Exit | Meaning |
+|---|---|---|
+| `E0000` | 0 | Success |
+| `E0002` | 2 | Input validation failure |
+| `E0003` | 3 | Required dependency missing |
+| `E0004` | 4 | GitHub setup failure |
+| `E0005` | 5 | Project scaffold failure |
+| `E0006` | 6 | MCP registration failure |
+| `E0007` | 7 | MCP config generation failure |
+| `E0008` | 8 | MCP schedule seeding failure |
+| `E0009` | 9 | Validation failure |
+| `E0010` | 10 | Unsafe operation blocked |
+| `E1001` | 9 | Schema incompatible with current compat-mode |
+| `E1002` | 9 | Queue invariant violated |
+| `E2001` | 6 | Out-of-scope project access |
+| `E2002` | 6 | Approval required |
+| `E2003` | 6 | Policy denied action |
+
+## Reading an error line
+
+```json
+{"code":"E0009","correlation_id":"...","exit_code":9,"hint":"Run scripts/validate_launch.sh","message":"Validation failure"}
+```
+
+The `correlation_id` should be quoted in any incident or runbook entry.

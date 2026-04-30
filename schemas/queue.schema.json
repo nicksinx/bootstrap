@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/queue.schema.json",
+  "title": "Queue",
+  "description": "Machine-readable backlog queue (backlog/queue.yaml).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "queue"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$"
+    },
+    "queue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["task_id", "status", "priority", "risk"],
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "pattern": "^TASK-[0-9]{4,}$"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "ready",
+              "blocked",
+              "queued",
+              "running",
+              "awaiting_review",
+              "approved",
+              "applied",
+              "closed",
+              "cancelled",
+              "failed",
+              "expired",
+              "superseded"
+            ]
+          },
+          "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+          "risk": { "enum": ["low", "medium", "high"] },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^TASK-[0-9]{4,}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

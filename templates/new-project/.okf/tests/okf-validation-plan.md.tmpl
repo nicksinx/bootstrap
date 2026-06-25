@@ -1,0 +1,35 @@
+---
+type: Test Case
+title: OKF Validation Plan
+description: Validation checks for the project OKF bundle.
+status: active
+lifecycle_stage: test
+owner: project
+source_of_truth: true
+resource: .okf/tests/okf-validation-plan.md
+tags: [okf, validation, tests]
+applies_to: [codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Test Objective
+
+Confirm that the OKF bundle is readable, structured, and safe for agent use.
+
+# Test Cases
+
+1. Run `scripts/okf-validate`.
+2. Run `scripts/validate_launch.sh`.
+3. Confirm `.okf/improvements/continuous-improvement-repository.md` exists.
+4. Confirm adapters exist.
+5. Confirm backlog tasks can declare `okf_concepts`.
+
+# Expected Result
+
+Validation passes with no failures.
+
+# Evidence
+
+Record validation summaries in `.okf/log.md` or a `Test Evidence` concept.

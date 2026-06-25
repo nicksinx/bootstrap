@@ -62,6 +62,16 @@
         "token_source": { "enum": ["env", "keychain"] }
       }
     },
+    "okf": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "bundle_path": { "type": "string" },
+        "profile": { "type": "string" },
+        "continuous_improvement_path": { "type": "string" }
+      }
+    },
     "compat_mode": {
       "enum": ["strict", "warn", "legacy"],
       "default": "strict"

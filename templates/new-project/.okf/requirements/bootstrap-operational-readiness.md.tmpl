@@ -1,0 +1,54 @@
+---
+type: Requirement
+title: Bootstrap Operational Readiness
+description: The project scaffold shall be ready for agentic software delivery with OKF context and deterministic validation.
+status: active
+lifecycle_stage: planning
+owner: project
+source_of_truth: true
+resource: .okf/requirements/bootstrap-operational-readiness.md
+tags: [okf, bootstrap, readiness]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Intent
+
+Ensure the generated project has enough context, validation, and handoff structure for safe LLM-assisted work.
+
+# Requirement
+
+The project shall include an OKF bundle, task contracts, MCP wrapper scripts, adapters, validation scripts, and a continuous-improvement repository.
+
+# Acceptance Criteria
+
+1. `.okf/index.md` exists.
+2. `.okf/project.md` exists.
+3. `.okf/improvements/continuous-improvement-repository.md` exists.
+4. `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/okf.mdc` exist.
+5. `scripts/okf-validate` exists.
+6. `scripts/validate_launch.sh` validates OKF.
+7. Backlog tasks can link to OKF through `okf_concepts`.
+
+# Dependencies
+
+- Bootstrap launcher.
+- Python 3.
+- YAML and JSON schema dependencies used by launch validation.
+
+# Risks
+
+- Adapter instructions may drift from OKF.
+- Lessons learned may remain in chat instead of `.okf/improvements/`.
+- Secrets may be accidentally stored in OKF.
+
+# Verification
+
+Run `make validate-launch` and `scripts/okf-validate`.
+
+# Citations
+
+- `docs/okf-integration.md`
+- `project.config.yaml`

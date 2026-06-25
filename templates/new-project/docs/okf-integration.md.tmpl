@@ -1,0 +1,34 @@
+# OKF Integration
+
+This project uses Open Knowledge Format (OKF) as the curated project context layer for LLM ops, software development, and cross-agent handoff.
+
+## Role of OKF
+
+OKF is source-of-context. It explains and links to source code, backlog tasks, tests, schemas, MCP artifacts, evidence packs, and release notes. It does not replace those authoritative artifacts.
+
+## Reading Order
+
+1. `.okf/index.md`
+2. `.okf/project.md`
+3. Relevant concepts for the task
+4. Recent `.okf/handoffs/`
+5. Applicable `.okf/improvements/`
+
+## Traceability
+
+Backlog tasks can link to OKF using `okf_concepts` in task frontmatter. Material implementation should trace to at least one OKF concept, backlog task, or handoff.
+
+## Continuous Improvement
+
+Use `.okf/improvements/` for lessons learned, retrospectives, and improvement actions. Accepted improvements should be promoted into templates, scripts, skills, adapters, or agent rules.
+
+## Validation
+
+Run:
+
+```bash
+make validate-launch
+scripts/okf-validate
+```
+
+The launch validator also checks the OKF bundle.

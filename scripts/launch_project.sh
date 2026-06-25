@@ -20,7 +20,7 @@ source "${BOOTSTRAP_LIB_DIR}/secret.sh"
 # shellcheck source=lib/scaffold.sh
 source "${BOOTSTRAP_LIB_DIR}/scaffold.sh"
 
-readonly TEMPLATE_VERSION="1.0.0"
+readonly TEMPLATE_VERSION="1.1.0"
 
 usage() {
   cat <<USAGE
@@ -220,6 +220,10 @@ export BOOTSTRAP_VAR_MCP_DATA_DIR="$MCP_DATA_DIR"
 export BOOTSTRAP_VAR_MCP_AUTH_PROFILE="$MCP_AUTH_PROFILE"
 export BOOTSTRAP_VAR_MCP_TOKEN_SOURCE="$MCP_TOKEN_SOURCE"
 export BOOTSTRAP_VAR_COMPAT_MODE="$COMPAT_MODE"
+export BOOTSTRAP_VAR_OKF_ENABLED=true
+export BOOTSTRAP_VAR_OKF_BUNDLE_PATH=".okf"
+export BOOTSTRAP_VAR_OKF_PROFILE="software-development"
+export BOOTSTRAP_VAR_OKF_CONTINUOUS_IMPROVEMENT_PATH=".okf/improvements"
 
 # Render every templated file from the new-project template tree.
 render_tree() {
@@ -282,7 +286,7 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
     cp "$wf" "${TARGET_DIR}/scripts/workers/"
   done
 fi
-chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/mcp/*.sh "${TARGET_DIR}"/scripts/workers/*.sh "${TARGET_DIR}"/scripts/hooks/*.sh 2>/dev/null || true
+chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/mcp/*.sh "${TARGET_DIR}"/scripts/workers/*.sh "${TARGET_DIR}"/scripts/hooks/*.sh 2>/dev/null || true
 
 if [[ "$WITH_MCP_CONFIG" == "1" ]]; then
   if [[ "$DRY_RUN" != "1" ]]; then

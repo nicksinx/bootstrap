@@ -12,6 +12,7 @@ required_skills:
   - change-plan-task-slicer
 depends_on: []
 context_paths: []
+okf_concepts: []
 expected_artifacts: []
 approval_required: false
 verification_type: hybrid

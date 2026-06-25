@@ -1,4 +1,5 @@
 .PHONY: launch validate-launch github-init backlog-init \
+        okf-validate okf-context-pack okf-handoff \
         mcp-health mcp-register mcp-import-backlog mcp-sync-backlog \
         mcp-dispatch mcp-review-runs mcp-seed-schedules \
         worker-start worker-next worker-status worker-stop review-runs \
@@ -14,6 +15,16 @@ validate-launch:
 
 test-launch:
 	./scripts/validate_launch.sh
+
+okf-validate:
+	./scripts/okf-validate
+
+okf-context-pack:
+	./scripts/okf-context-pack
+
+okf-handoff:
+	@test -n "$(TASK)" || (echo "usage: make okf-handoff TASK=short-task-name"; exit 2)
+	./scripts/okf-handoff $(TASK)
 
 github-init:
 	./scripts/github_init.sh

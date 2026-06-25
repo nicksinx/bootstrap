@@ -6,8 +6,9 @@
 
 Project bootstrapped with the Bootstrap launcher and registered with the Cursor
 AI Task MCP server (`ai-task-orchestrator`). The launcher is the deterministic
-project factory. The MCP server owns task execution, scheduling, evidence, and
-audit. Cursor remains the primary review and approval surface.
+project factory. OKF is the curated project context layer. The MCP server owns
+task execution, scheduling, evidence, and audit. Cursor remains the primary
+review and approval surface.
 
 <!-- BOOTSTRAP-PROTECTED-BEGIN: project-summary -->
 Replace this paragraph with a short, project-specific overview. The launcher
@@ -19,6 +20,7 @@ will preserve everything between the protected markers on subsequent runs.
 ```bash
 make launch          # idempotent re-run of bootstrap
 make validate-launch # run deterministic validation
+make okf-validate    # validate OKF context bundle
 make mcp-health      # verify MCP server reachability
 make mcp-register    # register this project with MCP
 make worker-next     # dispatch first ready backlog task to worker
@@ -38,6 +40,7 @@ make review-runs     # summarize latest worker manifests
 
 - `scripts/` - launcher, GitHub bootstrap, validation
 - `scripts/mcp/` - MCP wrapper scripts
+- `.okf/` - curated project context, decisions, risks, handoffs, improvements
 - `schemas/` - JSON Schemas for backlog, evidence, audit, errors
 - `backlog/` - task specs and queue
 - `docs/` - operating model, runbook, governance, security
@@ -46,6 +49,7 @@ make review-runs     # summarize latest worker manifests
 
 - [Agent operating model](docs/agent-operating-model.md)
 - [Agent workflow](docs/agent-workflow.md)
+- [OKF integration](docs/okf-integration.md)
 - [MCP integration](docs/mcp-integration.md)
 - [Governance](docs/governance.md)
 - [Runbook](docs/runbook.md)

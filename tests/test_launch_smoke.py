@@ -56,6 +56,20 @@ def test_launch_and_validate() -> None:
                 + validate.stderr
             )
 
+        expected_okf = [
+            ".okf/index.md",
+            ".okf/project.md",
+            ".okf/improvements/continuous-improvement-repository.md",
+            "AGENTS.md",
+            "CLAUDE.md",
+            ".cursor/rules/okf.mdc",
+            "docs/okf-integration.md",
+            "scripts/okf-validate",
+        ]
+        missing = [rel for rel in expected_okf if not (target / rel).exists()]
+        if missing:
+            raise SystemExit(f"missing OKF scaffold files: {missing}")
+
 
 def test_worker_stub_flow() -> None:
     with tempfile.TemporaryDirectory(prefix="bootstrap-worker-", dir=str(ROOT)) as td:

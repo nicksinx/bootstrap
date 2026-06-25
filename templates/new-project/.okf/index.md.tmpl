@@ -1,0 +1,44 @@
+---
+type: Reference
+title: OKF Bundle Index
+description: Navigation index for __PROJECT_NAME__.
+status: active
+lifecycle_stage: build
+owner: project
+source_of_truth: true
+resource: .okf/index.md
+tags: [okf, index, bootstrap]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# OKF Bundle Index
+
+## Required Reading Order
+
+1. Read `.okf/index.md`.
+2. Read `.okf/project.md`.
+3. Read relevant concepts for the active task.
+4. Check recent `.okf/handoffs/`.
+5. Check `.okf/improvements/` for lessons that affect the task.
+
+## Core Concepts
+
+- Project overview: `.okf/project.md`
+- Operational readiness requirement: `.okf/requirements/bootstrap-operational-readiness.md`
+- Lifecycle architecture: `.okf/architecture/bootstrap-lifecycle-framework.md`
+- Context-layer decision: `.okf/decisions/0001-okf-as-context-layer.md`
+- Agent lifecycle workflow: `.okf/workflows/agent-okf-lifecycle.md`
+- Memory and secret risk: `.okf/risks/secret-storage-and-memory-drift.md`
+- Validation plan: `.okf/tests/okf-validation-plan.md`
+- Initial handoff: `.okf/handoffs/initial-bootstrap.md`
+- Continuous improvement: `.okf/improvements/continuous-improvement-repository.md`
+
+## Tool Adapters
+
+- Codex: `AGENTS.md`
+- Claude: `CLAUDE.md`
+- Cursor: `.cursor/rules/okf.mdc`
+- OKF integration guide: `docs/okf-integration.md`

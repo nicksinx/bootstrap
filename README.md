@@ -1,6 +1,6 @@
 # Bootstrap Launcher Toolkit
 
-Reusable project bootstrap toolkit for deterministic scaffolding, optional GitHub setup, backlog initialization, MCP wrappers, and local worker dispatch.
+Reusable project bootstrap toolkit for deterministic scaffolding, optional GitHub setup, backlog initialization, OKF project context, MCP wrappers, and local worker dispatch.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ make check
 ## Repository layout
 
 - `scripts/` launcher, validation, github/bootstrap helpers, workers
-- `templates/new-project/` generated project template tree
+- `templates/new-project/` generated project template tree, including OKF context
 - `schemas/` JSON schema contracts
 - `profiles/` launcher profile defaults
 - `tests/` contract and smoke checks

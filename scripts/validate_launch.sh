@@ -33,12 +33,25 @@ release_gate = sys.argv[2] == "1"
 
 required_files = [
     "README.md", "Makefile", ".gitignore", "project.config.yaml",
+    "AGENTS.md", "CLAUDE.md", ".cursor/rules/okf.mdc",
     "backlog/queue.yaml", "backlog/tasks/TASK-0001.md",
     "schemas/project.schema.json", "schemas/queue.schema.json",
     "schemas/task.schema.json", "schemas/error.schema.json",
+    "schemas/okf-concept.schema.json",
     "schemas/worker-manifest.schema.json",
     "profiles/default.yaml",
     "docs/agent-workflow.md", "docs/runbook.md", "docs/security.md",
+    "docs/okf-integration.md",
+    ".okf/index.md", ".okf/project.md", ".okf/log.md",
+    ".okf/requirements/bootstrap-operational-readiness.md",
+    ".okf/architecture/bootstrap-lifecycle-framework.md",
+    ".okf/decisions/0001-okf-as-context-layer.md",
+    ".okf/workflows/agent-okf-lifecycle.md",
+    ".okf/risks/secret-storage-and-memory-drift.md",
+    ".okf/tests/okf-validation-plan.md",
+    ".okf/handoffs/initial-bootstrap.md",
+    ".okf/improvements/continuous-improvement-repository.md",
+    "scripts/okf-validate", "scripts/okf-context-pack", "scripts/okf-handoff",
     "scripts/workers/run_codex_task.sh",
     "scripts/workers/run_claude_task.sh",
     "scripts/workers/dispatch_task.sh",
@@ -112,6 +125,21 @@ for path in sorted((root / "backlog/tasks").glob("TASK-*.md")):
     fm_doc = yaml.load(fm, Loader=_NoTsLoader) or {}
     for err in Draft202012Validator(task_schema).iter_errors(fm_doc):
         errors.append(("task-schema", f"{path.name}: {list(err.path)} -> {err.message}"))
+    for okf_path in fm_doc.get("okf_concepts") or []:
+        if not (root / okf_path).exists():
+            errors.append(("task-okf-traceability", f"{path.name}: missing OKF concept {okf_path}"))
+
+# Validate OKF bundle through the generated helper.
+okf_validate = root / "scripts" / "okf-validate"
+if okf_validate.exists():
+    okf = subprocess.run(
+        [str(okf_validate)],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if okf.returncode != 0:
+        errors.append(("okf-validation", (okf.stderr + okf.stdout).strip()))
 
 # Deterministic rerun check: launcher dry-run should converge without error.
 project_id = (proj or {}).get("project_id")

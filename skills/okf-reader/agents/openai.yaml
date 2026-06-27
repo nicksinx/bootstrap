@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Reader"
+  short_description: "Load project OKF context before work"
+  default_prompt: "Use $okf-reader to load the relevant OKF context before modifying this project."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Citation Steward"
+  short_description: "Keep OKF references and citations clean"
+  default_prompt: "Use $okf-citation-steward to preserve and verify OKF references and citations."

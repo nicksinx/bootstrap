@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Handoff Writer"
+  short_description: "Write concise OKF handoff notes"
+  default_prompt: "Use $okf-handoff-writer to create an OKF handoff before pausing or transferring work."

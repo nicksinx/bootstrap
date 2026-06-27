@@ -1,0 +1,23 @@
+{
+  "context": {
+    "okf_paths": [
+      ".okf/index.md",
+      ".okf/project.md"
+    ]
+  },
+  "created_at": "2026-06-27T22:57:39+02:00",
+  "depends_on": [],
+  "packet_id": "builder-a30beb9c",
+  "pipeline_id": "pipe-cb8dc04e",
+  "prompt": "You are the builder in an OKF multi-agent delivery pipeline.\nPipeline: pipe-cb8dc04e\n\nTask summary:\nDispatch dry run \u2014 Wave 2 ergonomics test\n\nRead these OKF concepts first:\n- .okf/index.md\n- .okf/project.md\n\nFollow the workflow in `.okf/workflows/multi-agent-delivery-pipeline.md`.\nDo not call other agents directly; update OKF and let dispatch enqueue the next role.\nWhen finished, run: scripts/okf-dispatch complete --packet-id <id> --from codex",
+  "result": {
+    "completed_at": "2026-06-27T22:58:04+02:00",
+    "completed_by": "codex"
+  },
+  "role": "builder",
+  "runner": "codex",
+  "schema_version": 1,
+  "source": "init",
+  "status": "done",
+  "updated_at": "2026-06-27T22:58:04+02:00"
+}

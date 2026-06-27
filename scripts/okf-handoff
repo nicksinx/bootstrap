@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+import argparse
+import datetime as dt
+import re
+from pathlib import Path
+
+
+def slugify(value):
+    value = value.lower().strip()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    return value.strip("-") or "handoff"
+
+
+def find_root():
+    current = Path.cwd()
+    for candidate in [current, *current.parents]:
+        if (candidate / ".okf").is_dir():
+            return candidate
+    return current
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Create an OKF handoff document.")
+    parser.add_argument("task", nargs="?", default="handoff", help="Short task name.")
+    parser.add_argument("--summary", default="Continuity note for paused or transferred work.")
+    args = parser.parse_args()
+
+    root = find_root()
+    handoff_dir = root / ".okf" / "handoffs"
+    handoff_dir.mkdir(parents=True, exist_ok=True)
+
+    now = dt.datetime.now().astimezone()
+    date = now.date().isoformat()
+    slug = slugify(args.task)
+    path = handoff_dir / f"{date}-{slug}.md"
+    timestamp = now.isoformat(timespec="seconds")
+    title = " ".join(part.capitalize() for part in slug.split("-"))
+
+    content = f"""---
+type: Handoff
+title: {title}
+description: {args.summary}
+status: active
+lifecycle_stage: build
+owner: project
+source_of_truth: true
+resource: .okf/handoffs/{path.name}
+tags: [okf, handoff]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: unverified
+timestamp: {timestamp}
+---
+
+# Current State
+
+TBD.
+
+# Completed Work
+
+TBD.
+
+# Decisions Made
+
+TBD.
+
+# Files Changed
+
+TBD.
+
+# Known Issues
+
+TBD.
+
+# Next Recommended Actions
+
+TBD.
+
+# Validation Needed
+
+TBD.
+
+# Context Pack
+
+TBD.
+"""
+
+    path.write_text(content, encoding="utf-8")
+    print(path)
+
+
+if __name__ == "__main__":
+    main()

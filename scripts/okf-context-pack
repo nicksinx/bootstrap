@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+import argparse
+import datetime as dt
+from pathlib import Path
+
+
+def find_root():
+    current = Path.cwd()
+    for candidate in [current, *current.parents]:
+        if (candidate / ".okf").is_dir():
+            return candidate
+    return current
+
+
+def collect_files(root, requested):
+    if requested:
+        candidates = [root / item for item in requested]
+    else:
+        candidates = [root / ".okf" / "index.md", root / ".okf" / "project.md", root / ".okf" / "log.md"]
+        handoffs = sorted((root / ".okf" / "handoffs").glob("*.md"))
+        if handoffs:
+            candidates.append(handoffs[-1])
+
+    files = []
+    for candidate in candidates:
+        if candidate.is_dir():
+            files.extend(sorted(candidate.rglob("*.md")))
+        elif candidate.is_file():
+            files.append(candidate)
+    return sorted(dict.fromkeys(path.resolve() for path in files))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Build a small Markdown context pack from OKF files.")
+    parser.add_argument("paths", nargs="*", help="Files or directories to include, relative to project root.")
+    parser.add_argument("-o", "--output", default="tmp/okf-context-pack.md", help="Output file path.")
+    args = parser.parse_args()
+
+    root = find_root()
+    files = collect_files(root, args.paths)
+    output = (root / args.output).resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    now = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    chunks = [
+        "# OKF Context Pack",
+        "",
+        f"Generated: {now}",
+        f"Project root: {root}",
+        "",
+        "This file is generated task context, not durable source-of-context.",
+        "",
+    ]
+
+    for path in files:
+        try:
+            rel = path.relative_to(root)
+        except ValueError:
+            rel = path
+        chunks.extend([f"## {rel}", "", path.read_text(encoding="utf-8"), ""])
+
+    output.write_text("\n".join(chunks), encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create New OKF Project"
+  short_description: "Scaffold new OKF-enabled projects"
+  default_prompt: "Use $create-new-okf-project to create a new OKF-enabled software project."

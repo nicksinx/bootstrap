@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Requirements Auditor"
+  short_description: "Audit OKF requirements for readiness"
+  default_prompt: "Use $okf-requirements-auditor to review project requirements and acceptance criteria."

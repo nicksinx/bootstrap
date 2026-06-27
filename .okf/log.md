@@ -163,3 +163,10 @@ timestamp: 2026-06-24T15:54:09+01:00
 - Extended `BOOTSTRAP_COPY_PATHS` with all handoff templates (`TEMPLATE-tester`, `TEMPLATE-reviewer`, `TEMPLATE-xcode-step4`).
 - Added `.okf/improvements/2026-06-28-dispatch-ergonomics-lessons.md`.
 - Updated brief (dispatch templates, dry-run evidence), README (removed stale Wave 2 pending note), test doc pending line closed.
+
+## 2026-06-27 (GitHub publish attempt)
+
+- Synced GitHub clone at `/Users/dv/Projects/testrunner/bootstrap` from canonical source `/Users/dv/Projects/testrunner/Project-1`.
+- Committed latest OKF bootstrap kit changes on branch `okf-project-bootstrap-framework` with commit `8a2666f`.
+- Validation before commit passed: Python compile, `scripts/okf-validate`, `scripts/okf-check-adapters`, and `scripts/okf-sync-skills --dry-run`.
+- Push to `origin` was attempted without force; network escalation reached GitHub, but HTTPS authentication was unavailable (`could not read Username for 'https://github.com'`).

@@ -30,6 +30,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 BOOTSTRAP_ROOT = SCRIPT_DIR.parent
 SCHEMA_PATH = BOOTSTRAP_ROOT / "schemas" / "project-intake.schema.json"
 LAUNCH_SCRIPT = BOOTSTRAP_ROOT / "scripts" / "launch_project.sh"
+COPY_SKILLS_SCRIPT = BOOTSTRAP_ROOT / "scripts" / "lib" / "copy_okf_skills.py"
 DEFAULT_RUNNERS = {
     "builder": "codex",
     "tester": "claude",
@@ -137,8 +138,9 @@ def starter_intake(project_id: str, target_dir: str) -> dict:
             "validate_launch": True,
             "forge_clone_siblings": True,
             "write_project_intake_copy": True,
-            "create_operator_handoff": True,
-        },
+        "create_operator_handoff": True,
+        "copy_skills": True,
+    },
         "launch": {
             "dry_run_first": True,
             "non_interactive": True,
@@ -241,6 +243,16 @@ def render_markdown(doc: dict) -> str:
     return "\n".join(lines)
 
 
+def copy_skills_to_target(bootstrap_root: Path, target: Path, dry_run: bool = False) -> list[str]:
+    if str(COPY_SKILLS_SCRIPT) not in sys.path:
+        lib_dir = str(COPY_SKILLS_SCRIPT.parent)
+        if lib_dir not in sys.path:
+            sys.path.insert(0, lib_dir)
+    from copy_okf_skills import copy_okf_skills  # noqa: E402
+
+    return copy_okf_skills(bootstrap_root, target, dry_run=dry_run)
+
+
 def patch_project_md(target: Path, doc: dict) -> None:
     path = target / ".okf" / "project.md"
     if not path.is_file():
@@ -309,6 +321,7 @@ Project `{project['id']}` launched from bootstrap intake `{doc.get('intake_versi
 # Completed
 
 - [x] Scaffold via `launch_project.sh` profile `{doc['profile']['name']}`
+- [x] OKF skills copied to `skills/` (service operator + canonical skills)
 - [ ] Post-launch validation (see checklist in project intake copy)
 
 # Services enabled (operator plan)
@@ -401,6 +414,15 @@ def cmd_apply(args: argparse.Namespace) -> int:
         print(f"wrote {dest}")
 
     patch_project_md(target, doc)
+
+    bootstrap_root = Path((doc.get("paths") or {}).get("bootstrap_root") or BOOTSTRAP_ROOT).expanduser()
+    if post.get("copy_skills", True):
+        try:
+            copied = copy_skills_to_target(bootstrap_root.resolve(), target)
+            if copied:
+                print(f"skills: copied {len(copied)} skill(s) to {target / 'skills'}")
+        except FileNotFoundError as exc:
+            print(f"WARN: {exc}", file=sys.stderr)
 
     if post.get("okf_sync_skills", True) and (target / "scripts/okf-sync-skills").is_file():
         rc = run_cmd([str(target / "scripts/okf-sync-skills")], cwd=target)

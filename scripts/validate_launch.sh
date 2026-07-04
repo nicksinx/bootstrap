@@ -76,6 +76,11 @@ v2_files = [
     ".okf/references/forge-sibling-layout.md",
     ".okf/references/forge-packet-type-registry.md",
     ".okf/improvements/forge-lifecycle-operator-notes.md",
+    "docs/okf-service-operator-skills.md",
+    "skills/okf-reader/SKILL.md",
+    "skills/codex-okf-operator/SKILL.md",
+    "skills/claude-okf-operator/SKILL.md",
+    "skills/cursor-okf-operator/SKILL.md",
 ]
 
 legacy_files = [

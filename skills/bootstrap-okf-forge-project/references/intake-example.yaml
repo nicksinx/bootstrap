@@ -66,6 +66,7 @@ post_launch:
   forge_clone_siblings: true
   write_project_intake_copy: true
   create_operator_handoff: true
+  copy_skills: true
 
 launch:
   dry_run_first: true

@@ -72,6 +72,7 @@ Use bootstrap-okf-forge-project skill. Interview me phase-by-phase (identity, pa
 
 - [ ] Open the new project folder as the Cursor workspace root
 - [ ] Reload MCP (`.cursor/mcp.json` should exist)
+- [ ] Confirm `skills/` present (auto-copied; run `scripts/okf-sync-skills` if adapters look stale)
 - [ ] `docs/install-cursor-rules.md` if rules missing
 - [ ] `docs/create-new-okf-project-in-*.md` per enabled service
 - [ ] `scripts/forge-clone-siblings.sh` if not run during apply

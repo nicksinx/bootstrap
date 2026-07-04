@@ -52,6 +52,7 @@ files:
     - docs/create-new-okf-project-in-perplexity.md
     - docs/configure-perplexity-okf.md
     - docs/shared-okf-skills.md
+    - docs/okf-service-operator-skills.md
     - backlog/queue.yaml
     - backlog/tasks/TASK-0001.md
     - backlog/templates/task.template.md

@@ -124,7 +124,8 @@
         "validate_launch": { "type": "boolean", "default": true },
         "forge_clone_siblings": { "type": "boolean", "default": true },
         "write_project_intake_copy": { "type": "boolean", "default": true },
-        "create_operator_handoff": { "type": "boolean", "default": true }
+        "create_operator_handoff": { "type": "boolean", "default": true },
+        "copy_skills": { "type": "boolean", "default": true }
       }
     },
     "launch": {

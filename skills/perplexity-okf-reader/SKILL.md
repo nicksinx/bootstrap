@@ -38,6 +38,7 @@ Use this skill at the start of every Perplexity thread on an OKF-enabled project
 - Perplexity does not have direct repo access; rely on Project **Files** and pasted context packs.
 - Do not invent project requirements not represented in attached OKF material.
 - Do not store secrets or credentials in summaries.
+- **Do not use Forge MCP** — lifecycle planning is Cursor-only; research stays MODE A → `.okf/references/`; overflow is MODE B substitute delivery only.
 - For full OKF reader contract, see `skills/okf-reader/SKILL.md`.
 
 ## Output

@@ -129,7 +129,9 @@ scripts/project-intake apply intake/<project-id>.yaml
 scripts/project-intake apply intake/<project-id>.yaml --execute
 ```
 
-`--execute` runs: `launch_project.sh` → copy intake to `.okf/project-intake.yaml` → patch `.okf/project.md` → `okf-sync-skills` → `validate_launch` → `okf-validate` → optional `forge-clone-siblings` → operator handoff.
+`--execute` runs: `launch_project.sh` → copy `skills/` → patch `.okf/project.md` → `okf-sync-skills` → validation → optional `forge-clone-siblings` → operator handoff.
+
+Skills are copied automatically (excluding bootstrap-only `bootstrap-okf-forge-project`). No manual `rsync` required.
 
 ### 6. Post-standup instructions (tell the user)
 

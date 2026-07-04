@@ -18,6 +18,19 @@ Use this skill before substantive work in an OKF-enabled project.
 7. Note any relevant concepts with `status: draft`, `deprecated`, `superseded`, or `archived`.
 8. Prefer concepts with `verification_status: reviewed`, `tested`, or `accepted`.
 
+## Ecosystem routing (OKF + Forge v2)
+
+After triage, apply the correct layer:
+
+| Trigger | Layer |
+|---------|--------|
+| Lifecycle planning | Forge MCP in **Cursor** → promote to OKF |
+| Implementation | `scripts/okf-dispatch` |
+| External research | Perplexity → `.okf/references/` |
+| Curated truth | `.okf/` Markdown (not `.okf/forge/` runtime JSON) |
+
+Service-specific operator skills: `skills/*-okf-operator/SKILL.md`. Forge MCP is not installed in Codex, Claude, Xcode, or Perplexity.
+
 ## Context Triage
 
 Report only the task-relevant facts:

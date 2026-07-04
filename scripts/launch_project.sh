@@ -288,6 +288,19 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
     cp -R "${LEGACY_OVERLAY_SOURCE}" "${LEGACY_OVERLAY_TARGET}"
   fi
 
+  # Copy canonical OKF skills (exclude bootstrap-only intake skill).
+  if [[ -d "${BOOTSTRAP_ROOT}/skills" ]]; then
+    if [[ "$DRY_RUN" == "1" ]]; then
+      python3 "${BOOTSTRAP_ROOT}/scripts/lib/copy_okf_skills.py" \
+        "${BOOTSTRAP_ROOT}" "${TARGET_DIR}" --dry-run >&2 || true
+    else
+      python3 "${BOOTSTRAP_ROOT}/scripts/lib/copy_okf_skills.py" \
+        "${BOOTSTRAP_ROOT}" "${TARGET_DIR}" \
+        || bs_die "E0009" "$BS_EXIT_VALIDATION" "failed to copy OKF skills"
+      bs_log_info "copied OKF skills into ${TARGET_DIR}/skills"
+    fi
+  fi
+
   # Copy launcher and validation scripts so the project can re-run itself.
   mkdir -p "${TARGET_DIR}/scripts/lib"
   cp "${BOOTSTRAP_ROOT}/scripts/launch_project.sh"      "${TARGET_DIR}/scripts/launch_project.sh"

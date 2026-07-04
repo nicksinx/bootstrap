@@ -33,6 +33,9 @@ def test_example_validates_except_paths() -> None:
 
     import yaml
 
+    sys.path.insert(0, str(ROOT / "scripts" / "lib"))
+    from copy_okf_skills import copy_okf_skills  # noqa: E402
+
     data = yaml.safe_load(EXAMPLE.read_text())
     with tempfile.TemporaryDirectory() as td:
         target = Path(td) / "acme-signals"
@@ -69,10 +72,34 @@ def test_init_writes_file() -> None:
             raise SystemExit("init did not write file")
 
 
+def test_copy_okf_skills_excludes_bootstrap_only() -> None:
+    import tempfile
+
+    from copy_okf_skills import copy_okf_skills
+
+    with tempfile.TemporaryDirectory() as td:
+        bootstrap = Path(td) / "bootstrap"
+        product = Path(td) / "product"
+        (bootstrap / "skills" / "okf-reader").mkdir(parents=True)
+        (bootstrap / "skills" / "okf-reader" / "SKILL.md").write_text("---\nname: okf-reader\n---\n")
+        (bootstrap / "skills" / "bootstrap-okf-forge-project").mkdir(parents=True)
+        (bootstrap / "skills" / "bootstrap-okf-forge-project" / "SKILL.md").write_text(
+            "---\nname: bootstrap-okf-forge-project\n---\n"
+        )
+        copied = copy_okf_skills(bootstrap, product)
+        if copied != ["okf-reader"]:
+            raise SystemExit(f"unexpected copied list: {copied}")
+        if not (product / "skills" / "okf-reader" / "SKILL.md").is_file():
+            raise SystemExit("okf-reader not copied")
+        if (product / "skills" / "bootstrap-okf-forge-project").exists():
+            raise SystemExit("bootstrap-only skill should be excluded")
+
+
 def main() -> int:
     test_intake_schema_loads()
     test_example_validates_except_paths()
     test_init_writes_file()
+    test_copy_okf_skills_excludes_bootstrap_only()
     print("project-intake tests passed")
     return 0
 

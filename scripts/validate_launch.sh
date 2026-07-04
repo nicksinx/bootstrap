@@ -33,16 +33,41 @@ release_gate = sys.argv[2] == "1"
 
 required_files = [
     "README.md", "Makefile", ".gitignore", "project.config.yaml",
+    "AGENTS.md", "CLAUDE.md", ".cursor/rules/okf.mdc",
     "backlog/queue.yaml", "backlog/tasks/TASK-0001.md",
     "schemas/project.schema.json", "schemas/queue.schema.json",
     "schemas/task.schema.json", "schemas/error.schema.json",
+    "schemas/okf-concept.schema.json",
     "schemas/worker-manifest.schema.json",
     "profiles/default.yaml",
     "docs/agent-workflow.md", "docs/runbook.md", "docs/security.md",
+    "docs/okf-integration.md",
+    ".okf/index.md", ".okf/project.md", ".okf/log.md",
+    ".okf/requirements/bootstrap-operational-readiness.md",
+    ".okf/architecture/bootstrap-lifecycle-framework.md",
+    ".okf/decisions/0001-okf-as-context-layer.md",
+    ".okf/workflows/agent-okf-lifecycle.md",
+    ".okf/risks/secret-storage-and-memory-drift.md",
+    ".okf/tests/okf-validation-plan.md",
+    ".okf/handoffs/initial-bootstrap.md",
+    ".okf/improvements/continuous-improvement-repository.md",
+    "scripts/okf-validate", "scripts/okf-context-pack", "scripts/okf-handoff",
     "scripts/workers/run_codex_task.sh",
     "scripts/workers/run_claude_task.sh",
     "scripts/workers/dispatch_task.sh",
     "scripts/lib/worker_runner.py",
+]
+
+forge_lifecycle_files = [
+    "docs/forge-lifecycle-integration.md",
+    ".cursor/mcp-forge-lifecycle.json.example",
+    "scripts/forgerelay-mcp.sh",
+    "scripts/conceptforge-mcp.sh",
+    "scripts/forge-clone-siblings.sh",
+    ".okf/decisions/0002-okf-forge-integration.md",
+    ".okf/references/forge-sibling-layout.md",
+    ".okf/references/forge-packet-type-registry.md",
+    ".okf/improvements/forge-lifecycle-operator-notes.md",
 ]
 
 errors = []
@@ -66,6 +91,11 @@ for rel in required_files:
 schema_dir = root / "schemas"
 proj_schema = json.loads((schema_dir / "project.schema.json").read_text())
 proj = load_yaml(root / "project.config.yaml")
+profile_name = (proj or {}).get("profile", "default")
+if profile_name == "forge-lifecycle":
+    for rel in forge_lifecycle_files:
+        if not (root / rel).is_file():
+            errors.append(("missing-forge-file", rel))
 for err in Draft202012Validator(proj_schema).iter_errors(proj):
     errors.append(("project-schema", f"{list(err.path)} -> {err.message}"))
 
@@ -112,6 +142,21 @@ for path in sorted((root / "backlog/tasks").glob("TASK-*.md")):
     fm_doc = yaml.load(fm, Loader=_NoTsLoader) or {}
     for err in Draft202012Validator(task_schema).iter_errors(fm_doc):
         errors.append(("task-schema", f"{path.name}: {list(err.path)} -> {err.message}"))
+    for okf_path in fm_doc.get("okf_concepts") or []:
+        if not (root / okf_path).exists():
+            errors.append(("task-okf-traceability", f"{path.name}: missing OKF concept {okf_path}"))
+
+# Validate OKF bundle through the generated helper.
+okf_validate = root / "scripts" / "okf-validate"
+if okf_validate.exists():
+    okf = subprocess.run(
+        [str(okf_validate)],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if okf.returncode != 0:
+        errors.append(("okf-validation", (okf.stderr + okf.stdout).strip()))
 
 # Deterministic rerun check: launcher dry-run should converge without error.
 project_id = (proj or {}).get("project_id")

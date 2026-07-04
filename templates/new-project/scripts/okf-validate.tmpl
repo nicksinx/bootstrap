@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+import datetime as dt
+import re
+import sys
+from pathlib import Path
+from typing import Optional
+
+CRITICAL_TYPES = {
+    "Project",
+    "Requirement",
+    "Feature",
+    "Architecture",
+    "Component",
+    "Decision",
+    "Data Model",
+    "API",
+    "Workflow",
+    "Runbook",
+    "Prompt",
+    "Agent Rule",
+    "Agent Skill",
+    "Tool Adapter",
+    "Risk",
+    "Assumption",
+    "Test Case",
+    "Test Evidence",
+    "Release",
+    "Handoff",
+    "Reference",
+    "Improvement",
+    "Lesson Learned",
+    "Retrospective",
+}
+
+SECRET_PATTERNS = [
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
+    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    re.compile(r"\bghp_[A-Za-z0-9_]{20,}\b"),
+    re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{20,}\b"),
+    re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
+    re.compile(r"(?i)\b(password|api[_-]?key|token|secret)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{12,}"),
+]
+
+
+def split_frontmatter(text: str) -> Optional[str]:
+    if not text.startswith("---\n"):
+        return None
+    end = text.find("\n---", 4)
+    if end == -1:
+        return None
+    return text[4:end]
+
+
+def parse_simple_yaml(frontmatter: str) -> dict[str, str]:
+    data = {}
+    for line in frontmatter.splitlines():
+        if not line.strip() or line.lstrip().startswith("#") or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        data[key.strip()] = value.strip().strip('"').strip("'")
+    return data
+
+
+def valid_iso8601(value: str) -> bool:
+    try:
+        dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return True
+    except ValueError:
+        return False
+
+
+def main() -> int:
+    root = Path.cwd()
+    okf = root / ".okf"
+    failures: list[str] = []
+    warnings: list[str] = []
+
+    if not okf.is_dir():
+        print("FAIL: .okf directory not found")
+        return 1
+
+    if not (okf / "improvements").is_dir():
+        failures.append(".okf/improvements directory not found")
+    if not (okf / "improvements" / "continuous-improvement-repository.md").is_file():
+        failures.append(".okf/improvements/continuous-improvement-repository.md not found")
+
+    for path in sorted(okf.rglob("*.md")):
+        rel = path.relative_to(root)
+        text = path.read_text(encoding="utf-8")
+        if any(pattern.search(text) for pattern in SECRET_PATTERNS):
+            failures.append(f"{rel}: likely secret detected")
+
+        frontmatter = split_frontmatter(text)
+        if frontmatter is None:
+            failures.append(f"{rel}: missing YAML frontmatter")
+            continue
+
+        data = parse_simple_yaml(frontmatter)
+        concept_type = data.get("type", "")
+        if not concept_type:
+            failures.append(f"{rel}: missing non-empty type")
+
+        timestamp = data.get("timestamp")
+        if timestamp and not valid_iso8601(timestamp):
+            failures.append(f"{rel}: timestamp is not ISO 8601")
+
+        if concept_type in CRITICAL_TYPES:
+            for field in ("status", "lifecycle_stage", "sensitivity", "verification_status"):
+                if not data.get(field):
+                    warnings.append(f"{rel}: missing {field}")
+
+    for warning in warnings:
+        print(f"WARN: {warning}")
+    for failure in failures:
+        print(f"FAIL: {failure}")
+
+    if failures:
+        print(f"OKF validation failed: {len(failures)} failure(s), {len(warnings)} warning(s)")
+        return 1
+
+    print(f"OKF validation passed: {len(warnings)} warning(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,57 @@
+---
+type: Architecture
+title: OKF Bootstrap Lifecycle Framework
+description: Architecture for combining Bootstrap lifecycle automation with OKF project context.
+status: active
+lifecycle_stage: planning
+owner: project
+source_of_truth: true
+resource: .okf/architecture/bootstrap-lifecycle-framework.md
+tags: [okf, architecture, bootstrap, lifecycle]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Context
+
+Bootstrap provides deterministic project scaffolding, backlog contracts, MCP wrappers, workers, and validation. OKF provides curated project context for humans and agents.
+
+# Current Design
+
+OKF lives in `.okf/` beside the generated backlog, schemas, scripts, docs, and MCP wrappers. Tool adapters point agents back to OKF instead of duplicating durable knowledge.
+
+# Constraints
+
+- OKF must remain human-readable.
+- Secrets must not be stored in OKF.
+- MCP integration remains advisory until the lifecycle MCP is integrated and validated.
+- Backlog tasks and schemas remain authoritative for task execution contracts.
+
+# Interfaces
+
+- `project.config.yaml` declares OKF bundle location.
+- `backlog/tasks/*.md` can use `okf_concepts`.
+- `scripts/okf-validate` validates OKF profile conformance.
+- `scripts/validate_launch.sh` includes OKF validation in launch checks.
+
+# Dependencies
+
+- Bootstrap launcher templates.
+- JSON schemas.
+- Local scripts.
+
+# Failure Modes
+
+- OKF becomes stale after task execution.
+- Generated adapters drift from OKF operating rules.
+- Continuous-improvement findings are not promoted into templates.
+
+# Open Questions
+
+- Which lifecycle MCP resources should mirror OKF concepts in the next integration phase.
+
+# Related Decisions
+
+- `.okf/decisions/0001-okf-as-context-layer.md`

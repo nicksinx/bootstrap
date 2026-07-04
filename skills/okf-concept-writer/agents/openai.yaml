@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Concept Writer"
+  short_description: "Create and update OKF concept docs"
+  default_prompt: "Use $okf-concept-writer to create or update OKF concept documents for this project."

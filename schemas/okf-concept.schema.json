@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/okf-concept.schema.json",
+  "title": "OKF Concept Frontmatter",
+  "description": "Frontmatter contract for Markdown concept documents in .okf.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "type",
+    "title",
+    "description",
+    "status",
+    "lifecycle_stage",
+    "owner",
+    "source_of_truth",
+    "resource",
+    "sensitivity",
+    "verification_status",
+    "timestamp"
+  ],
+  "properties": {
+    "type": {
+      "enum": [
+        "Project",
+        "Requirement",
+        "Feature",
+        "User Story",
+        "Architecture",
+        "Component",
+        "Decision",
+        "Data Model",
+        "API",
+        "Workflow",
+        "Runbook",
+        "Prompt",
+        "Agent Rule",
+        "Agent Skill",
+        "Tool Adapter",
+        "Risk",
+        "Assumption",
+        "Test Case",
+        "Test Evidence",
+        "Release",
+        "Handoff",
+        "Reference",
+        "Glossary Term",
+        "Improvement",
+        "Lesson Learned",
+        "Retrospective"
+      ]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["draft", "active", "deprecated", "superseded", "archived"]
+    },
+    "lifecycle_stage": {
+      "enum": ["discovery", "planning", "build", "test", "release", "operate", "retire"]
+    },
+    "owner": { "type": "string", "minLength": 1 },
+    "source_of_truth": { "type": "boolean" },
+    "resource": { "type": "string", "minLength": 1 },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "applies_to": {
+      "type": "array",
+      "items": {
+        "enum": ["cursor", "claude", "codex", "xcode", "chatgpt", "perplexity", "ollama", "mcp", "local-agent"]
+      }
+    },
+    "sensitivity": {
+      "enum": ["public", "internal", "confidential", "secret-prohibited"]
+    },
+    "verification_status": {
+      "enum": ["unverified", "cited", "reviewed", "tested", "accepted"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

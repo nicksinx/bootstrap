@@ -12,6 +12,7 @@
 - Backlog schema and queue invariants: requires ADR and migration plan.
 - Worker policy and apply-boundary: requires security review.
 - New external integrations: require threat review.
+- Durable project context rules live in `.okf` and adapter changes should update the relevant OKF concept.
 
 ## Breaking Changes
 
@@ -28,3 +29,4 @@ Breaking changes require:
 - Migration script (`scripts/migrate_project.sh`)
 - Version bump in `template_version` and `profile_version`
 - `CHANGELOG.md` entry under a new release heading
+- OKF decision or improvement concept update

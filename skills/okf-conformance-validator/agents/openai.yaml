@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Conformance Validator"
+  short_description: "Validate OKF profile conformance"
+  default_prompt: "Use $okf-conformance-validator to check an OKF bundle for profile issues."

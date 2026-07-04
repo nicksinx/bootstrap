@@ -1,0 +1,21 @@
+{
+  "completed_at": "2026-06-27T22:58:40+02:00",
+  "created_at": "2026-06-27T22:57:39+02:00",
+  "current_packet_id": "integrator-a4a1fb4d",
+  "current_role": "integrator",
+  "okf_paths": [
+    ".okf/index.md",
+    ".okf/project.md"
+  ],
+  "pipeline_id": "pipe-cb8dc04e",
+  "role_runners": {
+    "builder": "codex",
+    "integrator": "codex",
+    "reviewer": "cursor",
+    "tester": "claude"
+  },
+  "schema_version": 1,
+  "status": "complete",
+  "task_summary": "Dispatch dry run \u2014 Wave 2 ergonomics test",
+  "updated_at": "2026-06-27T22:58:40+02:00"
+}

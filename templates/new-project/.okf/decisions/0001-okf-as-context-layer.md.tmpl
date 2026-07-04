@@ -1,0 +1,48 @@
+---
+type: Decision
+title: Use OKF as the Project Context Layer
+description: Use OKF as curated source-of-context while Bootstrap lifecycle artifacts remain authoritative for execution.
+status: active
+lifecycle_stage: planning
+owner: project
+source_of_truth: true
+resource: .okf/decisions/0001-okf-as-context-layer.md
+tags: [okf, decision, context-layer]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: accepted
+timestamp: __GENERATED_AT__
+---
+
+# Decision
+
+Use `.okf` as the durable project context layer for LLM-assisted work.
+
+# Context
+
+Bootstrap lifecycle files define executable contracts and automation. Agents also need curated context that explains requirements, decisions, architecture, risks, handoffs, and lessons learned.
+
+# Options Considered
+
+1. Store durable context only in tool-specific adapters.
+2. Store durable context in OKF and keep adapters thin.
+3. Store context only in backlog tasks.
+
+# Rationale
+
+OKF reduces duplication and keeps durable project context inspectable, version-controlled, and portable across tools.
+
+# Consequences
+
+- Agents must read OKF before substantive work.
+- Material project changes should update OKF.
+- Backlog tasks should link to OKF concepts where practical.
+
+# Reversal Conditions
+
+Revisit if a future lifecycle MCP becomes the accepted source of durable project context and can export stable, reviewable OKF artifacts.
+
+# Related Concepts
+
+- `.okf/project.md`
+- `.okf/architecture/bootstrap-lifecycle-framework.md`

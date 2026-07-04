@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Context Pack Builder"
+  short_description: "Build small OKF task context packs"
+  default_prompt: "Use $okf-context-pack-builder to assemble a focused context pack for a larger task."

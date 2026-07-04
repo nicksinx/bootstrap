@@ -1,0 +1,80 @@
+---
+type: Reference
+title: Forge Lifecycle Integration (Operator Guide)
+description: Slim operator guide for OKF + Forge MCP wiring on product projects.
+status: active
+lifecycle_stage: build
+owner: project
+source_of_truth: false
+resource: docs/forge-lifecycle-integration.md
+tags: [okf, forge, mcp, integration, operator]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Purpose
+
+Enable the **Forge lifecycle MCP portfolio** on a product project scaffolded from the bootstrap toolkit, without vendoring Forge server code into the product repository.
+
+Validated integration patterns come from the Project-1 harness (`nicksinx` Forge repos + OKF operator layer). Full policy detail lives in the bootstrap repo lessons: `.okf/improvements/forge-lifecycle-bootstrap-lessons.md` (bootstrap kit) and per-server repos.
+
+# Architecture
+
+```text
+Sibling clones (../ConceptForge, ../LaunchForge, …)
+        ↑
+Product project (this repo)
+  scripts/*-mcp.sh     → resolve sibling paths, pin versions
+  .cursor/mcp.json     → Cursor MCP launchers (gitignored)
+  .okf/forge/*         → per-server workspaces (gitignored)
+  .okf/                → curated memory (promotion target)
+```
+
+**Option C integration:** OKF is the substrate; Forge owns lifecycle computation and signed packets; promotion to OKF is one-way and review-gated. See `.okf/decisions/0002-okf-forge-integration.md`.
+
+Forge is **not** a sixth OKF bootstrap service. Enable Forge **after** the five-service OKF setup (Cursor → Codex → Claude → Xcode → Perplexity).
+
+# Setup order
+
+1. Complete OKF bootstrap validation: `scripts/okf-validate`, `scripts/validate_launch.sh`.
+2. Clone Forge siblings (optional helper): `scripts/forge-clone-siblings.sh` or manual clones as peers of this project.
+3. Build each Forge repo: `cd ../<Repo> && npm ci && npm run build`.
+4. Copy MCP config: `cp .cursor/mcp-forge-lifecycle.json.example .cursor/mcp.json`.
+5. Reload Cursor MCP; confirm launchers resolve sibling `dist/index.js` (LaunchForge uses `mcp-server/dist/index.js`).
+6. Run server smokes in sibling repos before relying on cross-MCP handoffs.
+
+# Launcher conventions
+
+| Pattern | Rationale |
+|---------|-----------|
+| Bash launcher in `scripts/<server>-mcp.sh` | Avoids `${env:VAR}` limitations in `.cursor/mcp.json` |
+| `*_ROOT` defaults to `../<Repo>` | Sibling layout keeps product repo clean |
+| `*_WORKSPACE` under `.okf/forge/<stage>/` | Gitignored runtime state, not OKF concepts |
+| Version pin via `*_MIN_VERSION` env | Fail fast when sibling checkout drifts |
+| `assert-contracts-version.mjs` when present | Shared `@forge-lifecycle/contracts` alignment |
+
+Override roots when siblings are not peers, e.g. `export LAUNCHFORGE_ROOT=/path/to/LaunchForge`.
+
+# Promotion and dispatch
+
+| Layer | Use when |
+|-------|----------|
+| Forge MCP | Planning lifecycle stages, signed handoffs, readiness gates |
+| OKF promotion | Integrator-reviewed outcomes → `.okf/` concepts with lineage |
+| OKF dispatch | Implementation delivery (`scripts/okf-dispatch` when installed) |
+| ForgeRelay | Cross-tool agent handoff — parallel to OKF handoffs, not a replacement |
+
+Packet routing: `.okf/references/forge-packet-type-registry.md`.
+
+# Gitignore
+
+Forge workspaces under `.okf/forge/` must stay gitignored. Never commit signing keys, approval receipts, or PII from Forge workspaces.
+
+# Related
+
+- `.okf/decisions/0002-okf-forge-integration.md`
+- `.okf/references/forge-sibling-layout.md`
+- `docs/okf-integration.md`
+- Bootstrap lessons: `https://github.com/nicksinx/bootstrap` → `.okf/improvements/forge-lifecycle-bootstrap-lessons.md`

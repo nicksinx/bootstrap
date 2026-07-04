@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Risk Scanner"
+  short_description: "Find and record OKF project risks"
+  default_prompt: "Use $okf-risk-scanner to scan project plans or code changes for OKF risks."

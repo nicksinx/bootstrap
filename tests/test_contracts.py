@@ -36,6 +36,12 @@ def sha256(text: str) -> str:
     return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def test_profile_forge_lifecycle() -> None:
+    schema = load_schema("profile.schema.json")
+    profile = yaml.safe_load((ROOT / "profiles" / "forge-lifecycle.yaml").read_text())
+    assert_valid(schema, profile, "profile/forge-lifecycle.yaml")
+
+
 def test_profile_default() -> None:
     schema = load_schema("profile.schema.json")
     profile = yaml.safe_load((ROOT / "profiles" / "default.yaml").read_text())
@@ -48,9 +54,9 @@ def test_project_example() -> None:
         "schema_version": 1,
         "project_id": "example-project",
         "name": "example-project",
-        "template_version": "1.0.0",
+        "template_version": "1.1.0",
         "profile": "default",
-        "profile_version": "1.0.0",
+        "profile_version": "1.1.0",
         "default_branch": "main",
         "generated_by": "launch_project",
         "generated_at": "2026-04-28T22:00:00Z",
@@ -68,6 +74,12 @@ def test_project_example() -> None:
             "data_dir": ".cursor/mcp-data",
             "auth_profile": "local-token",
             "token_source": "env",
+        },
+        "okf": {
+            "enabled": True,
+            "bundle_path": ".okf",
+            "profile": "software-development",
+            "continuous_improvement_path": ".okf/improvements",
         },
         "compat_mode": "strict",
     }
@@ -89,6 +101,7 @@ def test_task_example() -> None:
         "required_skills": ["test-strategy-composer"],
         "depends_on": [],
         "context_paths": ["scripts/launch_project.sh"],
+        "okf_concepts": [".okf/requirements/bootstrap-operational-readiness.md"],
         "expected_artifacts": ["test_plan", "validation_report"],
         "approval_required": False,
         "verification_type": "automated",
@@ -97,6 +110,26 @@ def test_task_example() -> None:
         "updated_at": None,
     }
     assert_valid(schema, task, "task/example")
+
+
+def test_okf_concept_example() -> None:
+    schema = load_schema("okf-concept.schema.json")
+    concept = {
+        "type": "Improvement",
+        "title": "Continuous Improvement Repository",
+        "description": "Captures lessons learned and reusable process improvements.",
+        "status": "active",
+        "lifecycle_stage": "operate",
+        "owner": "project",
+        "source_of_truth": True,
+        "resource": ".okf/improvements/continuous-improvement-repository.md",
+        "tags": ["okf", "continuous-improvement"],
+        "applies_to": ["cursor", "claude", "codex", "mcp", "local-agent"],
+        "sensitivity": "internal",
+        "verification_status": "reviewed",
+        "timestamp": "2026-04-28T22:00:00Z",
+    }
+    assert_valid(schema, concept, "okf-concept/example")
 
 
 def test_queue_example() -> None:
@@ -270,8 +303,10 @@ def test_error_catalog_shape() -> None:
 def main() -> int:
     print("Contract tests:")
     test_profile_default()
+    test_profile_forge_lifecycle()
     test_project_example()
     test_task_example()
+    test_okf_concept_example()
     test_queue_example()
     test_handoff_example()
     test_evidence_example()

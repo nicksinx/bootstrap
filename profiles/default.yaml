@@ -1,5 +1,5 @@
 schema_version: 1
-profile_version: "1.0.0"
+profile_version: "1.1.0"
 name: default
 description: >
   Safe default profile for new projects. Generates the full scaffold,
@@ -15,8 +15,15 @@ defaults:
     transport: stdio
     auth_profile: local-token
     token_source: env
+  okf:
+    enabled: true
+    bundle_path: .okf
+    profile: software-development
+    continuous_improvement_path: .okf/improvements
 files:
   include:
+    - AGENTS.md
+    - CLAUDE.md
     - README.md
     - .gitignore
     - .env.example
@@ -24,6 +31,8 @@ files:
     - CHANGELOG.md
     - project.config.yaml
     - .cursor/mcp.json.example
+    - .cursor/rules/okf.mdc
+    - docs/okf-integration.md
     - docs/mcp-integration.md
     - docs/agent-operating-model.md
     - docs/agent-workflow.md
@@ -35,15 +44,30 @@ files:
     - backlog/queue.yaml
     - backlog/tasks/TASK-0001.md
     - backlog/templates/task.template.md
+    - .okf/index.md
+    - .okf/project.md
+    - .okf/log.md
+    - .okf/requirements/bootstrap-operational-readiness.md
+    - .okf/architecture/bootstrap-lifecycle-framework.md
+    - .okf/decisions/0001-okf-as-context-layer.md
+    - .okf/workflows/agent-okf-lifecycle.md
+    - .okf/risks/secret-storage-and-memory-drift.md
+    - .okf/tests/okf-validation-plan.md
+    - .okf/handoffs/initial-bootstrap.md
+    - .okf/improvements/continuous-improvement-repository.md
     - schemas/project.schema.json
     - schemas/profile.schema.json
     - schemas/task.schema.json
     - schemas/queue.schema.json
     - schemas/handoff.schema.json
     - schemas/evidence-pack.schema.json
+    - schemas/okf-concept.schema.json
     - schemas/schedule.schema.json
     - schemas/error.schema.json
     - schemas/audit-event.schema.json
+    - scripts/okf-validate
+    - scripts/okf-context-pack
+    - scripts/okf-handoff
     - scripts/mcp/register_project.sh
     - scripts/mcp/import_backlog.sh
     - scripts/mcp/sync_backlog.sh

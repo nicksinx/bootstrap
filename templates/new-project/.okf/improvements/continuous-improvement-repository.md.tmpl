@@ -1,0 +1,45 @@
+---
+type: Improvement
+title: Continuous Improvement Repository
+description: Defines the repository for lessons learned, retrospectives, and reusable process improvements.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: true
+resource: .okf/improvements/continuous-improvement-repository.md
+tags: [okf, continuous-improvement, lessons-learned]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Observation
+
+Projects improve faster when lessons learned are captured as durable knowledge.
+
+# Context
+
+Agent workflows, validation results, tool limitations, release issues, and handoffs often produce reusable lessons.
+
+# Impact
+
+If lessons stay only in chat, generated context packs, or handoff files, future agents repeat avoidable mistakes.
+
+# Recommendation
+
+Capture reusable lessons under `.okf/improvements/` and promote accepted improvements into templates, scripts, skills, adapters, or agent rules.
+
+# Action Items
+
+1. Add lesson learned, improvement, or retrospective concepts when project workflow changes.
+2. Review improvement concepts at milestones, releases, incidents, and major handoffs.
+
+# Related Concepts
+
+- `.okf/project.md`
+- `.okf/workflows/agent-okf-lifecycle.md`
+
+# Review Cadence
+
+Review before release, after incidents, after substantial handoffs, and during retrospectives.

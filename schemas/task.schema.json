@@ -77,6 +77,10 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "okf_concepts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "expected_artifacts": {
       "type": "array",
       "items": { "type": "string" }

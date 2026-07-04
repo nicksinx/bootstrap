@@ -12,6 +12,12 @@
 | Exit code 9 | Validation failed | Run `make validate-launch` and read JSON error line |
 | Exit code 10 | Unsafe operation blocked | Read JSON error `hint` field; do not bypass |
 
+## OKF Issues
+
+- Missing or stale context: read `.okf/index.md`, `.okf/project.md`, and `.okf/log.md`.
+- Validation failure: run `scripts/okf-validate` and fix reported concept frontmatter or secret-detection issues.
+- Repeated workflow issue: add a lesson under `.okf/improvements/` and promote accepted changes into templates or adapters.
+
 ## MCP Worker Issues
 
 - Hanging task: check `make mcp-review-runs` and `task_get_audit_log`.

@@ -1,0 +1,67 @@
+---
+type: Reference
+title: Forge Sibling Repository Layout
+description: Recommended local layout for Forge MCP servers relative to a product project.
+status: active
+lifecycle_stage: build
+owner: project
+source_of_truth: true
+resource: .okf/references/forge-sibling-layout.md
+tags: [okf, forge, layout, mcp]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Layout
+
+Place Forge repos as **siblings** of the product project. Launchers default to `../<RepoName>`.
+
+```text
+parent/
+  __PROJECT_ID__/          ← this product project
+    scripts/*-mcp.sh
+    .okf/
+    .cursor/mcp.json       ← gitignored
+  ForgeLifecycleContracts/
+  ForgeRelay/
+  ConceptForge/
+  GovernanceForge/
+  BuildForge/
+  LaunchForge/             ← entry: mcp-server/dist/index.js
+  OperateForge/
+  CustomerForge/
+  GrowthForge/
+  RevenueForge/
+  InsightForge/
+  SunsetForge/
+```
+
+# Clone helper
+
+From project root:
+
+```bash
+scripts/forge-clone-siblings.sh
+```
+
+Override org: `scripts/forge-clone-siblings.sh --org your-org`
+
+# Overrides
+
+When siblings are not peers, export per-server roots before starting MCP:
+
+```bash
+export LAUNCHFORGE_ROOT=/path/to/LaunchForge
+export FORGERELAY_ROOT=/path/to/ForgeRelay
+```
+
+# Build requirement
+
+Each sibling must be built before MCP start (`npm ci && npm run build`). Launchers fail fast with actionable messages when `dist/index.js` is missing.
+
+# Related
+
+- `docs/forge-lifecycle-integration.md`
+- `scripts/forge-clone-siblings.sh`

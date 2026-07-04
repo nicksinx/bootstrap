@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/okf-dispatch advance --from codex",
+            "statusMessage": "Advancing OKF dispatch pipeline",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

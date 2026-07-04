@@ -9,6 +9,8 @@ Terminals: `cancelled`, `failed`, `expired`, `blocked`, `superseded`.
 
 ## Rules
 
+- Agents read `.okf/index.md`, `.okf/project.md`, relevant OKF concepts, and recent handoffs before substantive work.
+- Backlog tasks should use `okf_concepts` when they implement or verify known OKF concepts.
 - Background workers never auto-commit and never auto-push.
 - Workers produce artifacts and an evidence pack for review.
 - Cursor remains the orchestrator for final edits and merge decisions.
@@ -23,3 +25,4 @@ Inputs and outputs follow `schemas/handoff.schema.json`. Acceptance requires:
 - no unresolved critical blockers
 - verification checklist complete
 - referenced file paths must exist
+- a corresponding `.okf/handoffs/` note when work pauses or transfers

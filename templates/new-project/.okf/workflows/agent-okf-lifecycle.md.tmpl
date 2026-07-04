@@ -1,0 +1,56 @@
+---
+type: Workflow
+title: Agent OKF Lifecycle
+description: Standard workflow for agents using OKF with Bootstrap lifecycle artifacts.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: true
+resource: .okf/workflows/agent-okf-lifecycle.md
+tags: [okf, workflow, agents]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Purpose
+
+Keep project knowledge consistent across agents, backlog tasks, MCP wrappers, and humans.
+
+# Applies To
+
+Any agent making substantive changes to project files, backlog tasks, tests, releases, risks, architecture, or tool adapters.
+
+# Required Behaviour
+
+1. Read `.okf/index.md` and `.okf/project.md`.
+2. Read relevant OKF concepts and recent handoffs.
+3. Check `.okf/improvements/` for applicable lessons.
+4. Link material work to OKF concepts or create missing concepts.
+5. Update affected OKF concepts after substantive changes.
+6. Append to `.okf/log.md`.
+7. Create handoff notes for paused or transferred work.
+
+# Prohibited Behaviour
+
+- Do not store secrets in OKF.
+- Do not treat deprecated, superseded, or archived concepts as current guidance.
+- Do not leave durable project decisions only in chat.
+
+# Pre-Task Checklist
+
+- Load project/index OKF files.
+- Identify relevant requirements, decisions, risks, and tests.
+- Confirm task frontmatter has `okf_concepts` when applicable.
+
+# Post-Task Checklist
+
+- Update concepts and validation evidence.
+- Capture lessons learned in `.okf/improvements/`.
+- Append to log.
+- Create handoff when needed.
+
+# Escalation Conditions
+
+Escalate when requested work conflicts with accepted OKF concepts or introduces sensitive data handling.

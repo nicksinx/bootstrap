@@ -39,56 +39,45 @@ Do **not** use for Project-1 harness work (use `integration-harness` Cursor rule
 
 ### 2. Collect intake (interactive)
 
-Use **AskQuestion** (or structured chat) for each phase. Record answers in `project-intake.yaml`.
+Use **AskQuestion** (or structured chat) for **required** phases only. Apply v2 defaults for profile, services, Forge, and dispatch unless the user opts out.
 
-**Phase A — Identity**
+**Phase A — Identity (required)**
 
 | Field | Question |
 |-------|----------|
 | `project.id` | Project id (lowercase-dashes, 3–64 chars)? |
 | `project.display_name` | Human display name? |
 | `project.purpose` | One paragraph — why does this product exist? |
-| `project.scope_summary` | Initial in-scope bullets or paragraph? |
-| `project.out_of_scope` | Explicit exclusions? |
 | `project.owner` | Team or person owning the OKF bundle? |
 
-**Phase B — Paths**
+Optional in same phase: `scope_summary`, `out_of_scope`.
+
+**Phase B — Paths (required)**
 
 | Field | Question |
 |-------|----------|
 | `paths.target_dir` | Absolute path for the new repo? (basename **must** equal `project.id`) |
-| `paths.forge_siblings_parent` | Parent directory for Forge sibling clones? (default: parent of `target_dir`) |
 
-**Phase C — Profile**
+`paths.forge_siblings_parent` defaults to parent of `target_dir`.
 
-| Field | Question |
-|-------|----------|
-| `profile.name` | `default` (recommended), `forge-lifecycle` (alias), or `legacy-task` (deprecated)? |
-
-**Phase D — GitHub**
+**Phase D — GitHub (required)**
 
 | Field | Question |
 |-------|----------|
 | `github.enabled` | Create GitHub repo with `gh`? |
-| `github.owner` | Org or user (required if enabled)? |
+| `github.owner` | Org or user (prefill from `gh api user` when available)? |
 | `github.visibility` | `private` or `public`? |
 
-**Phase E — OKF services**
+**Optional overrides** — ask only when the user deviates:
 
-Which services will operators configure? (cursor, codex, claude, xcode, perplexity) — set booleans under `okf.services`.
-
-**Phase F — Forge**
-
-| Field | Question |
+| Phase | Defaults |
 |-------|----------|
-| `forge.enabled` | Enable Forge MCP integration? (default yes for `default` profile) |
-| `forge.clone_siblings` | Clone `nicksinx/*Forge` peers after launch? |
-| `forge.build_siblings` | Run `npm ci && npm run build` in each sibling now? (slow) |
-| `forge.github_org` | GitHub org for Forge repos (default `nicksinx`)? |
+| C — Profile | `default` (v2). `legacy-task` only on request. `forge-lifecycle` = alias of `default`. |
+| E — OKF services | cursor, codex, claude, perplexity on; xcode off. Advisory for setup guides only. |
+| F — Forge | enabled, clone siblings yes, build siblings no, org `nicksinx`. |
+| G — Dispatch | builder→codex, tester→claude, reviewer→cursor, integrator→codex. |
 
-**Phase G — Dispatch**
-
-Confirm or override default runners: builder→codex, tester→claude, reviewer→cursor, integrator→codex.
+**Express alternative:** `scripts/project-intake quick` with `--project-id`, `--target-dir`, `--purpose`, `--owner`.
 
 ### 3. Write and validate intake
 
@@ -131,15 +120,18 @@ scripts/project-intake apply intake/<project-id>.yaml --execute
 
 `--execute` runs: `launch_project.sh` → copy `skills/` → patch `.okf/project.md` → `okf-sync-skills` → validation → optional `forge-clone-siblings` → operator handoff.
 
-Skills are copied automatically (excluding bootstrap-only `bootstrap-okf-forge-project`). No manual `rsync` required.
+Skills and **Cursor rules** are included automatically on v2 `default` launch. No manual `rsync` or rules install.
 
 ### 6. Post-standup instructions (tell the user)
 
 1. Open **target_dir** as the Cursor workspace root.
-2. Reload MCP after verifying `.cursor/mcp.json`.
-3. Follow `docs/create-new-okf-project-in-*.md` for each enabled service.
-4. Read `docs/okf-ways-of-working-brief.md` and `.okf/workflows/okf-forge-lifecycle-bridge.md`.
-5. Install Cursor rules if missing — see `docs/install-cursor-rules.md`.
+2. Reload Cursor window (MCP + project rules).
+3. Run `scripts/operator-ready-check.sh`.
+4. Read `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`.
+5. Follow `docs/create-new-okf-project-in-*.md` for **enabled services you will configure first**.
+6. Read `docs/okf-ways-of-working-brief.md` and `.okf/workflows/okf-forge-lifecycle-bridge.md` when starting Forge work.
+
+**Troubleshooting:** pre-v2 scaffolds missing rules — bootstrap `docs/install-cursor-rules.md` section B.
 
 ## Quick non-interactive path
 
@@ -170,5 +162,6 @@ scripts/project-intake apply path/to/intake.yaml --execute
 - [user-intake-prompt.md](references/user-intake-prompt.md) — copy-paste prompt for operators
 - [intake-fields.md](references/intake-fields.md)
 - [intake-example.yaml](references/intake-example.yaml)
-- `docs/install-cursor-rules.md`
+- `docs/new-okf-forge-project-standup.md` — operator cheat sheet
+- `docs/install-cursor-rules.md` — pre-v2 rule repair only
 - `docs/migration-from-legacy-bootstrap.md`

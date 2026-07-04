@@ -66,6 +66,7 @@ def test_launch_and_validate() -> None:
             "scripts/okf-dispatch",
             "skills/okf-reader/SKILL.md",
             "skills/codex-okf-operator/SKILL.md",
+            "scripts/operator-ready-check.sh",
             ".cursor/mcp.json",
         ]
         missing = [rel for rel in expected_okf if not (target / rel).exists()]

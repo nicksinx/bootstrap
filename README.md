@@ -19,6 +19,16 @@ Validated patterns come from real integration work in the [Project-1 harness](ht
 
 Bootstrap **generates** product repositories. It does not run your application, vend Forge server code, or replace OKF as the source of curated project truth.
 
+### Operator guides (new projects)
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/new-okf-forge-project-standup.md](docs/new-okf-forge-project-standup.md) | **Canonical** standup cheat sheet |
+| [docs/new-okf-forge-project-standup-offline.md](docs/new-okf-forge-project-standup-offline.md) | **Offline export** for notes apps |
+| [docs/operator-guides.md](docs/operator-guides.md) | Index of operator docs |
+
+Express path: `scripts/project-intake quick` → validate → render → `apply --execute`.
+
 ---
 
 ## How it works

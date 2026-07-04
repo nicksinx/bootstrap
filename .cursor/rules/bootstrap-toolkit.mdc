@@ -22,5 +22,6 @@ This repository **generates** product scaffolds. It is not a Forge integration h
 
 ## Related
 
-- `docs/okf-forge-bootstrap-alignment-plan.md`
+- `docs/new-okf-forge-project-standup.md`
+- `docs/install-bootstrap-okf-forge-skill.md`
 - `docs/install-cursor-rules.md`

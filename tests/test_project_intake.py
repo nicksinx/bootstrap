@@ -95,10 +95,44 @@ def test_copy_okf_skills_excludes_bootstrap_only() -> None:
             raise SystemExit("bootstrap-only skill should be excluded")
 
 
+def test_quick_writes_file() -> None:
+    import tempfile
+
+    import yaml
+
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td) / "quick-product"
+        out_path = Path(td) / "quick.yaml"
+        out = run(
+            [
+                "quick",
+                "--project-id",
+                "quick-product",
+                "--target-dir",
+                str(target),
+                "--purpose",
+                "Test product purpose.",
+                "--owner",
+                "test-team",
+                "--no-github",
+                "-o",
+                str(out_path),
+            ]
+        )
+        if out.returncode != 0:
+            raise SystemExit(out.stderr or out.stdout)
+        data = yaml.safe_load(out_path.read_text())
+        if data["project"]["purpose"] != "Test product purpose.":
+            raise SystemExit("quick did not set purpose")
+        if data["github"]["enabled"] is not False:
+            raise SystemExit("quick --no-github should disable github")
+
+
 def main() -> int:
     test_intake_schema_loads()
     test_example_validates_except_paths()
     test_init_writes_file()
+    test_quick_writes_file()
     test_copy_okf_skills_excludes_bootstrap_only()
     print("project-intake tests passed")
     return 0

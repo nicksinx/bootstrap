@@ -70,6 +70,7 @@ v2_files = [
     "scripts/okf-check-adapters",
     "scripts/okf-check-forge-receipts",
     "scripts/okf-sync-skills",
+    "scripts/operator-ready-check.sh",
     ".okf/decisions/0002-okf-forge-integration.md",
     ".okf/workflows/okf-forge-lifecycle-bridge.md",
     ".okf/workflows/multi-agent-delivery-pipeline.md",

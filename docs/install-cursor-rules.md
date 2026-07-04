@@ -27,7 +27,9 @@ templates/tool-adapters/.cursor/rules/
 
 ## A. New product (bootstrap v2 launch)
 
-Rules are included automatically when you launch with profile `default`:
+Rules are included automatically when you launch with profile `default` or `project-intake apply --execute`.
+
+Operator guide: [new-okf-forge-project-standup.md](new-okf-forge-project-standup.md)
 
 ```bash
 cd /path/to/bootstrap

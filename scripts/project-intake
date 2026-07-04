@@ -3,6 +3,7 @@
 
 Subcommands:
   init       Write a starter intake YAML
+  quick      Express intake (purpose + owner; v2 defaults; optional gh owner prefill)
   validate   Validate intake against schemas/project-intake.schema.json
   render     Print launch/standup commands and post-launch checklist
   apply      Run launch_project.sh and optional post-launch steps
@@ -51,6 +52,22 @@ FORGE_REPOS = [
     "InsightForge",
     "SunsetForge",
 ]
+
+
+def detect_gh_owner() -> str | None:
+    try:
+        result = subprocess.run(
+            ["gh", "api", "user", "-q", ".login"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip()
+    return None
 
 
 def load_yaml(path: Path) -> dict:
@@ -138,9 +155,9 @@ def starter_intake(project_id: str, target_dir: str) -> dict:
             "validate_launch": True,
             "forge_clone_siblings": True,
             "write_project_intake_copy": True,
-        "create_operator_handoff": True,
-        "copy_skills": True,
-    },
+            "create_operator_handoff": True,
+            "copy_skills": True,
+        },
         "launch": {
             "dry_run_first": True,
             "non_interactive": True,
@@ -191,6 +208,7 @@ def render_markdown(doc: dict) -> str:
     runners = (doc.get("dispatch") or {}).get("runners") or DEFAULT_RUNNERS
     runner_csv = ",".join(f"{role}:{runners.get(role, DEFAULT_RUNNERS[role])}" for role in DEFAULT_RUNNERS)
     post = doc.get("post_launch") or {}
+    target = Path(doc["paths"]["target_dir"]).expanduser()
     lines = [
         "# Project intake plan",
         "",
@@ -210,33 +228,33 @@ def render_markdown(doc: dict) -> str:
         " ".join(launch_argv(doc, dry_run=False)),
         "```",
         "",
-        "## Post-launch checklist",
+        "## Post-launch checklist (operator)",
         "",
+        f"- [ ] Open `{target}` as the Cursor workspace root",
+        "- [ ] Reload Cursor window (MCP + project rules)",
+        f"- [ ] `cd {target} && scripts/operator-ready-check.sh`",
+        f"- [ ] Read `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`",
+        "- [ ] Service setup guides for enabled services only (`docs/create-new-okf-project-in-*.md`)",
     ]
-    target = Path(doc["paths"]["target_dir"]).expanduser()
-    if post.get("okf_sync_skills", True):
-        lines.append(f"- [ ] `cd {target} && scripts/okf-sync-skills`")
-    if post.get("validate_launch", True):
-        lines.append(f"- [ ] `cd {target} && scripts/validate_launch.sh`")
-    if post.get("okf_validate", True):
-        lines.append(f"- [ ] `cd {target} && scripts/okf-validate`")
-    if post.get("forge_clone_siblings", True) and (doc.get("forge") or {}).get("enabled", True):
-        lines.append(f"- [ ] `cd {target} && scripts/forge-clone-siblings.sh`")
     forge = doc.get("forge") or {}
+    if post.get("forge_clone_siblings", True) and forge.get("enabled", True) and forge.get("clone_siblings", True):
+        lines.append("- [ ] Forge siblings (skipped if `apply --execute` already cloned)")
     if forge.get("build_siblings"):
         lines.append("- [ ] Build Forge siblings (`npm ci && npm run build` in each repo)")
     lines.extend(
         [
-            f"- [ ] Reload Cursor MCP after verifying `.cursor/mcp.json`",
             f"- [ ] Optional dispatch smoke: `scripts/okf-dispatch status`",
             f"- [ ] Init pipeline when ready: `scripts/okf-dispatch init-pipeline \"First task\" --runners {runner_csv}`",
+            "",
+            "_Automated by `apply --execute`: skills copy, Cursor rules in scaffold, `okf-sync-skills`, `validate_launch.sh`, `okf-validate`._",
             "",
             "## Operator docs (reading order)",
             "",
             "1. `docs/okf-ways-of-working-brief.md`",
             "2. `.okf/project.md`",
-            "3. `docs/forge-lifecycle-integration.md`",
-            "4. `docs/okf-dispatch-orchestration.md`",
+            "3. `docs/okf-service-operator-skills.md`",
+            "4. `docs/forge-lifecycle-integration.md`",
+            "5. `docs/okf-dispatch-orchestration.md`",
             "",
         ]
     )
@@ -298,6 +316,19 @@ def write_operator_handoff(target: Path, doc: dict) -> None:
     project = doc["project"]
     services = (doc.get("okf") or {}).get("services") or {}
     enabled = [name for name, on in services.items() if on]
+    target_dir = doc["paths"]["target_dir"]
+    guide_lines = "\n".join(
+        f"- [ ] `docs/create-new-okf-project-in-{name}.md`"
+        if name != "xcode"
+        else "- [ ] `docs/create-new-okf-project-in-xcode.md`"
+        for name in enabled
+    )
+    forge = doc.get("forge") or {}
+    forge_line = (
+        "- [x] Forge siblings clone (during `apply --execute`)"
+        if forge.get("enabled", True) and forge.get("clone_siblings", True)
+        else "- [ ] `scripts/forge-clone-siblings.sh` when Forge enabled"
+    )
     body = f"""---
 type: Handoff
 title: Operator standup — {project['display_name']}
@@ -318,11 +349,21 @@ timestamp: {dt.datetime.now().astimezone().isoformat(timespec='seconds')}
 
 Project `{project['id']}` launched from bootstrap intake `{doc.get('intake_version', '1.0.0')}`.
 
-# Completed
+# Completed (automated standup)
 
 - [x] Scaffold via `launch_project.sh` profile `{doc['profile']['name']}`
 - [x] OKF skills copied to `skills/` (service operator + canonical skills)
-- [ ] Post-launch validation (see checklist in project intake copy)
+- [x] Cursor rules in `.cursor/rules/` (v2 default profile)
+- [x] `okf-sync-skills`, `validate_launch.sh`, and `okf-validate` during apply
+
+# Post-standup checklist
+
+- [ ] Open `{target_dir}` as the Cursor workspace root
+- [ ] Reload Cursor window (MCP + project rules)
+- [ ] Run `scripts/operator-ready-check.sh`
+- [ ] Read `docs/okf-service-operator-skills.md`
+{guide_lines}
+{forge_line}
 
 # Services enabled (operator plan)
 
@@ -330,13 +371,18 @@ Project `{project['id']}` launched from bootstrap intake `{doc.get('intake_versi
 
 # Next actions
 
-1. Complete five-service setup guides under `docs/create-new-okf-project-in-*.md`
-2. Clone/build Forge siblings if not done
+1. Complete service setup guides above (enabled services only)
+2. Optional: build Forge siblings (`npm ci && npm run build`) when MCP servers needed immediately
 3. Run first `scripts/okf-dispatch init-pipeline` when implementation starts
 
 # Known issues
 
 - None recorded at standup.
+
+# Troubleshooting
+
+- Missing Cursor rules on pre-v2 scaffolds: see bootstrap `docs/install-cursor-rules.md` section B.
+- Stale adapters: `scripts/okf-sync-skills` then `scripts/okf-validate`.
 """
     path.write_text(body, encoding="utf-8")
 
@@ -355,6 +401,44 @@ def cmd_init(args: argparse.Namespace) -> int:
         return 2
     save_yaml(out, intake)
     print(f"wrote {out}")
+    return 0
+
+
+def cmd_quick(args: argparse.Namespace) -> int:
+    intake = starter_intake(args.project_id, args.target_dir)
+    intake["collected_by"] = "project-intake quick"
+    intake["project"]["purpose"] = args.purpose
+    intake["project"]["owner"] = args.owner
+    if args.display_name:
+        intake["project"]["display_name"] = args.display_name
+    if args.scope_summary:
+        intake["project"]["scope_summary"] = args.scope_summary
+    if args.out_of_scope:
+        intake["project"]["out_of_scope"] = args.out_of_scope
+
+    gh_owner = args.github_owner or detect_gh_owner()
+    if args.no_github:
+        intake["github"]["enabled"] = False
+    elif args.with_github or gh_owner:
+        intake["github"]["enabled"] = True
+        if gh_owner:
+            intake["github"]["owner"] = gh_owner
+    if args.github_owner:
+        intake["github"]["owner"] = args.github_owner
+        intake["github"]["enabled"] = True
+    if args.github_visibility:
+        intake["github"]["visibility"] = args.github_visibility
+
+    out = Path(args.output.format(project_id=args.project_id)).expanduser()
+    if out.exists() and not args.force:
+        print(f"FAIL: {out} exists (use --force)", file=sys.stderr)
+        return 2
+    save_yaml(out, intake)
+    print(f"wrote {out}")
+    if intake["github"].get("enabled") and intake["github"].get("owner"):
+        print(f"github: enabled for owner {intake['github']['owner']}")
+    elif intake["github"].get("enabled"):
+        print("WARN: github.enabled but owner empty — set github.owner before apply", file=sys.stderr)
     return 0
 
 
@@ -480,6 +564,28 @@ def main() -> int:
     p_init.add_argument("-o", "--output", required=True)
     p_init.add_argument("--force", action="store_true")
     p_init.set_defaults(func=cmd_init)
+
+    default_intake = "intake/{project_id}.yaml"
+    p_quick = sub.add_parser("quick", help="Express intake with v2 defaults")
+    p_quick.add_argument("--project-id", required=True)
+    p_quick.add_argument("--target-dir", required=True)
+    p_quick.add_argument("--purpose", required=True)
+    p_quick.add_argument("--owner", required=True)
+    p_quick.add_argument("--display-name", default="")
+    p_quick.add_argument("--scope-summary", default="")
+    p_quick.add_argument("--out-of-scope", default="")
+    p_quick.add_argument(
+        "-o",
+        "--output",
+        default=default_intake,
+        help="Output path (default: intake/<project-id>.yaml)",
+    )
+    p_quick.add_argument("--with-github", action="store_true", help="Enable GitHub repo creation")
+    p_quick.add_argument("--no-github", action="store_true", help="Disable GitHub repo creation")
+    p_quick.add_argument("--github-owner", default="")
+    p_quick.add_argument("--github-visibility", choices=["private", "public"], default="private")
+    p_quick.add_argument("--force", action="store_true")
+    p_quick.set_defaults(func=cmd_quick)
 
     p_val = sub.add_parser("validate", help="Validate intake file")
     p_val.add_argument("intake")

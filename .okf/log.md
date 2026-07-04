@@ -193,3 +193,11 @@ timestamp: 2026-06-24T15:54:09+01:00
 - Merged Forge + OKF dispatch into `profiles/default.yaml` v2.0.0; deprecated `legacy-task` and `forge-lifecycle` alias profiles.
 - Updated `launch_project.sh`, `validate_launch.sh`, templates, tests, README, CHANGELOG, migration doc.
 - Removed ai-task MCP and workers from default scaffold; `templates/legacy-task/` overlay for deprecated path.
+
+## 2026-07-04 (standup guide + express intake)
+
+- Added `docs/new-okf-forge-project-standup.md` — consolidated operator cheat sheet.
+- Added `scripts/project-intake quick` with `gh` owner prefill; updated handoff and render checklists.
+- Added `scripts/operator-ready-check.sh` to v2 scaffold and `validate_launch.sh`.
+- Compressed guided intake phases in skill and `user-intake-prompt.md`; fixed install doc stale rules step.
+- Added `docs/operator-guides.md` and `docs/new-okf-forge-project-standup-offline.md` for notes-app continuity export.

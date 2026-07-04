@@ -58,6 +58,18 @@ required_files = [
     "scripts/lib/worker_runner.py",
 ]
 
+forge_lifecycle_files = [
+    "docs/forge-lifecycle-integration.md",
+    ".cursor/mcp-forge-lifecycle.json.example",
+    "scripts/forgerelay-mcp.sh",
+    "scripts/conceptforge-mcp.sh",
+    "scripts/forge-clone-siblings.sh",
+    ".okf/decisions/0002-okf-forge-integration.md",
+    ".okf/references/forge-sibling-layout.md",
+    ".okf/references/forge-packet-type-registry.md",
+    ".okf/improvements/forge-lifecycle-operator-notes.md",
+]
+
 errors = []
 
 class _NoTsLoader(yaml.SafeLoader):
@@ -79,6 +91,11 @@ for rel in required_files:
 schema_dir = root / "schemas"
 proj_schema = json.loads((schema_dir / "project.schema.json").read_text())
 proj = load_yaml(root / "project.config.yaml")
+profile_name = (proj or {}).get("profile", "default")
+if profile_name == "forge-lifecycle":
+    for rel in forge_lifecycle_files:
+        if not (root / rel).is_file():
+            errors.append(("missing-forge-file", rel))
 for err in Draft202012Validator(proj_schema).iter_errors(proj):
     errors.append(("project-schema", f"{list(err.path)} -> {err.message}"))
 

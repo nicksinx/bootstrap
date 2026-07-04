@@ -36,6 +36,12 @@ def sha256(text: str) -> str:
     return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def test_profile_forge_lifecycle() -> None:
+    schema = load_schema("profile.schema.json")
+    profile = yaml.safe_load((ROOT / "profiles" / "forge-lifecycle.yaml").read_text())
+    assert_valid(schema, profile, "profile/forge-lifecycle.yaml")
+
+
 def test_profile_default() -> None:
     schema = load_schema("profile.schema.json")
     profile = yaml.safe_load((ROOT / "profiles" / "default.yaml").read_text())
@@ -297,6 +303,7 @@ def test_error_catalog_shape() -> None:
 def main() -> int:
     print("Contract tests:")
     test_profile_default()
+    test_profile_forge_lifecycle()
     test_project_example()
     test_task_example()
     test_okf_concept_example()

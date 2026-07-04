@@ -170,3 +170,11 @@ timestamp: 2026-06-24T15:54:09+01:00
 - Committed latest OKF bootstrap kit changes on branch `okf-project-bootstrap-framework` with commit `8a2666f`.
 - Validation before commit passed: Python compile, `scripts/okf-validate`, `scripts/okf-check-adapters`, and `scripts/okf-sync-skills --dry-run`.
 - Push to `origin` was attempted without force; network escalation reached GitHub, but HTTPS authentication was unavailable (`could not read Username for 'https://github.com'`).
+
+## 2026-07-04 (Forge lifecycle profile — Project-1 harness promotion)
+
+- Added `profiles/forge-lifecycle.yaml` and `templates/forge-lifecycle/` overlay (11 MCP launchers, clone helper, Cursor config, OKF decision/refs).
+- `launch_project.sh`: render overlay when profile is `forge-lifecycle`; auto-write `.cursor/mcp.json` from forge example.
+- Default `.gitignore.tmpl` now ignores `.okf/forge/*/` workspaces.
+- Lessons: `.okf/improvements/forge-lifecycle-bootstrap-lessons.md`.
+- Smoke: `test_forge_lifecycle_launch_and_validate` in `tests/test_launch_smoke.py`.

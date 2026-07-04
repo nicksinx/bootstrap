@@ -46,6 +46,7 @@ GitHub:
 MCP:
   --with-mcp
   --with-mcp-config
+  --with-forge-mcp-config       Copy Forge lifecycle MCP config (forge-lifecycle profile)
   --mcp-server-name <name>
   --mcp-transport stdio|http
   --mcp-command <command>
@@ -81,6 +82,7 @@ GITHUB_CREATE_TEMPLATES=0
 
 WITH_MCP=0
 WITH_MCP_CONFIG=0
+WITH_FORGE_MCP_CONFIG=0
 MCP_SERVER_NAME="ai-task-orchestrator"
 MCP_TRANSPORT="stdio"
 MCP_COMMAND="python3 -m ai_task_orchestrator"
@@ -112,6 +114,7 @@ while [[ $# -gt 0 ]]; do
     --github-create-templates) GITHUB_CREATE_TEMPLATES=1; shift;;
     --with-mcp) WITH_MCP=1; shift;;
     --with-mcp-config) WITH_MCP_CONFIG=1; shift;;
+    --with-forge-mcp-config) WITH_FORGE_MCP_CONFIG=1; shift;;
     --mcp-server-name) MCP_SERVER_NAME="$2"; shift 2;;
     --mcp-transport) MCP_TRANSPORT="$2"; shift 2;;
     --mcp-command) MCP_COMMAND="$2"; shift 2;;
@@ -250,6 +253,11 @@ render_tree() {
 
 render_tree "$TEMPLATE_DIR"
 
+FORGE_OVERLAY_DIR="${BOOTSTRAP_ROOT}/templates/forge-lifecycle"
+if [[ "$PROFILE_NAME" == "forge-lifecycle" ]] && [[ -d "$FORGE_OVERLAY_DIR" ]]; then
+  render_tree "$FORGE_OVERLAY_DIR"
+fi
+
 if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
   # Copy schemas into the project so it is self-contained.
   mkdir -p "${TARGET_DIR}/schemas"
@@ -272,6 +280,13 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
     cp -R "${TEMPLATE_SOURCE_DIR}" "${TEMPLATE_TARGET_DIR}"
   fi
 
+  FORGE_OVERLAY_SOURCE="${BOOTSTRAP_ROOT}/templates/forge-lifecycle"
+  FORGE_OVERLAY_TARGET="${TARGET_DIR}/templates/forge-lifecycle"
+  if [[ -d "${FORGE_OVERLAY_SOURCE}" ]] && [[ "${FORGE_OVERLAY_SOURCE}" != "${FORGE_OVERLAY_TARGET}" ]]; then
+    rm -rf "${FORGE_OVERLAY_TARGET}"
+    cp -R "${FORGE_OVERLAY_SOURCE}" "${FORGE_OVERLAY_TARGET}"
+  fi
+
   # Copy launcher and validation scripts so the project can re-run itself.
   mkdir -p "${TARGET_DIR}/scripts/lib"
   cp "${BOOTSTRAP_ROOT}/scripts/launch_project.sh"      "${TARGET_DIR}/scripts/launch_project.sh"
@@ -286,12 +301,23 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
     cp "$wf" "${TARGET_DIR}/scripts/workers/"
   done
 fi
-chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/mcp/*.sh "${TARGET_DIR}"/scripts/workers/*.sh "${TARGET_DIR}"/scripts/hooks/*.sh 2>/dev/null || true
+chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/mcp/*.sh "${TARGET_DIR}"/scripts/workers/*.sh "${TARGET_DIR}"/scripts/hooks/*.sh "${TARGET_DIR}"/scripts/*forge*.sh "${TARGET_DIR}"/scripts/forgerelay-mcp.sh 2>/dev/null || true
 
 if [[ "$WITH_MCP_CONFIG" == "1" ]]; then
   if [[ "$DRY_RUN" != "1" ]]; then
     cp "${TARGET_DIR}/.cursor/mcp.json.example" "${TARGET_DIR}/.cursor/mcp.json"
     bs_log_info "wrote .cursor/mcp.json (gitignored)"
+  fi
+fi
+
+if [[ "$WITH_FORGE_MCP_CONFIG" == "1" ]] || [[ "$PROFILE_NAME" == "forge-lifecycle" ]]; then
+  if [[ "$DRY_RUN" != "1" ]]; then
+    if [[ -f "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" ]]; then
+      cp "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" "${TARGET_DIR}/.cursor/mcp.json"
+      bs_log_info "wrote .cursor/mcp.json from forge-lifecycle example (gitignored)"
+    elif [[ "$WITH_FORGE_MCP_CONFIG" == "1" ]]; then
+      bs_die "E0007" "$BS_EXIT_MCP_REGISTER" "missing .cursor/mcp-forge-lifecycle.json.example (use --profile forge-lifecycle)"
+    fi
   fi
 fi
 

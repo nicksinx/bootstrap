@@ -120,8 +120,54 @@ def test_worker_stub_flow() -> None:
             raise SystemExit(f"unexpected worker phase: {manifest.get('phase')}")
 
 
+def test_forge_lifecycle_launch_and_validate() -> None:
+    with tempfile.TemporaryDirectory(prefix="bootstrap-forge-", dir=str(ROOT)) as td:
+        target = Path(td) / "forge-demo"
+        out = run(
+            [
+                str(LAUNCH),
+                "--name",
+                "forge-demo",
+                "--profile",
+                "forge-lifecycle",
+                "--target-dir",
+                str(target),
+                "--non-interactive",
+            ]
+        )
+        if out.returncode != 0:
+            raise SystemExit(
+                "forge-lifecycle launch failed\nstdout:\n"
+                + out.stdout
+                + "\nstderr:\n"
+                + out.stderr
+            )
+
+        validate = run([str(target / "scripts" / "validate_launch.sh")], cwd=target)
+        if validate.returncode != 0:
+            raise SystemExit(
+                "forge-lifecycle validate failed\nstdout:\n"
+                + validate.stdout
+                + "\nstderr:\n"
+                + validate.stderr
+            )
+
+        expected_forge = [
+            "docs/forge-lifecycle-integration.md",
+            "scripts/forgerelay-mcp.sh",
+            "scripts/forge-clone-siblings.sh",
+            ".okf/decisions/0002-okf-forge-integration.md",
+            ".cursor/mcp-forge-lifecycle.json.example",
+            ".cursor/mcp.json",
+        ]
+        missing = [rel for rel in expected_forge if not (target / rel).exists()]
+        if missing:
+            raise SystemExit(f"missing forge-lifecycle scaffold files: {missing}")
+
+
 def main() -> int:
     test_launch_and_validate()
+    test_forge_lifecycle_launch_and_validate()
     test_worker_stub_flow()
     print("launch smoke tests passed")
     return 0

@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "forgerelay": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/forgerelay-mcp.sh"]
+    },
+    "conceptforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/conceptforge-mcp.sh"]
+    },
+    "governanceforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/governanceforge-mcp.sh"]
+    },
+    "buildforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/buildforge-mcp.sh"]
+    },
+    "launchforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/launchforge-mcp.sh"]
+    },
+    "operateforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/operateforge-mcp.sh"]
+    },
+    "customerforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/customerforge-mcp.sh"]
+    },
+    "growthforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/growthforge-mcp.sh"]
+    },
+    "revenueforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/revenueforge-mcp.sh"]
+    },
+    "insightforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/insightforge-mcp.sh"]
+    },
+    "sunsetforge": {
+      "command": "bash",
+      "args": ["${workspaceFolder}/scripts/sunsetforge-mcp.sh"]
+    }
+  }
+}

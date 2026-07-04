@@ -12,7 +12,7 @@ Validated patterns come from real integration work in the [Project-1 harness](ht
 |------------|-------------|
 | **Deterministic scaffold** | Versioned templates, JSON schemas, and profile contracts—same inputs produce the same tree |
 | **OKF bundle** | `.okf/` curated memory: requirements, decisions, workflows, handoffs, risks, improvements |
-| **MCP integration** | Wrappers for the [cursor-ai-task-mcp-server](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) backlog orchestrator |
+| **Optional task MCP** (`default` profile only) | Wrapper scripts for [cursor-ai-task-mcp-server](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated)—a **separate** backlog/task orchestrator, not part of Forge |
 | **Agent adapters** | Thin `AGENTS.md`, `CLAUDE.md`, Cursor rules—pointing at OKF, not duplicating it |
 | **Forge lifecycle overlay** | Optional profile: sibling-clone layout, eleven Forge MCP launchers, integration docs |
 
@@ -63,12 +63,27 @@ Profiles extend each other: `forge-lifecycle` **extends** `default` and adds onl
 
 ---
 
+## Two MCP tracks (do not conflate)
+
+Bootstrap supports **two independent MCP integration paths**. They share OKF as curated memory but use different servers and delivery models.
+
+| Track | MCP server(s) | Delivery / orchestration | Used by |
+|-------|---------------|--------------------------|---------|
+| **Task orchestrator** (legacy bootstrap path) | [cursor-ai-task-mcp-server-updated](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) (`ai-task-orchestrator`) | Backlog import/sync, task claim/approve, `scripts/mcp/*` workers | `default` profile when you pass `--with-mcp` |
+| **OKF + Forge** (harness-validated path) | `nicksinx/*Forge` + optional ForgeRelay | Lifecycle planning via Forge; implementation via `scripts/okf-dispatch`; continuity via ForgeRelay | `forge-lifecycle` profile; [Project-1](https://github.com/nicksinx/Project-1) |
+
+**Project-1 does not use the ai-task MCP server.** The OKF + Forge way of working documented in the harness relies on OKF dispatch, Forge lifecycle MCPs, and ForgeRelay—not `ai-task-orchestrator`.
+
+The bootstrap repo predates the Forge portfolio: its original GitHub description targeted the ai-task server. OKF was layered on as shared context; Forge was added as a **profile overlay**. Generated `forge-lifecycle` projects copy **Forge** MCP config into `.cursor/mcp.json`, not the ai-task server (though `scripts/mcp/` wrappers from `default` remain on disk unless you remove them).
+
+---
+
 ## Profiles
 
 | Profile | Use when |
 |---------|----------|
-| **`default`** | Standard OKF product with ai-task-orchestrator MCP wrappers, backlog, and five-service agent setup |
-| **`forge-lifecycle`** | Same as default, plus Forge MCP launchers, sibling-clone helper, Option C integration docs, and packet registry reference |
+| **`default`** | OKF product scaffold with backlog/schemas; **optionally** wire the ai-task MCP server (`--with-mcp`) for task-queue orchestration |
+| **`forge-lifecycle`** | OKF + Forge lifecycle MCPs, sibling-clone helper, Option C integration docs—uses **Forge** MCP config, not ai-task |
 
 ---
 
@@ -82,7 +97,9 @@ Profiles extend each other: `forge-lifecycle` **extends** `default` and adds onl
 
 ---
 
-## Quick start — default (OKF only)
+## Quick start — default (OKF scaffold)
+
+Scaffolds OKF, backlog, and validation. Does **not** enable any MCP server unless you opt in.
 
 ```bash
 git clone https://github.com/nicksinx/bootstrap.git
@@ -99,7 +116,9 @@ cd ./out/my-product
 scripts/okf-validate
 ```
 
-Your new repo includes `.okf/index.md`, validation scripts, MCP examples, backlog scaffolding, and agent operating docs. Follow `.okf/workflows/agent-okf-lifecycle.md` for the five-service order: **Cursor → Codex → Claude → Xcode → Perplexity**.
+**Optional — ai-task MCP (separate from Forge):** add `--with-mcp --with-mcp-config` and install [cursor-ai-task-mcp-server-updated](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) so `scripts/mcp/register_project.sh` can reach it.
+
+For the five-service OKF operator model (Cursor → Codex → Claude → Xcode → Perplexity) and `scripts/okf-dispatch`, copy patterns from [Project-1](https://github.com/nicksinx/Project-1)—they are not fully wired in the `default` profile alone.
 
 ---
 
@@ -246,7 +265,8 @@ Durable lessons from harness → bootstrap promotion: [`.okf/improvements/forge-
 |------|---------|
 | `--dry-run` | Print actions without writing |
 | `--with-github` | Create remote via `gh` (optional) |
-| `--with-mcp` | Register ai-task-orchestrator MCP |
+| `--with-mcp` | Register project with **ai-task** MCP (not Forge)—requires separate server install |
+| `--with-mcp-config` | Write ai-task `.cursor/mcp.json` (gitignored) |
 | `--with-forge-mcp-config` | Copy Forge MCP example into `.cursor/mcp.json` |
 
 Full flag list: `./scripts/launch_project.sh --help`.
@@ -309,8 +329,8 @@ Signing key layout: see Project-1 `.okf/references/forge-signing-keys-operator-r
 | [nicksinx/Project-1](https://github.com/nicksinx/Project-1) | OKF + Forge integration harness (full policy & evidence) |
 | [nicksinx/ForgeLifecycleContracts](https://github.com/nicksinx/ForgeLifecycleContracts) | Shared envelopes, signing, compatibility boundaries |
 | [nicksinx/ForgeRelay](https://github.com/nicksinx/ForgeRelay) | Cross-tool agent continuity (INT-001) |
-| [nicksinx/ConceptForge](https://github.com/nicksinx/ConceptForge) … [SunsetForge](https://github.com/nicksinx/SunsetForge) | Lifecycle stage MCP servers |
-| [cursor-ai-task-mcp-server-updated](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) | Backlog / task MCP for `default` profile |
+| [nicksinx/ConceptForge](https://github.com/nicksinx/ConceptForge) … [SunsetForge](https://github.com/nicksinx/SunsetForge) | Lifecycle stage MCP servers (`forge-lifecycle` profile) |
+| [cursor-ai-task-mcp-server-updated](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) | **Optional** task/backlog MCP for `default` profile only—not used by Project-1 or Forge |
 
 ---
 

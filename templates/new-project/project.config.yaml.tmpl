@@ -13,14 +13,14 @@ github:
   create_labels: __GITHUB_CREATE_LABELS__
   create_templates: __GITHUB_CREATE_TEMPLATES__
 mcp:
-  enabled: __MCP_ENABLED__
-  server_name: __MCP_SERVER_NAME__
-  transport: __MCP_TRANSPORT__
-  command: __MCP_COMMAND__
-  url: "__MCP_URL__"
-  data_dir: __MCP_DATA_DIR__
-  auth_profile: __MCP_AUTH_PROFILE__
-  token_source: __MCP_TOKEN_SOURCE__
+  enabled: true
+  server_name: "forge-lifecycle"
+  transport: "stdio"
+  command: "bash"
+  url: ""
+  data_dir: ".okf/forge"
+  auth_profile: "none"
+  token_source: "env"
 okf:
   enabled: __OKF_ENABLED__
   bundle_path: __OKF_BUNDLE_PATH__

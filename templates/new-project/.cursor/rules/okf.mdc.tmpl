@@ -1,14 +1,34 @@
 ---
-description: Use the OKF bundle as the shared project context layer
+description: Use OKF as the shared project context layer alongside existing Cursor skills
 alwaysApply: true
 ---
 
-Read `.okf/index.md` and `.okf/project.md` before project changes.
+# OKF Shared Context (project-local overlay)
 
-Keep implementation traceable to OKF concepts. Prefer linking backlog tasks with `okf_concepts`.
+This rule is a thin project-local overlay. It does **not** replace Cursor's existing global skills, rules, or workflows. Those remain valid and should still be used when they fit the task.
 
-Update OKF after substantive feature, architecture, test, risk, release, or workflow changes. Capture reusable lessons under `.okf/improvements/`.
+## Shared project context
 
-Create handoff notes under `.okf/handoffs/` before stopping unfinished work.
+- `.okf` is the durable shared project context layer for Cursor, Codex, Claude Code, Xcode-connected Claude Agent, and Perplexity Desktop Pro.
+- Decisions, requirements, risks, handoffs, lessons learned, and test evidence belong in `.okf`, not only in chat.
+- Read `.okf/index.md` and `.okf/project.md` before substantive project changes.
+- Check recent `.okf/handoffs/` when continuing or transferring work.
+- Perplexity is service 5 for cited research and an overflow substitute only when Cursor/Codex/Claude/Xcode is blocked; it does not write the repo directly.
 
-Do not store secrets in OKF.
+## Canonical OKF skills
+
+For OKF-related project delivery, follow the canonical skill definitions in `skills/*/SKILL.md` instead of duplicating their workflows in this rule.
+
+Run `scripts/okf-sync-skills` after adding or updating skills to refresh this file with a generated skill index.
+
+## During and after work
+
+- Link material changes to OKF requirements, features, decisions, risks, runbooks, or handoffs.
+- Prefer reviewed, tested, and accepted concepts over draft or unverified material.
+- Update affected OKF concepts and append a short entry to `.okf/log.md` after substantive changes.
+- Create a handoff under `.okf/handoffs/` before pausing unfinished work another agent may continue.
+- Do not store secrets, credentials, private keys, or sensitive personal data in OKF.
+
+## Ecosystem routing (Forge vs dispatch)
+
+For layer selection (Forge MCP vs OKF dispatch vs ForgeRelay), follow `.cursor/rules/okf-ecosystem-routing.mdc` and `.okf/decisions/0002-okf-forge-integration.md`.

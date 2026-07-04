@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Warn when canonical skills are missing from generated adapter indexes."""
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+ADAPTER_FILES = {
+    "AGENTS.md": "codex",
+    "CLAUDE.md": "claude",
+    ".cursor/rules/okf.mdc": "cursor",
+    "PERPLEXITY.md": "perplexity",
+}
+
+SKILL_REF_RES = [
+    re.compile(r"`([a-z0-9-]+)`\s*—"),
+    re.compile(r"- `([a-z0-9-]+)` \("),
+]
+
+
+def find_root():
+    current = Path.cwd().resolve()
+    for candidate in [current, *current.parents]:
+        if (candidate / ".okf").is_dir() and (candidate / "skills").is_dir():
+            return candidate
+    return current
+
+
+def list_canonical_skills(root):
+    skills_root = root / "skills"
+    names = []
+    for skill_md in sorted(skills_root.glob("*/SKILL.md")):
+        names.append(skill_md.parent.name)
+    return names
+
+
+def skills_in_adapter(text):
+    found = set()
+    for pattern in SKILL_REF_RES:
+        found.update(pattern.findall(text))
+    return found
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check adapter skill indexes against canonical skills.")
+    parser.add_argument(
+        "--target",
+        choices=["codex", "claude", "cursor", "perplexity", "all"],
+        default="all",
+        help="Which adapter(s) to check",
+    )
+    parser.add_argument("--strict", action="store_true", help="Exit 1 when any skill is missing from an adapter")
+    args = parser.parse_args()
+
+    root = find_root()
+    canonical = list_canonical_skills(root)
+    if not canonical:
+        print("WARN: no canonical skills found under skills/*/SKILL.md")
+        return 0
+
+    selected = list(ADAPTER_FILES.items()) if args.target == "all" else [
+        (path, args.target) for path, target in ADAPTER_FILES.items() if target == args.target
+    ]
+
+    warnings = []
+    for rel_path, target in selected:
+        path = root / rel_path
+        if not path.is_file():
+            warnings.append(f"MISSING adapter file: {rel_path}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        indexed = skills_in_adapter(text)
+        missing = [name for name in canonical if name not in indexed]
+        extra = sorted(indexed - set(canonical))
+        if missing:
+            warnings.append(f"{rel_path}: missing skill index entries: {', '.join(missing)}")
+        if extra:
+            warnings.append(f"{rel_path}: indexed skills not found in skills/: {', '.join(extra)}")
+
+    if not warnings:
+        print(f"Adapter check passed for {root} ({len(canonical)} canonical skill(s))")
+        return 0
+
+    for item in warnings:
+        print(f"WARN: {item}")
+
+    if args.strict:
+        print(f"Adapter check failed: {len(warnings)} warning(s)")
+        return 1
+
+    print(f"Adapter check completed with {len(warnings)} warning(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

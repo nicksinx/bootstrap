@@ -48,15 +48,21 @@ def test_profile_default() -> None:
     assert_valid(schema, profile, "profile/default.yaml")
 
 
+def test_profile_legacy_task() -> None:
+    schema = load_schema("profile.schema.json")
+    profile = yaml.safe_load((ROOT / "profiles" / "legacy-task.yaml").read_text())
+    assert_valid(schema, profile, "profile/legacy-task.yaml")
+
+
 def test_project_example() -> None:
     schema = load_schema("project.schema.json")
     project = {
         "schema_version": 1,
         "project_id": "example-project",
         "name": "example-project",
-        "template_version": "1.1.0",
+        "template_version": "2.0.0",
         "profile": "default",
-        "profile_version": "1.1.0",
+        "profile_version": "2.0.0",
         "default_branch": "main",
         "generated_by": "launch_project",
         "generated_at": "2026-04-28T22:00:00Z",
@@ -68,11 +74,11 @@ def test_project_example() -> None:
         },
         "mcp": {
             "enabled": True,
-            "server_name": "ai-task-orchestrator",
+            "server_name": "forge-lifecycle",
             "transport": "stdio",
-            "command": "python -m ai_task_orchestrator",
-            "data_dir": ".cursor/mcp-data",
-            "auth_profile": "local-token",
+            "command": "bash",
+            "data_dir": ".okf/forge",
+            "auth_profile": "none",
             "token_source": "env",
         },
         "okf": {
@@ -304,6 +310,7 @@ def main() -> int:
     print("Contract tests:")
     test_profile_default()
     test_profile_forge_lifecycle()
+    test_profile_legacy_task()
     test_project_example()
     test_task_example()
     test_okf_concept_example()

@@ -1,0 +1,35 @@
+---
+description: OKF + Forge layer routing — which tool for which job (Option C)
+alwaysApply: true
+---
+
+# OKF ecosystem routing
+
+Thin routing overlay. Canonical policy: `.okf/decisions/0002-okf-forge-integration.md`, `.okf/workflows/okf-forge-lifecycle-bridge.md`, `docs/okf-forge-integration-spec.md`.
+
+Choose layer by **trigger**, not by IDE:
+
+| Trigger | Use | Do not use for this |
+|---------|-----|---------------------|
+| Lifecycle **planning** (concept, build, launch, operate, governance, insight, sunset) | Forge MCP stage servers | `scripts/okf-dispatch` |
+| **Code, tests, implementation** delivery | `scripts/okf-dispatch` (builder → tester → reviewer → integrator) | Forge stage planning tools |
+| Cross-tool **session resume** / relay handoff | ForgeRelay MCP | Dispatch role order or queue files |
+| Cited **external research** | Perplexity → `.okf/references/` (unverified until reviewed) | Direct repo writes from Perplexity |
+| Durable **curated truth** | `.okf/` Markdown after integrator review | `.okf/forge/` runtime JSON (gitignored) |
+
+## Hard boundaries
+
+- Forge is **not** a sixth OKF bootstrap service; enable on product projects after OKF setup.
+- `.okf/forge/` is runtime workspace state until promoted per Option C.
+- Do not set `verification_status: accepted` on Forge-promoted decisions without integrator review and approval-receipt checks (`.okf/decisions/0004-approval-receipt-verification.md`).
+- `backlog/` is optional human tracking; **OKF dispatch is canonical** for multi-agent delivery on v2 scaffolds.
+- When ForgeRelay and dispatch both apply, record `relay_session_id` in `.okf/handoffs/` (decision 0003).
+
+## Scoped detail
+
+When editing matching paths, also follow:
+
+- `okf-forge-operator.mdc` — MCP launchers and Forge workspaces
+- `okf-dispatch.mdc` — dispatch queues and roles
+- `okf-forge-promotion.mdc` — promotion checklists and receipts
+- `okf-legacy-aitask.mdc` — only if legacy `scripts/mcp/` or `scripts/workers/` exist

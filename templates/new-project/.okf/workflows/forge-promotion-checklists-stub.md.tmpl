@@ -1,0 +1,42 @@
+---
+type: Workflow
+title: Forge Promotion Checklists (Bootstrap Stub)
+description: Links to full Forge promotion checklists in the Project-1 harness; copy when adopting full operator workflows.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: true
+resource: .okf/workflows/forge-promotion-checklists-stub.md
+tags: [okf, forge, promotion, stub, bootstrap]
+applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: 2026-07-04T12:00:00+01:00
+---
+
+# Forge promotion checklists (bootstrap stub)
+
+Full operator checklists live in the **Project-1 integration harness**:
+
+https://github.com/nicksinx/Project-1/tree/main/.okf/workflows
+
+| Forge server | Canonical checklist |
+|--------------|---------------------|
+| ConceptForge | `forge-concept-promotion-checklist.md` |
+| BuildForge | `forge-build-promotion-checklist.md` |
+| LaunchForge | `forge-launch-promotion-checklist.md` |
+| GovernanceForge | `forge-governance-promotion-checklist.md` |
+| InsightForge | `forge-insight-promotion-checklist.md` |
+| OperateForge | `forge-operate-promotion-checklist.md` |
+| Customer / Growth / Revenue | `forge-customer-promotion-checklist.md`, etc. |
+| SunsetForge | `forge-sunset-promotion-checklist.md` |
+
+Cross-cutting:
+
+- Bridge: `okf-forge-lifecycle-bridge.md`
+- Parallel post-launch: `forge-parallel-postlaunch-ingest-rules.md`
+- Contradictions: `forge-evidence-contradiction-handling.md`
+- Retirement closure: `forge-retirement-closure-crosscheck.md`
+- Portfolio proof (Phase 9): `forge-portfolio-proof-checklist.md`
+
+Copy these into your product `.okf/workflows/` when adopting the full harness, or link from `docs/forge-lifecycle-integration.md`.

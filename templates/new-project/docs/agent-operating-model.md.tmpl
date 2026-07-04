@@ -1,30 +1,36 @@
 # Agent Operating Model
 
-This project uses a five-agent operating model orchestrated by the
-`software-engineering-orchestrator` skill via the AI Task MCP server.
+This project uses the **five-service OKF operator model** plus Forge lifecycle MCPs.
 
-## Roles
+## Services (setup order)
 
-- Requirements & Scope Agent: `requirement-to-story-spec`, `quality-attribute-accessibility-planner`.
-- Architecture & API Agent: `system-design-adr-generator`, `api-contract-designer`.
-- Implementation Agent: `change-plan-task-slicer`, `safe-code-generator-refactoring-engineer`.
-- Verification & Security Agent: `test-strategy-composer`, `threat-model-secure-review`.
-- Delivery & Reliability Agent: `supply-chain-release-gate`, `observability-slo-incident-improvement`.
+1. **Cursor** — primary IDE; reviewer role; Forge MCP host
+2. **Codex** — builder role; dispatch automation via `.codex/hooks.json`
+3. **Claude Code** — tester role
+4. **Xcode + Claude** — integrator / platform-specific work
+5. **Perplexity** — research and overflow substitute deliverables
 
-## Routing Order
+See `docs/create-new-okf-project-in-*.md` for per-service setup.
 
-requirements -> quality -> architecture -> API -> implementation planning ->
-code/refactor -> testing -> security -> release -> observability.
+## Delivery roles (OKF dispatch)
 
-## Apply Boundary
+| Role | Typical runner | Responsibility |
+|------|----------------|----------------|
+| builder | codex / cursor | Implementation |
+| tester | claude | Validation |
+| reviewer | cursor | Review |
+| integrator | xcode-claude / cursor | Merge, OKF promotion, evidence |
 
-- MCP produces proposal artifacts only.
-- `approved -> applied` is a human action in Cursor unless an explicitly
-  authorized automation token is permitted by policy.
-- `applied -> closed` requires post-apply verifier results to pass.
+Pipeline: `scripts/okf-dispatch init-pipeline` → consume/complete per role.
 
-## Skill Fallback
+## Lifecycle planning (Forge)
 
-If a required skill is unavailable, the task is set to `blocked` with reason,
-an audit event is emitted, and a recommendation appears in the quality
-dashboard. Silent degradation is forbidden.
+Forge MCP servers own stage planning (Concept → Build → Launch → Operate → … → Sunset). Promote reviewed outcomes to OKF per `.okf/workflows/okf-forge-lifecycle-bridge.md`.
+
+Forge does **not** replace OKF dispatch for code delivery.
+
+## Apply boundary
+
+- Forge readiness scores and advisory outputs do not auto-promote OKF concepts.
+- Human integrator review required for `verification_status: accepted`.
+- Signed approval receipts required for high-risk Forge actions (see decision 0004 in Project-1 harness).

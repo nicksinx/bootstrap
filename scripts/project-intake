@@ -1,0 +1,484 @@
+#!/usr/bin/env python3
+"""Standardized intake → launch for OKF + Forge bootstrap projects.
+
+Subcommands:
+  init       Write a starter intake YAML
+  validate   Validate intake against schemas/project-intake.schema.json
+  render     Print launch/standup commands and post-launch checklist
+  apply      Run launch_project.sh and optional post-launch steps
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+try:
+    import yaml
+    from jsonschema import Draft202012Validator
+except ImportError as exc:
+    print(f"FAIL: missing dependency: {exc}", file=sys.stderr)
+    print("Install PyYAML and jsonschema (same as bootstrap launcher).", file=sys.stderr)
+    sys.exit(3)
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+BOOTSTRAP_ROOT = SCRIPT_DIR.parent
+SCHEMA_PATH = BOOTSTRAP_ROOT / "schemas" / "project-intake.schema.json"
+LAUNCH_SCRIPT = BOOTSTRAP_ROOT / "scripts" / "launch_project.sh"
+DEFAULT_RUNNERS = {
+    "builder": "codex",
+    "tester": "claude",
+    "reviewer": "cursor",
+    "integrator": "codex",
+}
+FORGE_REPOS = [
+    "ForgeLifecycleContracts",
+    "ForgeRelay",
+    "ConceptForge",
+    "GovernanceForge",
+    "BuildForge",
+    "LaunchForge",
+    "OperateForge",
+    "CustomerForge",
+    "GrowthForge",
+    "RevenueForge",
+    "InsightForge",
+    "SunsetForge",
+]
+
+
+def load_yaml(path: Path) -> dict:
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def save_yaml(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
+
+
+def validate_intake(doc: dict) -> list[str]:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    errors = []
+    for err in Draft202012Validator(schema).iter_errors(doc):
+        errors.append(f"{list(err.path)} -> {err.message}")
+    github = doc.get("github") or {}
+    if github.get("enabled") and not github.get("owner"):
+        errors.append("github.owner is required when github.enabled is true")
+    profile = (doc.get("profile") or {}).get("name", "default")
+    if profile == "legacy-task":
+        print("WARN: profile legacy-task is deprecated; prefer default for new OKF + Forge projects", file=sys.stderr)
+    target = Path((doc.get("paths") or {})["target_dir"]).expanduser()
+    project_id = (doc.get("project") or {}).get("id", "")
+    if target.name != project_id:
+        errors.append(
+            f"paths.target_dir basename '{target.name}' must match project.id '{project_id}'"
+        )
+    return errors
+
+
+def starter_intake(project_id: str, target_dir: str) -> dict:
+    now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    target = str(Path(target_dir).expanduser())
+    parent = str(Path(target).parent)
+    return {
+        "schema_version": 1,
+        "intake_version": "1.0.0",
+        "collected_at": now,
+        "collected_by": "project-intake init",
+        "project": {
+            "id": project_id,
+            "display_name": project_id.replace("-", " ").title(),
+            "purpose": "TBD — one paragraph describing why this product exists.",
+            "scope_summary": "TBD — initial in-scope capabilities.",
+            "out_of_scope": "TBD — explicit exclusions.",
+            "owner": "TBD",
+        },
+        "paths": {
+            "bootstrap_root": str(BOOTSTRAP_ROOT),
+            "target_dir": target,
+            "forge_siblings_parent": parent,
+        },
+        "profile": {"name": "default", "compat_mode": "strict"},
+        "github": {
+            "enabled": False,
+            "owner": "",
+            "visibility": "private",
+            "default_branch": "main",
+            "create_labels": True,
+            "create_templates": True,
+        },
+        "okf": {
+            "bundle_path": ".okf",
+            "profile": "software-development",
+            "services": {
+                "cursor": True,
+                "codex": True,
+                "claude": True,
+                "xcode": False,
+                "perplexity": True,
+            },
+        },
+        "forge": {
+            "enabled": True,
+            "github_org": "nicksinx",
+            "clone_siblings": True,
+            "build_siblings": False,
+            "trusted_approver_keys_path": "",
+        },
+        "dispatch": {"runners": dict(DEFAULT_RUNNERS)},
+        "post_launch": {
+            "okf_sync_skills": True,
+            "okf_validate": True,
+            "validate_launch": True,
+            "forge_clone_siblings": True,
+            "write_project_intake_copy": True,
+            "create_operator_handoff": True,
+        },
+        "launch": {
+            "dry_run_first": True,
+            "non_interactive": True,
+            "force": False,
+        },
+    }
+
+
+def launch_argv(doc: dict, dry_run: bool = False) -> list[str]:
+    project = doc["project"]
+    paths = doc["paths"]
+    profile = doc["profile"]
+    github = doc.get("github") or {}
+    launch = doc.get("launch") or {}
+    argv = [
+        str(LAUNCH_SCRIPT),
+        "--name",
+        project["id"],
+        "--profile",
+        profile["name"],
+        "--target-dir",
+        str(Path(paths["target_dir"]).expanduser()),
+    ]
+    if launch.get("non_interactive", True):
+        argv.append("--non-interactive")
+    if launch.get("force"):
+        argv.append("--force")
+    if dry_run or launch.get("dry_run_first", True) and dry_run is not False:
+        pass
+    if dry_run:
+        argv.append("--dry-run")
+    if profile.get("compat_mode"):
+        argv.extend(["--compat-mode", profile["compat_mode"]])
+    if github.get("enabled"):
+        argv.append("--with-github")
+        if github.get("owner"):
+            argv.extend(["--github-owner", github["owner"]])
+        argv.extend(["--github-visibility", github.get("visibility", "private")])
+        argv.extend(["--github-default-branch", github.get("default_branch", "main")])
+        if github.get("create_labels", True):
+            argv.append("--github-create-labels")
+        if github.get("create_templates", True):
+            argv.append("--github-create-templates")
+    return argv
+
+
+def render_markdown(doc: dict) -> str:
+    runners = (doc.get("dispatch") or {}).get("runners") or DEFAULT_RUNNERS
+    runner_csv = ",".join(f"{role}:{runners.get(role, DEFAULT_RUNNERS[role])}" for role in DEFAULT_RUNNERS)
+    post = doc.get("post_launch") or {}
+    lines = [
+        "# Project intake plan",
+        "",
+        f"**Project:** `{doc['project']['id']}` — {doc['project']['display_name']}",
+        f"**Target:** `{doc['paths']['target_dir']}`",
+        f"**Profile:** `{doc['profile']['name']}`",
+        "",
+        "## Launch (dry-run)",
+        "",
+        "```bash",
+        " ".join(launch_argv(doc, dry_run=True)),
+        "```",
+        "",
+        "## Launch (apply)",
+        "",
+        "```bash",
+        " ".join(launch_argv(doc, dry_run=False)),
+        "```",
+        "",
+        "## Post-launch checklist",
+        "",
+    ]
+    target = Path(doc["paths"]["target_dir"]).expanduser()
+    if post.get("okf_sync_skills", True):
+        lines.append(f"- [ ] `cd {target} && scripts/okf-sync-skills`")
+    if post.get("validate_launch", True):
+        lines.append(f"- [ ] `cd {target} && scripts/validate_launch.sh`")
+    if post.get("okf_validate", True):
+        lines.append(f"- [ ] `cd {target} && scripts/okf-validate`")
+    if post.get("forge_clone_siblings", True) and (doc.get("forge") or {}).get("enabled", True):
+        lines.append(f"- [ ] `cd {target} && scripts/forge-clone-siblings.sh`")
+    forge = doc.get("forge") or {}
+    if forge.get("build_siblings"):
+        lines.append("- [ ] Build Forge siblings (`npm ci && npm run build` in each repo)")
+    lines.extend(
+        [
+            f"- [ ] Reload Cursor MCP after verifying `.cursor/mcp.json`",
+            f"- [ ] Optional dispatch smoke: `scripts/okf-dispatch status`",
+            f"- [ ] Init pipeline when ready: `scripts/okf-dispatch init-pipeline \"First task\" --runners {runner_csv}`",
+            "",
+            "## Operator docs (reading order)",
+            "",
+            "1. `docs/okf-ways-of-working-brief.md`",
+            "2. `.okf/project.md`",
+            "3. `docs/forge-lifecycle-integration.md`",
+            "4. `docs/okf-dispatch-orchestration.md`",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def patch_project_md(target: Path, doc: dict) -> None:
+    path = target / ".okf" / "project.md"
+    if not path.is_file():
+        return
+    project = doc["project"]
+    text = path.read_text(encoding="utf-8")
+    text = re.sub(
+        r"(?ms)^## Purpose\s*\n\n.*?(?=^## )",
+        f"## Purpose\n\n{project['purpose'].strip()}\n\n",
+        text,
+        count=1,
+    )
+    scope = project.get("scope_summary") or "TBD."
+    text = re.sub(
+        r"(?ms)^## Scope\s*\n\n.*?(?=^## )",
+        f"## Scope\n\n{scope.strip()}\n\n",
+        text,
+        count=1,
+    )
+    oos = project.get("out_of_scope")
+    if oos:
+        text = re.sub(
+            r"(?ms)^## Out of Scope\s*\n\n.*?(?=^## )",
+            f"## Out of Scope\n\n{oos.strip()}\n\n",
+            text,
+            count=1,
+        )
+    owner = project.get("owner")
+    if owner and "owner:" in text.split("---", 2)[1]:
+        fm, body = text.split("---\n", 2)[1], text.split("---\n", 2)[2]
+        fm = re.sub(r"^owner:.*$", f"owner: {owner}", fm, flags=re.M)
+        text = f"---\n{fm}---\n{body}"
+    path.write_text(text, encoding="utf-8")
+
+
+def write_operator_handoff(target: Path, doc: dict) -> None:
+    handoffs = target / ".okf" / "handoffs"
+    handoffs.mkdir(parents=True, exist_ok=True)
+    today = dt.date.today().isoformat()
+    path = handoffs / f"{today}-operator-standup.md"
+    if path.exists():
+        return
+    project = doc["project"]
+    services = (doc.get("okf") or {}).get("services") or {}
+    enabled = [name for name, on in services.items() if on]
+    body = f"""---
+type: Handoff
+title: Operator standup — {project['display_name']}
+description: Initial operator handoff after bootstrap intake and launch.
+status: active
+lifecycle_stage: planning
+owner: {project['owner']}
+source_of_truth: true
+resource: .okf/handoffs/{path.name}
+tags: [handoff, bootstrap, standup]
+applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: {dt.datetime.now().astimezone().isoformat(timespec='seconds')}
+---
+
+# Current state
+
+Project `{project['id']}` launched from bootstrap intake `{doc.get('intake_version', '1.0.0')}`.
+
+# Completed
+
+- [x] Scaffold via `launch_project.sh` profile `{doc['profile']['name']}`
+- [ ] Post-launch validation (see checklist in project intake copy)
+
+# Services enabled (operator plan)
+
+{', '.join(enabled) or 'TBD'}
+
+# Next actions
+
+1. Complete five-service setup guides under `docs/create-new-okf-project-in-*.md`
+2. Clone/build Forge siblings if not done
+3. Run first `scripts/okf-dispatch init-pipeline` when implementation starts
+
+# Known issues
+
+- None recorded at standup.
+"""
+    path.write_text(body, encoding="utf-8")
+
+
+def run_cmd(argv: list[str], cwd: Path | None = None) -> int:
+    print("+", " ".join(argv))
+    result = subprocess.run(argv, cwd=str(cwd) if cwd else None)
+    return result.returncode
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    intake = starter_intake(args.project_id, args.target_dir)
+    out = Path(args.output).expanduser()
+    if out.exists() and not args.force:
+        print(f"FAIL: {out} exists (use --force)", file=sys.stderr)
+        return 2
+    save_yaml(out, intake)
+    print(f"wrote {out}")
+    return 0
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    doc = load_yaml(Path(args.intake).expanduser())
+    errors = validate_intake(doc)
+    if errors:
+        for err in errors:
+            print(f"INVALID: {err}", file=sys.stderr)
+        return 9
+    print("validate: OK")
+    return 0
+
+
+def cmd_render(args: argparse.Namespace) -> int:
+    doc = load_yaml(Path(args.intake).expanduser())
+    errors = validate_intake(doc)
+    if errors:
+        for err in errors:
+            print(f"INVALID: {err}", file=sys.stderr)
+        return 9
+    print(render_markdown(doc))
+    return 0
+
+
+def cmd_apply(args: argparse.Namespace) -> int:
+    intake_path = Path(args.intake).expanduser()
+    doc = load_yaml(intake_path)
+    errors = validate_intake(doc)
+    if errors:
+        for err in errors:
+            print(f"INVALID: {err}", file=sys.stderr)
+        return 9
+
+    post = doc.get("post_launch") or {}
+    target = Path(doc["paths"]["target_dir"]).expanduser()
+
+    rc = run_cmd(launch_argv(doc, dry_run=True))
+    if rc != 0:
+        return rc
+
+    if not args.execute:
+        print("apply: launch dry-run OK (re-run with --execute to launch and run post-steps)")
+        return 0
+
+    rc = run_cmd(launch_argv(doc, dry_run=False))
+    if rc != 0:
+        return rc
+
+    if not target.is_dir():
+        print(f"FAIL: target missing after launch: {target}", file=sys.stderr)
+        return 9
+
+    if post.get("write_project_intake_copy", True):
+        dest = target / ".okf" / "project-intake.yaml"
+        save_yaml(dest, doc)
+        print(f"wrote {dest}")
+
+    patch_project_md(target, doc)
+
+    if post.get("okf_sync_skills", True) and (target / "scripts/okf-sync-skills").is_file():
+        rc = run_cmd([str(target / "scripts/okf-sync-skills")], cwd=target)
+        if rc != 0:
+            return rc
+
+    if post.get("validate_launch", True):
+        rc = run_cmd([str(target / "scripts/validate_launch.sh")], cwd=target)
+        if rc != 0:
+            return rc
+
+    if post.get("okf_validate", True):
+        rc = run_cmd([str(target / "scripts/okf-validate")], cwd=target)
+        if rc != 0:
+            return rc
+
+    forge = doc.get("forge") or {}
+    if post.get("forge_clone_siblings", True) and forge.get("enabled", True) and forge.get("clone_siblings", True):
+        clone = target / "scripts/forge-clone-siblings.sh"
+        if clone.is_file():
+            org = forge.get("github_org", "nicksinx")
+            rc = run_cmd([str(clone), "--org", org], cwd=target)
+            if rc != 0:
+                return rc
+
+    if forge.get("build_siblings"):
+        parent = Path(doc["paths"].get("forge_siblings_parent") or target.parent)
+        for repo in FORGE_REPOS:
+            repo_path = parent / repo
+            if not (repo_path / "package.json").is_file():
+                print(f"skip build (no package.json): {repo_path}")
+                continue
+            rc = run_cmd(["npm", "ci"], cwd=repo_path)
+            if rc != 0:
+                return rc
+            rc = run_cmd(["npm", "run", "build"], cwd=repo_path)
+            if rc != 0:
+                return rc
+
+    if post.get("create_operator_handoff", True):
+        write_operator_handoff(target, doc)
+        print(f"wrote operator handoff under {target / '.okf/handoffs'}")
+
+    print("apply: OK")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="OKF + Forge project intake launcher")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_init = sub.add_parser("init", help="Write starter intake YAML")
+    p_init.add_argument("--project-id", required=True)
+    p_init.add_argument("--target-dir", required=True)
+    p_init.add_argument("-o", "--output", required=True)
+    p_init.add_argument("--force", action="store_true")
+    p_init.set_defaults(func=cmd_init)
+
+    p_val = sub.add_parser("validate", help="Validate intake file")
+    p_val.add_argument("intake")
+    p_val.set_defaults(func=cmd_validate)
+
+    p_render = sub.add_parser("render", help="Render plan markdown")
+    p_render.add_argument("intake")
+    p_render.set_defaults(func=cmd_render)
+
+    p_apply = sub.add_parser("apply", help="Launch project from intake")
+    p_apply.add_argument("intake")
+    p_apply.add_argument(
+        "--execute",
+        action="store_true",
+        help="Run real launch and post-launch steps (default is launch dry-run only)",
+    )
+    p_apply.set_defaults(func=cmd_apply)
+
+    args = parser.parse_args()
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

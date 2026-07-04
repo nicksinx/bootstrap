@@ -1,8 +1,5 @@
 .PHONY: launch validate-launch github-init backlog-init \
-        okf-validate okf-context-pack okf-handoff \
-        mcp-health mcp-register mcp-import-backlog mcp-sync-backlog \
-        mcp-dispatch mcp-review-runs mcp-seed-schedules \
-        worker-start worker-next worker-status worker-stop review-runs \
+        okf-validate okf-context-pack okf-handoff okf-dispatch-status \
         release-gate test-launch
 
 PROJECT_ID ?= __PROJECT_ID__
@@ -26,51 +23,14 @@ okf-handoff:
 	@test -n "$(TASK)" || (echo "usage: make okf-handoff TASK=short-task-name"; exit 2)
 	./scripts/okf-handoff $(TASK)
 
+okf-dispatch-status:
+	./scripts/okf-dispatch status
+
 github-init:
 	./scripts/github_init.sh
 
 backlog-init:
 	./scripts/backlog_seed.sh
-
-mcp-health:
-	./scripts/mcp/health_check.sh
-
-mcp-register:
-	./scripts/mcp/register_project.sh
-
-mcp-import-backlog:
-	./scripts/mcp/import_backlog.sh --mode validate_only
-
-mcp-sync-backlog:
-	./scripts/mcp/sync_backlog.sh
-
-mcp-dispatch:
-	./scripts/mcp/dispatch_task.sh
-
-mcp-review-runs:
-	./scripts/mcp/review_runs.sh
-
-mcp-seed-schedules:
-	./scripts/mcp/seed_schedules.sh
-
-# Background workers (Codex / Claude); require agent CLIs or WORKER_*_BIN / WORKER_STUB_BIN.
-worker-start:
-	@test -n "$(TASK)" || (echo "usage: make worker-start TASK=TASK-0001"; exit 2)
-	./scripts/workers/dispatch_task.sh start --task-id $(TASK)
-
-worker-next:
-	./scripts/workers/dispatch_task.sh start-next
-
-worker-status:
-	./scripts/workers/dispatch_task.sh status
-
-worker-stop:
-	@test -n "$(AGENT)" || (echo "usage: make worker-stop AGENT=codex RUN_ID=<id>"; exit 2)
-	@test -n "$(RUN_ID)" || (echo "usage: make worker-stop AGENT=codex RUN_ID=<id>"; exit 2)
-	./scripts/workers/dispatch_task.sh stop --agent $(AGENT) --run-id $(RUN_ID)
-
-review-runs:
-	./scripts/workers/dispatch_task.sh review
 
 release-gate:
 	./scripts/validate_launch.sh --release-gate

@@ -1,0 +1,29 @@
+---
+description: Forge MCP operator boundaries — launchers, workspaces, MCP config
+globs: scripts/*forge*.sh,scripts/forgerelay-mcp.sh,.okf/forge/**,.cursor/mcp*.json
+alwaysApply: false
+---
+
+# Forge MCP operator
+
+## Layout
+
+- Forge repos are **sibling clones** (`../ConceptForge`, etc.) — not vendored into the product repo. See `.okf/references/forge-sibling-layout.md`.
+- Run stage servers via `scripts/*-mcp.sh` / `scripts/forgerelay-mcp.sh`; do not edit Forge server source from the product repo.
+- Cursor MCP config: `.cursor/mcp-forge-lifecycle.json.example` (launchers use stdio + sibling paths).
+
+## Workspaces
+
+- Runtime state: `.okf/forge/<stage>/` — **gitignored**, not OKF curated memory.
+- Signed packets and envelopes stay in Forge workspaces until **integrator-reviewed promotion** to `.okf/`.
+- Never store signing keys, raw approval private keys, or secrets in OKF or committed files.
+
+## Before first Forge call in a session
+
+1. Read `.okf/workflows/okf-forge-lifecycle-bridge.md` (layer selection).
+2. Run `scripts/okf-validate` if OKF changed recently.
+3. Confirm sibling repos are built (`npm ci && npm run build` in each Forge repo).
+
+## High-risk actions
+
+Governance and cross-stage commits may require approval receipts. `scripts/okf-validate` checks receipt **presence**; cryptographic verify uses `forge-verify-receipt` per decision 0004.

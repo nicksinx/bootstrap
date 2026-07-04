@@ -178,3 +178,18 @@ timestamp: 2026-06-24T15:54:09+01:00
 - Default `.gitignore.tmpl` now ignores `.okf/forge/*/` workspaces.
 - Lessons: `.okf/improvements/forge-lifecycle-bootstrap-lessons.md`.
 - Smoke: `test_forge_lifecycle_launch_and_validate` in `tests/test_launch_smoke.py`.
+
+## 2026-07-04 (Cursor rules pack — adversarial review + install)
+
+- Added OKF + Forge Cursor rules under `templates/tool-adapters/.cursor/rules/` (routing, forge operator, dispatch, promotion, legacy).
+- Adversarial review: `docs/cursor-rules-adversarial-review.md`; install guide: `docs/install-cursor-rules.md`.
+- Wired into `profiles/default.yaml` v2 and `validate_launch.sh`.
+
+## 2026-07-04 (bootstrap-okf-forge-project skill)
+
+- Added `skills/bootstrap-okf-forge-project/` Cursor skill for standardized project intake.
+- Added `scripts/project-intake` CLI, `schemas/project-intake.schema.json`, `docs/install-bootstrap-okf-forge-skill.md`.
+
+- Merged Forge + OKF dispatch into `profiles/default.yaml` v2.0.0; deprecated `legacy-task` and `forge-lifecycle` alias profiles.
+- Updated `launch_project.sh`, `validate_launch.sh`, templates, tests, README, CHANGELOG, migration doc.
+- Removed ai-task MCP and workers from default scaffold; `templates/legacy-task/` overlay for deprecated path.

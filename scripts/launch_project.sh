@@ -20,7 +20,7 @@ source "${BOOTSTRAP_LIB_DIR}/secret.sh"
 # shellcheck source=lib/scaffold.sh
 source "${BOOTSTRAP_LIB_DIR}/scaffold.sh"
 
-readonly TEMPLATE_VERSION="1.1.0"
+readonly TEMPLATE_VERSION="2.0.0"
 
 usage() {
   cat <<USAGE
@@ -43,10 +43,9 @@ GitHub:
   --github-create-labels
   --github-create-templates
 
-MCP:
+Legacy MCP (profile legacy-task only):
   --with-mcp
   --with-mcp-config
-  --with-forge-mcp-config       Copy Forge lifecycle MCP config (forge-lifecycle profile)
   --mcp-server-name <name>
   --mcp-transport stdio|http
   --mcp-command <command>
@@ -82,7 +81,6 @@ GITHUB_CREATE_TEMPLATES=0
 
 WITH_MCP=0
 WITH_MCP_CONFIG=0
-WITH_FORGE_MCP_CONFIG=0
 MCP_SERVER_NAME="ai-task-orchestrator"
 MCP_TRANSPORT="stdio"
 MCP_COMMAND="python3 -m ai_task_orchestrator"
@@ -114,7 +112,6 @@ while [[ $# -gt 0 ]]; do
     --github-create-templates) GITHUB_CREATE_TEMPLATES=1; shift;;
     --with-mcp) WITH_MCP=1; shift;;
     --with-mcp-config) WITH_MCP_CONFIG=1; shift;;
-    --with-forge-mcp-config) WITH_FORGE_MCP_CONFIG=1; shift;;
     --mcp-server-name) MCP_SERVER_NAME="$2"; shift 2;;
     --mcp-transport) MCP_TRANSPORT="$2"; shift 2;;
     --mcp-command) MCP_COMMAND="$2"; shift 2;;
@@ -214,7 +211,11 @@ export BOOTSTRAP_VAR_GITHUB_OWNER="$GITHUB_OWNER"
 export BOOTSTRAP_VAR_GITHUB_VISIBILITY="$GITHUB_VISIBILITY"
 export BOOTSTRAP_VAR_GITHUB_CREATE_LABELS=$([[ "$GITHUB_CREATE_LABELS" == "1" ]] && echo true || echo false)
 export BOOTSTRAP_VAR_GITHUB_CREATE_TEMPLATES=$([[ "$GITHUB_CREATE_TEMPLATES" == "1" ]] && echo true || echo false)
-export BOOTSTRAP_VAR_MCP_ENABLED=$([[ "$WITH_MCP" == "1" ]] && echo true || echo false)
+if [[ "$PROFILE_NAME" == "legacy-task" ]]; then
+  export BOOTSTRAP_VAR_MCP_ENABLED=$([[ "$WITH_MCP" == "1" ]] && echo true || echo false)
+else
+  export BOOTSTRAP_VAR_MCP_ENABLED=true
+fi
 export BOOTSTRAP_VAR_MCP_SERVER_NAME="$MCP_SERVER_NAME"
 export BOOTSTRAP_VAR_MCP_TRANSPORT="$MCP_TRANSPORT"
 export BOOTSTRAP_VAR_MCP_COMMAND="$MCP_COMMAND"
@@ -253,9 +254,9 @@ render_tree() {
 
 render_tree "$TEMPLATE_DIR"
 
-FORGE_OVERLAY_DIR="${BOOTSTRAP_ROOT}/templates/forge-lifecycle"
-if [[ "$PROFILE_NAME" == "forge-lifecycle" ]] && [[ -d "$FORGE_OVERLAY_DIR" ]]; then
-  render_tree "$FORGE_OVERLAY_DIR"
+LEGACY_OVERLAY_DIR="${BOOTSTRAP_ROOT}/templates/legacy-task"
+if [[ "$PROFILE_NAME" == "legacy-task" ]] && [[ -d "$LEGACY_OVERLAY_DIR" ]]; then
+  render_tree "$LEGACY_OVERLAY_DIR"
 fi
 
 if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
@@ -280,11 +281,11 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
     cp -R "${TEMPLATE_SOURCE_DIR}" "${TEMPLATE_TARGET_DIR}"
   fi
 
-  FORGE_OVERLAY_SOURCE="${BOOTSTRAP_ROOT}/templates/forge-lifecycle"
-  FORGE_OVERLAY_TARGET="${TARGET_DIR}/templates/forge-lifecycle"
-  if [[ -d "${FORGE_OVERLAY_SOURCE}" ]] && [[ "${FORGE_OVERLAY_SOURCE}" != "${FORGE_OVERLAY_TARGET}" ]]; then
-    rm -rf "${FORGE_OVERLAY_TARGET}"
-    cp -R "${FORGE_OVERLAY_SOURCE}" "${FORGE_OVERLAY_TARGET}"
+  LEGACY_OVERLAY_SOURCE="${BOOTSTRAP_ROOT}/templates/legacy-task"
+  LEGACY_OVERLAY_TARGET="${TARGET_DIR}/templates/legacy-task"
+  if [[ -d "${LEGACY_OVERLAY_SOURCE}" ]] && [[ "${LEGACY_OVERLAY_SOURCE}" != "${LEGACY_OVERLAY_TARGET}" ]]; then
+    rm -rf "${LEGACY_OVERLAY_TARGET}"
+    cp -R "${LEGACY_OVERLAY_SOURCE}" "${LEGACY_OVERLAY_TARGET}"
   fi
 
   # Copy launcher and validation scripts so the project can re-run itself.
@@ -295,28 +296,32 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
   cp "${BOOTSTRAP_ROOT}/scripts/validate_launch.sh"      "${TARGET_DIR}/scripts/validate_launch.sh"
   cp "${BOOTSTRAP_ROOT}/scripts/migrate_project.sh"      "${TARGET_DIR}/scripts/migrate_project.sh"
   cp "${BOOTSTRAP_ROOT}"/scripts/lib/*.{sh,py}            "${TARGET_DIR}/scripts/lib/" 2>/dev/null || true
-  mkdir -p "${TARGET_DIR}/scripts/workers"
-  for wf in "${BOOTSTRAP_ROOT}/scripts/workers/"*.sh; do
-    [[ -f "$wf" ]] || continue
-    cp "$wf" "${TARGET_DIR}/scripts/workers/"
-  done
-fi
-chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/mcp/*.sh "${TARGET_DIR}"/scripts/workers/*.sh "${TARGET_DIR}"/scripts/hooks/*.sh "${TARGET_DIR}"/scripts/*forge*.sh "${TARGET_DIR}"/scripts/forgerelay-mcp.sh 2>/dev/null || true
-
-if [[ "$WITH_MCP_CONFIG" == "1" ]]; then
-  if [[ "$DRY_RUN" != "1" ]]; then
-    cp "${TARGET_DIR}/.cursor/mcp.json.example" "${TARGET_DIR}/.cursor/mcp.json"
-    bs_log_info "wrote .cursor/mcp.json (gitignored)"
+  if [[ "$PROFILE_NAME" == "legacy-task" ]]; then
+    mkdir -p "${TARGET_DIR}/scripts/workers"
+    for wf in "${BOOTSTRAP_ROOT}/scripts/workers/"*.sh; do
+      [[ -f "$wf" ]] || continue
+      cp "$wf" "${TARGET_DIR}/scripts/workers/"
+    done
   fi
 fi
+chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/hooks/*.sh "${TARGET_DIR}"/scripts/*forge*.sh "${TARGET_DIR}"/scripts/forgerelay-mcp.sh 2>/dev/null || true
+chmod +x "${TARGET_DIR}"/scripts/mcp/*.sh 2>/dev/null || true
+chmod +x "${TARGET_DIR}"/scripts/workers/*.sh 2>/dev/null || true
 
-if [[ "$WITH_FORGE_MCP_CONFIG" == "1" ]] || [[ "$PROFILE_NAME" == "forge-lifecycle" ]]; then
+if [[ "$PROFILE_NAME" == "legacy-task" ]]; then
+  if [[ "$WITH_MCP_CONFIG" == "1" ]]; then
+    if [[ "$DRY_RUN" != "1" ]]; then
+      cp "${TARGET_DIR}/.cursor/mcp.json.example" "${TARGET_DIR}/.cursor/mcp.json"
+      bs_log_info "wrote .cursor/mcp.json (ai-task, gitignored)"
+    fi
+  fi
+else
   if [[ "$DRY_RUN" != "1" ]]; then
     if [[ -f "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" ]]; then
       cp "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" "${TARGET_DIR}/.cursor/mcp.json"
       bs_log_info "wrote .cursor/mcp.json from forge-lifecycle example (gitignored)"
-    elif [[ "$WITH_FORGE_MCP_CONFIG" == "1" ]]; then
-      bs_die "E0007" "$BS_EXIT_MCP_REGISTER" "missing .cursor/mcp-forge-lifecycle.json.example (use --profile forge-lifecycle)"
+    else
+      bs_die "E0007" "$BS_EXIT_MCP_REGISTER" "missing .cursor/mcp-forge-lifecycle.json.example"
     fi
   fi
 fi
@@ -340,13 +345,13 @@ if [[ "$WITH_GITHUB" == "1" ]] && [[ "$DRY_RUN" != "1" ]]; then
     || bs_die "E0004" "$BS_EXIT_GITHUB" "GitHub bootstrap failed"
 fi
 
-# Optional MCP registration.
-if [[ "$WITH_MCP" == "1" ]] && [[ "$DRY_RUN" != "1" ]]; then
+# Optional ai-task MCP registration (legacy-task profile only).
+if [[ "$PROFILE_NAME" == "legacy-task" ]] && [[ "$WITH_MCP" == "1" ]] && [[ "$DRY_RUN" != "1" ]]; then
   "${TARGET_DIR}/scripts/mcp/register_project.sh" --json \
     || bs_die "E0006" "$BS_EXIT_MCP_REGISTER" "MCP registration failed"
 fi
 
-if [[ "$MCP_SEED_SCHEDULES" == "1" ]] && [[ "$DRY_RUN" != "1" ]]; then
+if [[ "$PROFILE_NAME" == "legacy-task" ]] && [[ "$MCP_SEED_SCHEDULES" == "1" ]] && [[ "$DRY_RUN" != "1" ]]; then
   "${TARGET_DIR}/scripts/mcp/seed_schedules.sh" \
     || bs_die "E0008" "$BS_EXIT_MCP_SCHEDULE" "MCP schedule seeding failed"
 fi

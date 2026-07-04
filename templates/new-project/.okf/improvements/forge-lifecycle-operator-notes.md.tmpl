@@ -1,0 +1,37 @@
+---
+type: Improvement
+title: Forge Lifecycle Operator Notes
+description: Project-local pointers for Forge MCP operator layer on this scaffold.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: false
+resource: .okf/improvements/forge-lifecycle-operator-notes.md
+tags: [okf, forge, operator, bootstrap]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: __GENERATED_AT__
+---
+
+# Purpose
+
+This project was scaffolded with the **`forge-lifecycle`** bootstrap profile. Durable cross-project lessons live in the bootstrap repository, not only here.
+
+# Bootstrap source of lessons
+
+Canonical integration lessons: [nicksinx/bootstrap](https://github.com/nicksinx/bootstrap) → `.okf/improvements/forge-lifecycle-bootstrap-lessons.md`
+
+Record **project-specific** Forge outcomes under this directory (promotion failures, version pins, smoke evidence paths).
+
+# First actions
+
+1. `scripts/forge-clone-siblings.sh` (or clone manually)
+2. Build siblings; copy `.cursor/mcp-forge-lifecycle.json.example` → `.cursor/mcp.json`
+3. Read `docs/forge-lifecycle-integration.md` and `.okf/decisions/0002-okf-forge-integration.md`
+4. Run sibling smokes before cross-MCP handoffs
+
+# Related
+
+- `docs/forge-lifecycle-integration.md`
+- `.okf/references/forge-packet-type-registry.md`

@@ -1,0 +1,73 @@
+schema_version: 1
+intake_version: "1.0.0"
+collected_at: "2026-07-04T12:00:00Z"
+collected_by: "cursor-agent / bootstrap-okf-forge-project skill"
+
+project:
+  id: acme-signals
+  display_name: Acme Signals
+  purpose: >
+    Real-time signal processing product for Acme operators. OKF + Forge scaffold
+    for multi-agent delivery and lifecycle planning.
+  scope_summary: |
+    - OKF curated memory and dispatch pipeline
+    - Forge lifecycle MCP integration (sibling layout)
+    - GitHub private repo with standard labels
+  out_of_scope: |
+    - Legacy ai-task MCP and worker orchestration
+    - Vendoring Forge server source into the product repo
+  owner: platform-team
+
+paths:
+  bootstrap_root: /path/to/bootstrap
+  target_dir: /path/to/projects/acme-signals
+  forge_siblings_parent: /path/to/projects
+
+profile:
+  name: default
+  compat_mode: strict
+
+github:
+  enabled: true
+  owner: nicksinx
+  visibility: private
+  default_branch: main
+  create_labels: true
+  create_templates: true
+
+okf:
+  bundle_path: .okf
+  profile: software-development
+  services:
+    cursor: true
+    codex: true
+    claude: true
+    xcode: false
+    perplexity: true
+
+forge:
+  enabled: true
+  github_org: nicksinx
+  clone_siblings: true
+  build_siblings: false
+  trusted_approver_keys_path: ""
+
+dispatch:
+  runners:
+    builder: codex
+    tester: claude
+    reviewer: cursor
+    integrator: codex
+
+post_launch:
+  okf_sync_skills: true
+  okf_validate: true
+  validate_launch: true
+  forge_clone_siblings: true
+  write_project_intake_copy: true
+  create_operator_handoff: true
+
+launch:
+  dry_run_first: true
+  non_interactive: true
+  force: false

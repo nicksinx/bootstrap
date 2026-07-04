@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Thin wrapper: invoke forge-verify-receipt when Node CLI and keys are available."""
+from __future__ import annotations
+
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+DEFAULT_CONTRACTS = PROJECT_ROOT.parent / "ForgeLifecycleContracts"
+
+
+def resolve_cli() -> Path | None:
+    env_path = os.environ.get("FORGE_VERIFY_RECEIPT_CLI")
+    if env_path:
+        candidate = Path(env_path)
+        return candidate if candidate.is_file() else None
+    on_path = shutil.which("forge-verify-receipt")
+    if on_path:
+        return Path(on_path)
+    built = DEFAULT_CONTRACTS / "dist" / "cli" / "verify-approval-receipt.js"
+    return built if built.is_file() else None
+
+
+def main(argv: list[str]) -> int:
+    if not argv or argv[0] in {"-h", "--help"}:
+        print(
+            "Usage: okf-check-forge-receipts --receipt <path> [--trusted-keys <path>]\n"
+            "Invokes forge-verify-receipt when available. Exits 0 if CLI missing (warn only).",
+            file=sys.stderr,
+        )
+        return 0
+
+    cli = resolve_cli()
+    if cli is None:
+        print(
+            "warn: forge-verify-receipt not found; skipping cryptographic receipt check",
+            file=sys.stderr,
+        )
+        return 0
+
+    cmd = ["node", str(cli), *argv]
+    return subprocess.call(cmd)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

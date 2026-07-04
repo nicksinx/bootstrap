@@ -1,0 +1,757 @@
+#!/usr/bin/env python3
+"""OKF dispatch: file-queue orchestration for multi-agent delivery.
+
+Hooks enqueue work; runners consume work. Services never call each other directly.
+"""
+import argparse
+import datetime as dt
+import json
+import subprocess
+import sys
+import uuid
+from pathlib import Path
+
+SCHEMA_VERSION = 1
+ROLES = ("builder", "tester", "reviewer", "integrator")
+RUNNERS = ("codex", "claude", "cursor", "xcode-claude")
+DEFAULT_ROLE_RUNNERS = {
+    "builder": "codex",
+    "tester": "claude",
+    "reviewer": "cursor",
+    "integrator": "codex",
+}
+
+
+def find_root():
+    current = Path.cwd()
+    for candidate in [current, *current.parents]:
+        if (candidate / ".okf").is_dir():
+            return candidate
+    return current
+
+
+def dispatch_root(root):
+    return root / ".okf" / "dispatch"
+
+
+def ensure_layout(root):
+    base = dispatch_root(root)
+    for name in ("ready", "running", "done", "failed", "pipelines"):
+        (base / name).mkdir(parents=True, exist_ok=True)
+    return base
+
+
+def now_iso():
+    return dt.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def short_id():
+    return uuid.uuid4().hex[:8]
+
+
+def load_json(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_json(path, data):
+    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def packet_path(base, queue, filename):
+    return base / queue / filename
+
+
+def list_packets(base, queue):
+    directory = base / queue
+    if not directory.is_dir():
+        return []
+    return sorted(directory.glob("*.json"), key=lambda p: p.name)
+
+
+def validate_role(role):
+    if role not in ROLES:
+        raise SystemExit(f"invalid role {role!r}; expected one of {', '.join(ROLES)}")
+
+
+def validate_runner(runner):
+    if runner not in RUNNERS:
+        raise SystemExit(f"invalid runner {runner!r}; expected one of {', '.join(RUNNERS)}")
+
+
+def next_role(role):
+    try:
+        index = ROLES.index(role)
+    except ValueError:
+        return None
+    if index + 1 >= len(ROLES):
+        return None
+    return ROLES[index + 1]
+
+
+def build_prompt(role, pipeline, packet_context=None):
+    summary = pipeline.get("task_summary", "Complete the assigned OKF delivery step.")
+    okf_paths = (packet_context or {}).get("okf_paths") or pipeline.get("okf_paths") or [
+        ".okf/index.md",
+        ".okf/project.md",
+    ]
+    handoff = (packet_context or {}).get("handoff")
+    lines = [
+        f"You are the {role} in an OKF multi-agent delivery pipeline.",
+        f"Pipeline: {pipeline['pipeline_id']}",
+        "",
+        "Task summary:",
+        summary,
+        "",
+        "Read these OKF concepts first:",
+    ]
+    lines.extend(f"- {path}" for path in okf_paths)
+    if handoff:
+        lines.extend(["", "Handoff context:", handoff])
+    lines.extend(
+        [
+            "",
+            "Follow the workflow in `.okf/workflows/multi-agent-delivery-pipeline.md`.",
+            "Do not call other agents directly; update OKF and let dispatch enqueue the next role.",
+            f"When finished, run: scripts/okf-dispatch complete --packet-id <id> --from {pipeline['role_runners'].get(role, 'manual')}",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def make_packet(
+    *,
+    pipeline_id,
+    role,
+    runner,
+    prompt,
+    source="manual",
+    context=None,
+    depends_on=None,
+):
+    packet_id = f"{role}-{short_id()}"
+    timestamp = now_iso()
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "packet_id": packet_id,
+        "pipeline_id": pipeline_id,
+        "role": role,
+        "runner": runner,
+        "status": "ready",
+        "source": source,
+        "prompt": prompt,
+        "context": context or {},
+        "depends_on": depends_on or [],
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "result": None,
+    }
+
+
+def write_packet(base, queue, packet):
+    filename = f"{packet['created_at'].replace(':', '').replace('+', '')}-{packet['packet_id']}.json"
+    path = packet_path(base, queue, filename)
+    save_json(path, packet)
+    return path
+
+
+def find_packet_by_id(base, packet_id):
+    for queue in ("ready", "running", "done", "failed"):
+        for path in list_packets(base, queue):
+            data = load_json(path)
+            if data.get("packet_id") == packet_id:
+                return queue, path, data
+    return None, None, None
+
+
+def move_packet(base, path, from_queue, to_queue, updates=None):
+    data = load_json(path)
+    if updates:
+        data.update(updates)
+    data["updated_at"] = now_iso()
+    data["status"] = to_queue if to_queue in ("ready", "running", "done", "failed") else data.get("status")
+    dest_name = path.name
+    dest = packet_path(base, to_queue, dest_name)
+    save_json(dest, data)
+    path.unlink(missing_ok=True)
+    return dest, data
+
+
+def load_pipeline(base, pipeline_id):
+    path = base / "pipelines" / f"{pipeline_id}.json"
+    if not path.is_file():
+        raise SystemExit(f"pipeline not found: {pipeline_id}")
+    return path, load_json(path)
+
+
+def save_pipeline(path, pipeline):
+    pipeline["updated_at"] = now_iso()
+    save_json(path, pipeline)
+
+
+def parse_role_runners(raw):
+    mapping = dict(DEFAULT_ROLE_RUNNERS)
+    if not raw:
+        return mapping
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        if ":" not in item:
+            raise SystemExit(f"invalid role runner mapping {item!r}; use role:runner")
+        role, runner = item.split(":", 1)
+        validate_role(role.strip())
+        validate_runner(runner.strip())
+        mapping[role.strip()] = runner.strip()
+    return mapping
+
+
+def enqueue_role(base, pipeline_path, pipeline, role, source="pipeline"):
+    runner = pipeline["role_runners"][role]
+    prompt = build_prompt(role, pipeline)
+    packet = make_packet(
+        pipeline_id=pipeline["pipeline_id"],
+        role=role,
+        runner=runner,
+        prompt=prompt,
+        source=source,
+        context={"okf_paths": pipeline.get("okf_paths", [])},
+    )
+    path = write_packet(base, "ready", packet)
+    pipeline["current_role"] = role
+    pipeline["current_packet_id"] = packet["packet_id"]
+    save_pipeline(pipeline_path, pipeline)
+    return path, packet
+
+
+def complete_running_for_runner(base, runner):
+    completed = []
+    for path in list_packets(base, "running"):
+        packet = load_json(path)
+        if packet.get("runner") != runner:
+            continue
+        _, data = move_packet(
+            base,
+            path,
+            "running",
+            "done",
+            {"result": {"completed_by": runner, "completed_at": now_iso()}},
+        )
+        completed.append(data)
+    return completed
+
+
+def advance_from_runner(base, from_runner):
+    completed = complete_running_for_runner(base, from_runner)
+    enqueued = []
+    for packet in completed:
+        pipeline_path = base / "pipelines" / f"{packet['pipeline_id']}.json"
+        if not pipeline_path.is_file():
+            continue
+        pipeline = load_json(pipeline_path)
+        if pipeline.get("status") != "active":
+            continue
+        nxt = next_role(packet["role"])
+        if nxt:
+            path, new_packet = enqueue_role(base, pipeline_path, pipeline, nxt, source="pipeline")
+            enqueued.append((path, new_packet))
+        else:
+            pipeline["status"] = "complete"
+            pipeline["completed_at"] = now_iso()
+            save_pipeline(pipeline_path, pipeline)
+    return completed, enqueued
+
+
+def cmd_init_pipeline(args, root, base):
+    ensure_layout(root)
+    pipeline_id = args.pipeline_id or f"pipe-{short_id()}"
+    role_runners = parse_role_runners(args.runners)
+    timestamp = now_iso()
+    pipeline = {
+        "schema_version": SCHEMA_VERSION,
+        "pipeline_id": pipeline_id,
+        "status": "active",
+        "task_summary": args.prompt,
+        "role_runners": role_runners,
+        "okf_paths": args.okf or [".okf/index.md", ".okf/project.md"],
+        "current_role": None,
+        "current_packet_id": None,
+        "created_at": timestamp,
+        "updated_at": timestamp,
+    }
+    pipeline_path = base / "pipelines" / f"{pipeline_id}.json"
+    save_json(pipeline_path, pipeline)
+    first_role = args.start_role or "builder"
+    validate_role(first_role)
+    path, packet = enqueue_role(base, pipeline_path, pipeline, first_role, source="init")
+    print(path)
+    print(f"pipeline_id={pipeline_id} packet_id={packet['packet_id']} role={first_role} runner={packet['runner']}")
+
+
+def cmd_enqueue(args, root, base):
+    ensure_layout(root)
+    validate_role(args.role)
+    validate_runner(args.runner)
+    pipeline_id = args.pipeline_id or f"adhoc-{short_id()}"
+    packet = make_packet(
+        pipeline_id=pipeline_id,
+        role=args.role,
+        runner=args.runner,
+        prompt=args.prompt,
+        source="manual",
+        context={"okf_paths": args.okf or []},
+    )
+    path = write_packet(base, "ready", packet)
+    print(path)
+
+
+def cmd_consume(args, root, base):
+    ensure_layout(root)
+    validate_runner(args.runner)
+    candidates = []
+    for path in list_packets(base, "ready"):
+        packet = load_json(path)
+        if packet.get("runner") != args.runner:
+            continue
+        if args.role and packet.get("role") != args.role:
+            continue
+        candidates.append((path, packet))
+    if not candidates:
+        print("NO_PACKET", file=sys.stderr)
+        return 1
+    path, packet = candidates[0]
+    dest, data = move_packet(base, path, "ready", "running")
+    print(dest)
+    if args.json:
+        print(json.dumps(data, indent=2))
+    return 0
+
+
+def cmd_complete(args, root, base):
+    ensure_layout(root)
+    queue, path, packet = find_packet_by_id(base, args.packet_id)
+    if not packet:
+        raise SystemExit(f"packet not found: {args.packet_id}")
+    if queue not in ("ready", "running"):
+        raise SystemExit(f"packet {args.packet_id} is already in {queue}")
+    result = {"completed_at": now_iso()}
+    if args.from_runner:
+        result["completed_by"] = args.from_runner
+    if args.note:
+        result["note"] = args.note
+    dest, data = move_packet(base, path, queue, "done", {"result": result})
+    pipeline_path = base / "pipelines" / f"{data['pipeline_id']}.json"
+    if pipeline_path.is_file():
+        pipeline = load_json(pipeline_path)
+        if pipeline.get("status") == "active" and pipeline.get("current_packet_id") == data["packet_id"]:
+            nxt = next_role(data["role"])
+            if nxt:
+                enqueue_role(base, pipeline_path, pipeline, nxt, source="pipeline")
+            else:
+                pipeline["status"] = "complete"
+                pipeline["completed_at"] = now_iso()
+                save_pipeline(pipeline_path, pipeline)
+    print(dest)
+    return 0
+
+
+def cmd_fail(args, root, base):
+    ensure_layout(root)
+    queue, path, packet = find_packet_by_id(base, args.packet_id)
+    if not packet:
+        raise SystemExit(f"packet not found: {args.packet_id}")
+    if queue not in ("ready", "running"):
+        raise SystemExit(f"packet {args.packet_id} is already in {queue}")
+    result = {"failed_at": now_iso()}
+    if args.reason:
+        result["reason"] = args.reason
+    dest, data = move_packet(base, path, queue, "failed", {"result": result})
+    pipeline_path = base / "pipelines" / f"{data['pipeline_id']}.json"
+    if pipeline_path.is_file():
+        pipeline = load_json(pipeline_path)
+        pipeline["status"] = "failed"
+        pipeline["failed_at"] = now_iso()
+        pipeline["failure"] = result
+        save_pipeline(pipeline_path, pipeline)
+    print(dest)
+    return 0
+
+
+def cmd_overflow(args, root, base):
+    ensure_layout(root)
+    queue, path, packet = find_packet_by_id(base, args.packet_id)
+    if not packet:
+        raise SystemExit(f"packet not found: {args.packet_id}")
+    if queue not in ("ready", "running", "failed"):
+        raise SystemExit(
+            f"packet {args.packet_id} is in {queue}; overflow applies to ready, running, or failed packets"
+        )
+
+    primary_runner = args.primary_runner or packet.get("runner")
+    if primary_runner:
+        validate_runner(primary_runner)
+
+    overflow = {
+        "execution_mode": "overflow",
+        "primary_runner": primary_runner,
+        "overflow_runner": "perplexity-overflow",
+        "failover_reason": args.reason,
+        "role": packet.get("role"),
+        "overflow_at": now_iso(),
+        "overflow_model_used": args.overflow_model,
+    }
+    if args.note:
+        overflow["note"] = args.note
+
+    context = dict(packet.get("context") or {})
+    context["overflow"] = overflow
+    packet["context"] = context
+    packet["updated_at"] = now_iso()
+    save_json(path, packet)
+
+    handoff_path = None
+    if args.write_handoff:
+        handoff_dir = root / ".okf" / "handoffs"
+        handoff_dir.mkdir(parents=True, exist_ok=True)
+        date = dt.date.today().isoformat()
+        slug = f"overflow-{packet['packet_id']}"
+        handoff_path = handoff_dir / f"{date}-{slug}.md"
+        if handoff_path.exists() and not args.force_handoff:
+            handoff_path = None
+        else:
+            timestamp = now_iso()
+            title = f"Overflow {packet.get('role', 'work')} — {packet['packet_id']}"
+            body = f"""---
+type: Handoff
+title: {title}
+description: Overflow failover from {primary_runner} to Perplexity for packet {packet['packet_id']}.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: true
+resource: .okf/handoffs/{date}-{slug}.md
+tags: [okf, handoff, overflow, perplexity]
+applies_to: [cursor, claude, codex, perplexity, local-agent]
+sensitivity: internal
+verification_status: unverified
+timestamp: {timestamp}
+---
+
+# Current State
+
+Packet `{packet['packet_id']}` ({packet.get('role')}) blocked on runner `{primary_runner}`. Overflow to Perplexity MODE B recommended.
+
+Pipeline: `{packet.get('pipeline_id')}`
+
+# Completed Work
+
+See packet prompt and OKF context paths before failover.
+
+# Decisions Made
+
+- Failover reason: {args.reason}
+- Overflow runner: perplexity-overflow
+- Overflow model: {args.overflow_model}
+
+# Files Changed
+
+- Dispatch packet updated with `context.overflow` metadata
+
+# Known Issues
+
+Primary runner unavailable: {args.reason}
+
+# Next Recommended Actions
+
+1. Open Perplexity with MODE B — OVERFLOW and `.okf/prompts/perplexity-overflow-failover.md`
+2. Complete the same `{packet.get('role')}` role deliverable
+3. Cursor or Codex applies output, updates OKF, appends `.okf/log.md`
+4. Resume `{primary_runner}` when available
+
+# Validation Needed
+
+- `scripts/okf-validate` after OKF updates
+- Confirm packet completion or failure after integrator applies overflow output
+
+# Context Pack
+
+- Packet id: `{packet['packet_id']}`
+- Queue: `{queue}`
+- OKF paths: {context.get('okf_paths', [])}
+
+## Overflow metadata
+
+```json
+{json.dumps(overflow, indent=2)}
+```
+"""
+            handoff_path.write_text(body, encoding="utf-8")
+
+    output = {
+        "packet_id": packet["packet_id"],
+        "queue": queue,
+        "path": str(path.relative_to(root)),
+        "overflow": overflow,
+        "handoff": str(handoff_path.relative_to(root)) if handoff_path else None,
+        "next_steps": [
+            "Start Perplexity MODE B — OVERFLOW",
+            "Use .okf/prompts/perplexity-overflow-failover.md",
+            "Integrator applies deliverable and runs scripts/okf-validate",
+        ],
+    }
+    print(json.dumps(output, indent=2))
+    return 0
+
+
+def cmd_advance(args, root, base):
+    ensure_layout(root)
+    validate_runner(args.from_runner)
+    hook_input = None
+    if not sys.stdin.isatty():
+        try:
+            hook_input = json.load(sys.stdin)
+        except json.JSONDecodeError:
+            hook_input = None
+
+    completed, enqueued = advance_from_runner(base, args.from_runner)
+
+    continuation = None
+    for _, packet in enqueued:
+        if packet["runner"] == args.from_runner:
+            continuation = packet["prompt"]
+            break
+    if continuation is None:
+        for path in list_packets(base, "ready"):
+            packet = load_json(path)
+            if packet.get("runner") == args.from_runner:
+                continuation = packet["prompt"]
+                break
+
+    hook_mode = hook_input is not None or not sys.stdin.isatty()
+    if hook_mode:
+        payload = {"continue": True}
+        if continuation:
+            payload = {"decision": "block", "reason": continuation}
+        print(json.dumps(payload))
+        if completed or enqueued:
+            print(
+                f"advance: completed={len(completed)} enqueued={len(enqueued)}",
+                file=sys.stderr,
+            )
+        return 0
+
+    print(f"completed={len(completed)} enqueued={len(enqueued)}")
+    if continuation:
+        print(f"next_prompt_for_{args.from_runner}=ready")
+    return 0
+
+
+def run_codex(prompt, root):
+    return subprocess.run(["codex", "exec", prompt], cwd=root, check=False)
+
+
+def run_claude(prompt, root):
+    return subprocess.run(["claude", "-p", prompt], cwd=root, check=False)
+
+
+def cmd_run(args, root, base):
+    ensure_layout(root)
+    validate_runner(args.runner)
+    consume_args = argparse.Namespace(runner=args.runner, role=args.role, json=False)
+    if cmd_consume(consume_args, root, base) != 0:
+        return 1
+    ready_path = None
+    for path in list_packets(base, "running"):
+        packet = load_json(path)
+        if packet.get("runner") == args.runner:
+            ready_path = path
+            break
+    if not ready_path:
+        return 1
+    packet = load_json(ready_path)
+    prompt = packet["prompt"]
+    if args.runner == "codex":
+        result = run_codex(prompt, root)
+        code = result.returncode
+    elif args.runner == "claude":
+        result = run_claude(prompt, root)
+        code = result.returncode
+    elif args.runner in ("cursor", "xcode-claude"):
+        print(json.dumps(packet, indent=2))
+        print(
+            f"\nConsume this packet in {args.runner}. Mark complete with:\n"
+            f"  scripts/okf-dispatch complete --packet-id {packet['packet_id']} --from {args.runner}",
+            file=sys.stderr,
+        )
+        return 0
+    else:
+        raise SystemExit(f"unsupported runner: {args.runner}")
+
+    if code == 0:
+        complete_args = argparse.Namespace(
+            packet_id=packet["packet_id"],
+            from_runner=args.runner,
+            note=None,
+        )
+        cmd_complete(complete_args, root, base)
+        advance_args = argparse.Namespace(from_runner=args.runner)
+        cmd_advance(advance_args, root, base)
+    else:
+        fail_args = argparse.Namespace(
+            packet_id=packet["packet_id"],
+            reason=f"runner exited with code {code}",
+        )
+        cmd_fail(fail_args, root, base)
+    return code
+
+
+def cmd_status(args, root, base):
+    ensure_layout(root)
+    counts = {q: len(list_packets(base, q)) for q in ("ready", "running", "done", "failed")}
+    print("OKF dispatch queues:")
+    for queue, count in counts.items():
+        print(f"  {queue}: {count}")
+    pipelines = sorted((base / "pipelines").glob("*.json"))
+    if pipelines:
+        print("\nPipelines:")
+        for path in pipelines:
+            data = load_json(path)
+            print(
+                f"  {data['pipeline_id']} status={data.get('status')} "
+                f"current_role={data.get('current_role')} "
+                f"current_packet={data.get('current_packet_id')}"
+            )
+    if args.verbose:
+        for queue in ("ready", "running"):
+            for path in list_packets(base, queue):
+                packet = load_json(path)
+                print(
+                    f"  [{queue}] {packet['packet_id']} role={packet['role']} "
+                    f"runner={packet['runner']} pipeline={packet['pipeline_id']}"
+                )
+
+
+def cmd_show(args, root, base):
+    queue, path, packet = find_packet_by_id(base, args.packet_id)
+    if not packet:
+        raise SystemExit(f"packet not found: {args.packet_id}")
+    print(json.dumps({"queue": queue, "path": str(path), "packet": packet}, indent=2))
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="OKF dispatch queue for multi-agent delivery pipelines."
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    init_p = sub.add_parser("init-pipeline", help="Start a pipeline and enqueue builder work.")
+    init_p.add_argument("prompt", help="Task summary for the pipeline.")
+    init_p.add_argument("--pipeline-id", help="Optional pipeline id.")
+    init_p.add_argument(
+        "--runners",
+        help="Role runner map, e.g. builder:codex,tester:claude,reviewer:cursor,integrator:codex",
+    )
+    init_p.add_argument("--start-role", default="builder", help="First role to enqueue.")
+    init_p.add_argument("--okf", nargs="*", help="OKF paths to attach to prompts.")
+
+    enq_p = sub.add_parser("enqueue", help="Enqueue a single work packet.")
+    enq_p.add_argument("--role", required=True, choices=ROLES)
+    enq_p.add_argument("--runner", required=True, choices=RUNNERS)
+    enq_p.add_argument("--prompt", required=True)
+    enq_p.add_argument("--pipeline-id", help="Pipeline id (defaults to adhoc-*).")
+    enq_p.add_argument("--okf", nargs="*", help="OKF paths for packet context.")
+
+    con_p = sub.add_parser("consume", help="Move the next ready packet to running for a runner.")
+    con_p.add_argument("--runner", required=True, choices=RUNNERS)
+    con_p.add_argument("--role", choices=ROLES)
+    con_p.add_argument("--json", action="store_true", help="Also print packet JSON.")
+
+    comp_p = sub.add_parser("complete", help="Mark a packet done and enqueue the next pipeline role.")
+    comp_p.add_argument("--packet-id", required=True)
+    comp_p.add_argument("--from", dest="from_runner", choices=RUNNERS)
+    comp_p.add_argument("--note", help="Optional completion note.")
+
+    fail_p = sub.add_parser("fail", help="Mark a packet failed.")
+    fail_p.add_argument("--packet-id", required=True)
+    fail_p.add_argument("--reason", help="Failure reason.")
+
+    overflow_p = sub.add_parser(
+        "overflow",
+        help="Record Perplexity overflow failover metadata and optionally write a handoff.",
+    )
+    overflow_p.add_argument("--packet-id", required=True)
+    overflow_p.add_argument(
+        "--reason",
+        default="usage_limit",
+        choices=["usage_limit", "outage", "policy", "user_choice"],
+        help="Why the primary runner is blocked.",
+    )
+    overflow_p.add_argument(
+        "--primary-runner",
+        choices=RUNNERS,
+        help="Blocked runner (defaults to packet runner).",
+    )
+    overflow_p.add_argument(
+        "--overflow-model",
+        default="best",
+        help="Perplexity model used or planned for overflow.",
+    )
+    overflow_p.add_argument("--note", help="Optional overflow note.")
+    overflow_p.add_argument(
+        "--write-handoff",
+        action="store_true",
+        default=True,
+        help="Write .okf/handoffs/YYYY-MM-DD-overflow-<packet-id>.md (default: on).",
+    )
+    overflow_p.add_argument(
+        "--no-write-handoff",
+        action="store_false",
+        dest="write_handoff",
+        help="Skip handoff file creation.",
+    )
+    overflow_p.add_argument(
+        "--force-handoff",
+        action="store_true",
+        help="Overwrite an existing overflow handoff for this packet.",
+    )
+
+    adv_p = sub.add_parser(
+        "advance",
+        help="Complete running work for a runner and enqueue the next pipeline step.",
+    )
+    adv_p.add_argument("--from", dest="from_runner", required=True, choices=RUNNERS)
+
+    run_p = sub.add_parser("run", help="Consume and execute work for a runner.")
+    run_p.add_argument("--runner", required=True, choices=RUNNERS)
+    run_p.add_argument("--role", choices=ROLES)
+
+    stat_p = sub.add_parser("status", help="Show queue and pipeline status.")
+    stat_p.add_argument("--verbose", action="store_true")
+
+    show_p = sub.add_parser("show", help="Show one packet by id.")
+    show_p.add_argument("--packet-id", required=True)
+
+    args = parser.parse_args()
+    root = find_root()
+    base = ensure_layout(root)
+
+    commands = {
+        "init-pipeline": cmd_init_pipeline,
+        "enqueue": cmd_enqueue,
+        "consume": cmd_consume,
+        "complete": cmd_complete,
+        "fail": cmd_fail,
+        "overflow": cmd_overflow,
+        "advance": cmd_advance,
+        "run": cmd_run,
+        "status": cmd_status,
+        "show": cmd_show,
+    }
+    handler = commands[args.command]
+    if args.command in ("init-pipeline", "enqueue"):
+        handler(args, root, base)
+        return 0
+    return handler(args, root, base) or 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

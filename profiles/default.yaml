@@ -1,20 +1,16 @@
 schema_version: 1
-profile_version: "1.1.0"
+profile_version: "2.0.0"
 name: default
 description: >
-  Safe default profile for new projects. Generates the full scaffold,
-  enables Cursor MCP integration as advisory, and uses strict compat mode.
+  OKF + Forge lifecycle MCP + OKF dispatch scaffold (Project-1 aligned).
+  Generates Forge launchers, dispatch scripts, five-service operator docs,
+  and curated OKF workflows. No ai-task MCP or worker orchestration.
 defaults:
   default_branch: main
   github:
     visibility: private
     create_labels: true
     create_templates: true
-  mcp:
-    enabled: true
-    transport: stdio
-    auth_profile: local-token
-    token_source: env
   okf:
     enabled: true
     bundle_path: .okf
@@ -30,10 +26,15 @@ files:
     - Makefile
     - CHANGELOG.md
     - project.config.yaml
-    - .cursor/mcp.json.example
     - .cursor/rules/okf.mdc
+    - .cursor/rules/okf-ecosystem-routing.mdc
+    - .cursor/rules/okf-legacy-aitask.mdc
+    - .cursor/rules/okf-forge-operator.mdc
+    - .cursor/rules/okf-dispatch.mdc
+    - .cursor/rules/okf-forge-promotion.mdc
+    - .cursor/mcp-forge-lifecycle.json.example
+    - .codex/hooks.json
     - docs/okf-integration.md
-    - docs/mcp-integration.md
     - docs/agent-operating-model.md
     - docs/agent-workflow.md
     - docs/governance.md
@@ -41,6 +42,16 @@ files:
     - docs/security.md
     - docs/support-matrix.md
     - docs/errors.md
+    - docs/okf-ways-of-working-brief.md
+    - docs/okf-dispatch-orchestration.md
+    - docs/forge-lifecycle-integration.md
+    - docs/create-new-okf-project-in-cursor.md
+    - docs/create-new-okf-project-in-codex.md
+    - docs/create-new-okf-project-in-claude.md
+    - docs/create-new-okf-project-in-xcode.md
+    - docs/create-new-okf-project-in-perplexity.md
+    - docs/configure-perplexity-okf.md
+    - docs/shared-okf-skills.md
     - backlog/queue.yaml
     - backlog/tasks/TASK-0001.md
     - backlog/templates/task.template.md
@@ -50,11 +61,21 @@ files:
     - .okf/requirements/bootstrap-operational-readiness.md
     - .okf/architecture/bootstrap-lifecycle-framework.md
     - .okf/decisions/0001-okf-as-context-layer.md
+    - .okf/decisions/0002-okf-forge-integration.md
     - .okf/workflows/agent-okf-lifecycle.md
+    - .okf/workflows/okf-forge-lifecycle-bridge.md
+    - .okf/workflows/multi-agent-delivery-pipeline.md
+    - .okf/workflows/perplexity-research-cycle.md
+    - .okf/workflows/perplexity-overflow-failover.md
+    - .okf/workflows/forge-promotion-checklists-stub.md
     - .okf/risks/secret-storage-and-memory-drift.md
     - .okf/tests/okf-validation-plan.md
     - .okf/handoffs/initial-bootstrap.md
     - .okf/improvements/continuous-improvement-repository.md
+    - .okf/improvements/forge-lifecycle-operator-notes.md
+    - .okf/references/forge-sibling-layout.md
+    - .okf/references/forge-packet-type-registry.md
+    - .okf/references/forge-signing-keys-operator-runbook.md
     - schemas/project.schema.json
     - schemas/profile.schema.json
     - schemas/task.schema.json
@@ -68,13 +89,23 @@ files:
     - scripts/okf-validate
     - scripts/okf-context-pack
     - scripts/okf-handoff
-    - scripts/mcp/register_project.sh
-    - scripts/mcp/import_backlog.sh
-    - scripts/mcp/sync_backlog.sh
-    - scripts/mcp/dispatch_task.sh
-    - scripts/mcp/review_runs.sh
-    - scripts/mcp/seed_schedules.sh
-    - scripts/mcp/health_check.sh
+    - scripts/okf-dispatch
+    - scripts/okf_dispatch_schema.py
+    - scripts/okf-check-adapters
+    - scripts/okf-check-forge-receipts
+    - scripts/okf-sync-skills
+    - scripts/forgerelay-mcp.sh
+    - scripts/conceptforge-mcp.sh
+    - scripts/governanceforge-mcp.sh
+    - scripts/buildforge-mcp.sh
+    - scripts/launchforge-mcp.sh
+    - scripts/operateforge-mcp.sh
+    - scripts/customerforge-mcp.sh
+    - scripts/growthforge-mcp.sh
+    - scripts/revenueforge-mcp.sh
+    - scripts/insightforge-mcp.sh
+    - scripts/sunsetforge-mcp.sh
+    - scripts/forge-clone-siblings.sh
     - scripts/hooks/pre_launch.example.sh
     - scripts/hooks/post_launch.example.sh
   exclude: []

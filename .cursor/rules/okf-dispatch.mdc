@@ -1,0 +1,38 @@
+---
+description: OKF dispatch file-queue — roles, queues, no cross-agent calls
+globs: .okf/dispatch/**,scripts/okf-dispatch,scripts/okf_dispatch_schema.py,.codex/hooks.json
+alwaysApply: false
+---
+
+# OKF dispatch
+
+Canonical delivery spine per `.okf/workflows/multi-agent-delivery-pipeline.md` and decision 0003.
+
+## Principles
+
+1. **Hooks enqueue; runners consume** — no direct calls between Codex, Claude, Cursor, or Xcode.
+2. Queues live under `.okf/dispatch/` (`ready`, `running`, `done`, `failed`, `pipelines`).
+3. Durable outcomes still belong in `.okf/`, `.okf/log.md`, and `.okf/handoffs/`.
+
+## Roles (fixed order)
+
+`builder` → `tester` → `reviewer` → `integrator`
+
+| Role | Default runner |
+|------|----------------|
+| builder | codex |
+| tester | claude |
+| reviewer | cursor |
+| integrator | codex |
+
+Override at pipeline init: `scripts/okf-dispatch init-pipeline --runners builder:codex,...`
+
+## Cursor (reviewer)
+
+- Consume packets from `.okf/dispatch/ready/` for role `reviewer`.
+- Complete with `scripts/okf-dispatch complete --role reviewer` (or project-documented equivalent).
+- Dispatch does **not** replace Forge lifecycle planning or ForgeRelay session resume.
+
+## Pausing work
+
+Write `.okf/handoffs/` before stopping. Include dispatch `pipeline_id` / `packet_id` when applicable.

@@ -1,0 +1,44 @@
+---
+type: Decision
+title: OKF–Forge MCP Integration Approach
+description: Option C — OKF substrate, Forge lifecycle engine, one-way promotion after review.
+status: active
+lifecycle_stage: planning
+owner: project
+source_of_truth: true
+resource: .okf/decisions/0002-okf-forge-integration.md
+tags: [okf, forge, mcp, integration, decision, option-c]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: accepted
+timestamp: __GENERATED_AT__
+---
+
+# Decision
+
+Adopt **Option C: OKF substrate + Forge lifecycle engine + one-way promotion**.
+
+- **OKF** (`.okf/`) is the Git-native curated memory substrate.
+- **Forge MCPs** are the lifecycle planning engine — typed workspaces, signed packets, stage gates.
+- **Promotion** from Forge to OKF is one-way, agent-mediated, and review-gated.
+
+Forge is enabled on a **product project** after OKF five-service setup. It is not part of the default bootstrap layer.
+
+# Operational flow
+
+```text
+Read OKF → invoke Forge MCP (planning) → promote to OKF (integrator review)
+         → OKF dispatch (implementation) → log / handoff
+```
+
+# Consequences
+
+- Operator guide: `docs/forge-lifecycle-integration.md`
+- Forge workspaces live under `.okf/forge/` (gitignored) until promoted
+- Sibling Forge repos are cloned separately — not vendored in this repository
+
+# Related
+
+- `docs/forge-lifecycle-integration.md`
+- `.okf/references/forge-packet-type-registry.md`
+- Bootstrap lessons: `https://github.com/nicksinx/bootstrap`

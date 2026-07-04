@@ -1,0 +1,26 @@
+---
+description: Project-1 integration harness — full policy, evidence, and adversarial review
+alwaysApply: true
+---
+
+# Project-1 integration harness
+
+This repo is the **reference harness** for OKF + Forge + dispatch integration — not a minimal product scaffold.
+
+## Do
+
+- Keep full integration spec: `docs/okf-forge-integration-spec.md`.
+- Record test evidence under `.okf/tests/*-evidence.md` for vertical slices and E2E smokes.
+- Maintain complete promotion checklists under `.okf/workflows/forge-*-checklist.md`.
+- Run `scripts/okf-validate`, `scripts/okf-check-adapters`, `scripts/okf-check-forge-receipts` before claiming integration complete.
+- Promote **stable, generic** patterns to bootstrap templates after harness proof.
+
+## Do not
+
+- Assume generated bootstrap products include full harness checklists or adversarial dossiers.
+- Remove harness-only evidence to “simplify” without updating the integration spec.
+- Use legacy ai-task MCP (`scripts/mcp/`) for new harness work — use OKF dispatch and Forge MCPs.
+
+## Cursor rules
+
+Product-oriented rules (`okf-ecosystem-routing`, forge operator, dispatch, promotion) apply here too. This rule adds harness-specific expectations on top.

@@ -1,46 +1,11 @@
 schema_version: 1
-profile_version: "1.2.0"
+profile_version: "2.0.0"
 name: forge-lifecycle
 extends: default
 description: >
-  OKF bootstrap plus Forge lifecycle MCP operator layer. Adds sibling-clone
-  launcher scripts, Cursor MCP config template, integration docs, and OKF
-  decision/reference concepts validated in Project-1 integration harness.
-defaults:
-  default_branch: main
-  github:
-    visibility: private
-    create_labels: true
-    create_templates: true
-  mcp:
-    enabled: true
-    transport: stdio
-    auth_profile: local-token
-    token_source: env
-  okf:
-    enabled: true
-    bundle_path: .okf
-    profile: software-development
-    continuous_improvement_path: .okf/improvements
+  DEPRECATED alias for profile `default` v2.0.0. Forge MCP and OKF dispatch are
+  included in the default profile since bootstrap alignment v2.
 files:
-  include:
-    - docs/forge-lifecycle-integration.md
-    - .cursor/mcp-forge-lifecycle.json.example
-    - scripts/forgerelay-mcp.sh
-    - scripts/conceptforge-mcp.sh
-    - scripts/governanceforge-mcp.sh
-    - scripts/buildforge-mcp.sh
-    - scripts/launchforge-mcp.sh
-    - scripts/operateforge-mcp.sh
-    - scripts/customerforge-mcp.sh
-    - scripts/growthforge-mcp.sh
-    - scripts/revenueforge-mcp.sh
-    - scripts/insightforge-mcp.sh
-    - scripts/sunsetforge-mcp.sh
-    - scripts/forge-clone-siblings.sh
-    - .okf/decisions/0002-okf-forge-integration.md
-    - .okf/references/forge-sibling-layout.md
-    - .okf/references/forge-packet-type-registry.md
-    - .okf/improvements/forge-lifecycle-operator-notes.md
+  include: []
   exclude: []
 compat_mode: strict

@@ -1,0 +1,96 @@
+---
+type: Workflow
+title: OKF and Forge Lifecycle Bridge (Phase 2)
+description: Operator workflow bridging OKF five-service setup, Forge lifecycle MCPs, OKF promotion, and OKF dispatch delivery.
+status: active
+lifecycle_stage: operate
+owner: project
+source_of_truth: true
+resource: .okf/workflows/okf-forge-lifecycle-bridge.md
+tags: [okf, forge, mcp, integration, bridge, phase-2, option-c]
+applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
+sensitivity: internal
+verification_status: reviewed
+timestamp: 2026-07-04T02:00:00+01:00
+---
+
+# Summary
+
+Use on **product projects** after OKF bootstrap. Forge is the **lifecycle planning layer**; OKF is the **curated memory substrate**; OKF dispatch is **implementation delivery**. Option C per `.okf/decisions/0002-okf-forge-integration.md`.
+
+# Prerequisites
+
+1. OKF five-service setup complete (or minimum Forge-only OKF per `docs/okf-ways-of-working-brief.md` § Forge-only minimum).
+2. Sibling Forge repos built; Cursor MCP launchers resolve (`scripts/*-mcp.sh`).
+3. `scripts/okf-validate` passes before and after promotion.
+
+# Layer selection
+
+| Trigger | Use | Canonical truth after review |
+|---------|-----|------------------------------|
+| Planning lifecycle stage (concept, build, launch, operate, …) | Forge MCP for stage | OKF concept after integrator promotion |
+| Code, tests, implementation | OKF dispatch (`scripts/okf-dispatch`) | `.okf/handoffs/` + dispatch result |
+| Cross-tool session resume, lease, relay handoff | ForgeRelay MCP | `.okf/handoffs/` + `relay_session_id` |
+| External cited research | Perplexity MODE A → ingest | `.okf/references/` |
+| Primary runner blocked | Perplexity MODE B overflow | `.okf/handoffs/` + overflow metadata |
+| Learning synthesis across stages | InsightForge | `.okf/improvements/` after promotion |
+
+**Rule:** Choose layer by **trigger**, not tool name. See `docs/okf-dispatch-orchestration.md` § Trigger-keyed decision matrix.
+
+# Standard flow (Option C)
+
+```text
+1. Read OKF     → .okf/index.md, .okf/project.md, relevant concepts
+2. Invoke Forge → planning-stage MCP tools; signed packets stay in .okf/forge/<stage>/ (gitignored)
+3. Promote      → integrator-reviewed outcomes → OKF Markdown with Forge lineage (C2)
+4. Dispatch     → builder/tester/reviewer/integrator via okf-dispatch
+5. Log          → .okf/log.md; handoff if pausing
+```
+
+Forge workspaces under `.okf/forge/` are **runtime state**, not OKF concepts until promoted.
+
+# SDLC quick map
+
+See `docs/okf-ways-of-working-brief.md` § SDLC mapping and `docs/okf-forge-integration-spec.md` §5.
+
+| Stage | Forge | OKF promotion target |
+|-------|-------|---------------------|
+| Discovery | ConceptForge | `.okf/requirements/` drafts |
+| Design | BuildForge | requirements, architecture, decisions |
+| Launch readiness | LaunchForge | `.okf/releases/`, test evidence |
+| Post-launch | Operate, Customer, Growth, Revenue | workflows, features, references, decisions |
+| Learning | InsightForge | `.okf/improvements/` |
+| Governance | GovernanceForge | `.okf/decisions/`, `.okf/risks/` |
+| Sunset | SunsetForge | archived handoffs |
+
+# Promotion checklists
+
+| Forge server | Checklist |
+|--------------|-----------|
+| ConceptForge | `.okf/workflows/forge-concept-promotion-checklist.md` |
+| BuildForge | `.okf/workflows/forge-build-promotion-checklist.md` |
+| LaunchForge | `.okf/workflows/forge-launch-promotion-checklist.md` |
+| GovernanceForge | `.okf/workflows/forge-governance-promotion-checklist.md` |
+| InsightForge | `.okf/workflows/forge-insight-promotion-checklist.md` |
+| OperateForge | `.okf/workflows/forge-operate-promotion-checklist.md` |
+| CustomerForge | `.okf/workflows/forge-customer-promotion-checklist.md` |
+| GrowthForge | `.okf/workflows/forge-growth-promotion-checklist.md` |
+| RevenueForge | `.okf/workflows/forge-revenue-promotion-checklist.md` |
+| SunsetForge | `.okf/workflows/forge-sunset-promotion-checklist.md` |
+
+Post-launch parallel ingest: `.okf/workflows/forge-parallel-postlaunch-ingest-rules.md`  
+Contradictions: `.okf/workflows/forge-evidence-contradiction-handling.md`  
+Retirement closure: `.okf/workflows/forge-retirement-closure-crosscheck.md`
+
+# Secrets and PII
+
+- Never commit signing keys, approval receipts, or PII from Forge workspaces.
+- Keys live outside git — see `.okf/references/forge-signing-keys-operator-runbook.md`.
+- Receipt crypto: `forge-verify-receipt` before `verification_status: accepted` on Forge-sourced Decisions (decision 0004).
+
+# Related
+
+- Integration spec: `docs/okf-forge-integration-spec.md`
+- Packet registry: `.okf/references/forge-packet-type-registry.md`
+- Agent guides: `.okf/agents/*forge*.md`
+- Bootstrap scaffold: `nicksinx/bootstrap` `forge-lifecycle` profile

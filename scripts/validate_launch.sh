@@ -31,14 +31,13 @@ from jsonschema import Draft202012Validator
 root = Path(sys.argv[1])
 release_gate = sys.argv[2] == "1"
 
-required_files = [
+common_files = [
     "README.md", "Makefile", ".gitignore", "project.config.yaml",
     "AGENTS.md", "CLAUDE.md", ".cursor/rules/okf.mdc",
     "backlog/queue.yaml", "backlog/tasks/TASK-0001.md",
     "schemas/project.schema.json", "schemas/queue.schema.json",
     "schemas/task.schema.json", "schemas/error.schema.json",
     "schemas/okf-concept.schema.json",
-    "schemas/worker-manifest.schema.json",
     "profiles/default.yaml",
     "docs/agent-workflow.md", "docs/runbook.md", "docs/security.md",
     "docs/okf-integration.md",
@@ -52,22 +51,43 @@ required_files = [
     ".okf/handoffs/initial-bootstrap.md",
     ".okf/improvements/continuous-improvement-repository.md",
     "scripts/okf-validate", "scripts/okf-context-pack", "scripts/okf-handoff",
-    "scripts/workers/run_codex_task.sh",
-    "scripts/workers/run_claude_task.sh",
-    "scripts/workers/dispatch_task.sh",
-    "scripts/lib/worker_runner.py",
+    ".cursor/rules/okf-ecosystem-routing.mdc",
+    ".cursor/rules/okf-forge-operator.mdc",
+    ".cursor/rules/okf-dispatch.mdc",
+    ".cursor/rules/okf-forge-promotion.mdc",
 ]
 
-forge_lifecycle_files = [
+v2_files = [
     "docs/forge-lifecycle-integration.md",
+    "docs/okf-dispatch-orchestration.md",
+    "docs/okf-ways-of-working-brief.md",
     ".cursor/mcp-forge-lifecycle.json.example",
     "scripts/forgerelay-mcp.sh",
     "scripts/conceptforge-mcp.sh",
     "scripts/forge-clone-siblings.sh",
+    "scripts/okf-dispatch",
+    "scripts/okf_dispatch_schema.py",
+    "scripts/okf-check-adapters",
+    "scripts/okf-check-forge-receipts",
+    "scripts/okf-sync-skills",
     ".okf/decisions/0002-okf-forge-integration.md",
+    ".okf/workflows/okf-forge-lifecycle-bridge.md",
+    ".okf/workflows/multi-agent-delivery-pipeline.md",
     ".okf/references/forge-sibling-layout.md",
     ".okf/references/forge-packet-type-registry.md",
     ".okf/improvements/forge-lifecycle-operator-notes.md",
+]
+
+legacy_files = [
+    "docs/mcp-integration.md",
+    ".cursor/mcp.json.example",
+    "scripts/mcp/register_project.sh",
+    "scripts/mcp/health_check.sh",
+    "scripts/workers/run_codex_task.sh",
+    "scripts/workers/run_claude_task.sh",
+    "scripts/workers/dispatch_task.sh",
+    "scripts/lib/worker_runner.py",
+    "schemas/worker-manifest.schema.json",
 ]
 
 errors = []
@@ -83,6 +103,13 @@ for ch, resolvers in list(_NoTsLoader.yaml_implicit_resolvers.items()):
 def load_yaml(path: Path):
     return yaml.load(path.read_text(), Loader=_NoTsLoader)
 
+proj = load_yaml(root / "project.config.yaml")
+profile_name = (proj or {}).get("profile", "default")
+if profile_name == "legacy-task":
+    required_files = common_files + legacy_files
+else:
+    required_files = common_files + v2_files
+
 for rel in required_files:
     if not (root / rel).is_file():
         errors.append(("missing-file", rel))
@@ -90,12 +117,6 @@ for rel in required_files:
 # Validate project.config.yaml against schema.
 schema_dir = root / "schemas"
 proj_schema = json.loads((schema_dir / "project.schema.json").read_text())
-proj = load_yaml(root / "project.config.yaml")
-profile_name = (proj or {}).get("profile", "default")
-if profile_name == "forge-lifecycle":
-    for rel in forge_lifecycle_files:
-        if not (root / rel).is_file():
-            errors.append(("missing-forge-file", rel))
 for err in Draft202012Validator(proj_schema).iter_errors(proj):
     errors.append(("project-schema", f"{list(err.path)} -> {err.message}"))
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -13,11 +11,10 @@ ROOT = Path(__file__).resolve().parent.parent
 LAUNCH = ROOT / "scripts" / "launch_project.sh"
 
 
-def run(cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         cmd,
         cwd=str(cwd or ROOT),
-        env=env,
         text=True,
         capture_output=True,
         check=False,
@@ -25,7 +22,7 @@ def run(cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = No
 
 
 def test_launch_and_validate() -> None:
-    with tempfile.TemporaryDirectory(prefix="bootstrap-smoke-", dir=str(ROOT)) as td:
+    with tempfile.TemporaryDirectory(prefix="bootstrap-smoke-") as td:
         target = Path(td) / "demo-proj"
         out = run(
             [
@@ -65,14 +62,16 @@ def test_launch_and_validate() -> None:
             ".cursor/rules/okf.mdc",
             "docs/okf-integration.md",
             "scripts/okf-validate",
+            "scripts/okf-dispatch",
+            ".cursor/mcp.json",
         ]
         missing = [rel for rel in expected_okf if not (target / rel).exists()]
         if missing:
             raise SystemExit(f"missing OKF scaffold files: {missing}")
 
 
-def test_worker_stub_flow() -> None:
-    with tempfile.TemporaryDirectory(prefix="bootstrap-worker-", dir=str(ROOT)) as td:
+def test_okf_dispatch_status() -> None:
+    with tempfile.TemporaryDirectory(prefix="bootstrap-dispatch-") as td:
         target = Path(td) / "demo-proj"
         out = run(
             [
@@ -89,39 +88,18 @@ def test_worker_stub_flow() -> None:
         if out.returncode != 0:
             raise SystemExit(out.stderr)
 
-        env = dict(os.environ)
-        env["WORKER_CODEX_BIN"] = "true"
-        dispatch = run(
-            [
-                str(target / "scripts" / "workers" / "dispatch_task.sh"),
-                "start",
-                "--task-id",
-                "TASK-0001",
-                "--foreground",
-                "--max-retries",
-                "0",
-            ],
-            cwd=target,
-            env=env,
-        )
-        if dispatch.returncode != 0:
+        status = run([str(target / "scripts" / "okf-dispatch"), "status"], cwd=target)
+        if status.returncode != 0:
             raise SystemExit(
-                "worker dispatch failed\nstdout:\n"
-                + dispatch.stdout
+                "okf-dispatch status failed\nstdout:\n"
+                + status.stdout
                 + "\nstderr:\n"
-                + dispatch.stderr
+                + status.stderr
             )
 
-        manifests = sorted(target.glob("runs/codex/*/manifest.json"))
-        if not manifests:
-            raise SystemExit("worker manifest not found")
-        manifest = json.loads(manifests[-1].read_text())
-        if manifest.get("phase") != "completed":
-            raise SystemExit(f"unexpected worker phase: {manifest.get('phase')}")
 
-
-def test_forge_lifecycle_launch_and_validate() -> None:
-    with tempfile.TemporaryDirectory(prefix="bootstrap-forge-", dir=str(ROOT)) as td:
+def test_forge_lifecycle_alias_launch_and_validate() -> None:
+    with tempfile.TemporaryDirectory(prefix="bootstrap-forge-") as td:
         target = Path(td) / "forge-demo"
         out = run(
             [
@@ -167,8 +145,8 @@ def test_forge_lifecycle_launch_and_validate() -> None:
 
 def main() -> int:
     test_launch_and_validate()
-    test_forge_lifecycle_launch_and_validate()
-    test_worker_stub_flow()
+    test_forge_lifecycle_alias_launch_and_validate()
+    test_okf_dispatch_status()
     print("launch smoke tests passed")
     return 0
 

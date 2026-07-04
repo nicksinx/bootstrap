@@ -1,28 +1,34 @@
 # Agent Workflow
 
-## Lifecycle
+## Delivery pipeline (canonical)
 
-`draft -> classified -> planned -> assigned -> queued -> running ->
-awaiting_review -> approved -> applied -> closed`.
+Implementation delivery uses **OKF dispatch**, not background workers.
 
-Terminals: `cancelled`, `failed`, `expired`, `blocked`, `superseded`.
+```bash
+scripts/okf-dispatch init-pipeline --task-id TASK-0001
+scripts/okf-dispatch consume --role builder
+scripts/okf-dispatch complete --role builder --evidence runs/builder/...
+scripts/okf-dispatch consume --role tester
+# ... reviewer, integrator
+```
 
-## Rules
+See `docs/okf-dispatch-orchestration.md` and `.okf/workflows/multi-agent-delivery-pipeline.md`.
 
-- Agents read `.okf/index.md`, `.okf/project.md`, relevant OKF concepts, and recent handoffs before substantive work.
-- Backlog tasks should use `okf_concepts` when they implement or verify known OKF concepts.
-- Background workers never auto-commit and never auto-push.
-- Workers produce artifacts and an evidence pack for review.
-- Cursor remains the orchestrator for final edits and merge decisions.
-- Every policy-relevant action emits an immutable audit event.
-- Worker runs write `runs/<agent>/<run-id>/manifest.json` and `runs/status/*.json`.
-- Worker dispatch supports `start`, `start-next`, `status`, `stop`, and `review`.
+## Lifecycle planning (Forge)
+
+Forge MCP servers produce stage plans and signed packets. Promote reviewed artifacts to OKF per `.okf/workflows/okf-forge-lifecycle-bridge.md`.
+
+## Backlog (optional human tracker)
+
+`backlog/queue.yaml` and `backlog/tasks/TASK-*.md` remain for human planning. Agents should trace work to OKF concepts via `okf_concepts` in task frontmatter when used.
 
 ## Handoff
 
-Inputs and outputs follow `schemas/handoff.schema.json`. Acceptance requires:
+When pausing or transferring work, write `.okf/handoffs/YYYY-MM-DD-task.md` using the handoff template. Inputs and outputs may also follow `schemas/handoff.schema.json`.
 
-- no unresolved critical blockers
-- verification checklist complete
-- referenced file paths must exist
-- a corresponding `.okf/handoffs/` note when work pauses or transfers
+## Rules
+
+- Read `.okf/index.md`, `.okf/project.md`, relevant concepts, and recent handoffs before substantive changes.
+- Do not store secrets in OKF.
+- Forge advisory outputs do not auto-promote to `verification_status: accepted`.
+- Human integrator review required for OKF promotion and merge decisions.

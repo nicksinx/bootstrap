@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bootstrap OKF + Forge Project"
+  short_description: "Standardized intake and launch for OKF + Forge products"
+  default_prompt: "Use $bootstrap-okf-forge-project to stand up a new OKF + Forge integrated product from the bootstrap toolkit."

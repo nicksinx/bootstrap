@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bootstrap.local/schemas/project-intake.schema.json",
+  "title": "ProjectIntake",
+  "description": "Standardized intake for OKF + Forge bootstrap project standup.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "intake_version", "project", "paths", "profile"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "intake_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "collected_by": { "type": "string" },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name", "purpose", "owner"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$"
+        },
+        "display_name": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "scope_summary": { "type": "string" },
+        "out_of_scope": { "type": "string" },
+        "owner": { "type": "string", "minLength": 1 }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_dir"],
+      "properties": {
+        "bootstrap_root": { "type": "string" },
+        "target_dir": { "type": "string", "minLength": 1 },
+        "forge_siblings_parent": { "type": "string" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "enum": ["default", "forge-lifecycle", "legacy-task"]
+        },
+        "compat_mode": {
+          "enum": ["strict", "warn", "legacy"],
+          "default": "strict"
+        }
+      }
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "owner": { "type": "string" },
+        "visibility": { "enum": ["private", "public"] },
+        "default_branch": { "type": "string", "default": "main" },
+        "create_labels": { "type": "boolean", "default": true },
+        "create_templates": { "type": "boolean", "default": true }
+      }
+    },
+    "okf": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bundle_path": { "type": "string", "default": ".okf" },
+        "profile": { "type": "string", "default": "software-development" },
+        "services": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cursor": { "type": "boolean" },
+            "codex": { "type": "boolean" },
+            "claude": { "type": "boolean" },
+            "xcode": { "type": "boolean" },
+            "perplexity": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "forge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "github_org": { "type": "string", "default": "nicksinx" },
+        "clone_siblings": { "type": "boolean", "default": true },
+        "build_siblings": { "type": "boolean", "default": false },
+        "trusted_approver_keys_path": {
+          "type": "string",
+          "description": "Optional local path; never commit keys into the repo."
+        }
+      }
+    },
+    "dispatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runners": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "builder": { "enum": ["codex", "claude", "cursor", "xcode-claude"] },
+            "tester": { "enum": ["codex", "claude", "cursor", "xcode-claude"] },
+            "reviewer": { "enum": ["codex", "claude", "cursor", "xcode-claude"] },
+            "integrator": { "enum": ["codex", "claude", "cursor", "xcode-claude"] }
+          }
+        }
+      }
+    },
+    "post_launch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "okf_sync_skills": { "type": "boolean", "default": true },
+        "okf_validate": { "type": "boolean", "default": true },
+        "validate_launch": { "type": "boolean", "default": true },
+        "forge_clone_siblings": { "type": "boolean", "default": true },
+        "write_project_intake_copy": { "type": "boolean", "default": true },
+        "create_operator_handoff": { "type": "boolean", "default": true }
+      }
+    },
+    "launch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dry_run_first": { "type": "boolean", "default": true },
+        "non_interactive": { "type": "boolean", "default": true },
+        "force": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}

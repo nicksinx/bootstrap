@@ -1,37 +1,41 @@
 #!/usr/bin/env python3
 import datetime as dt
+import json
 import re
 import sys
 from pathlib import Path
-from typing import Optional
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from okf_dispatch_schema import (  # noqa: E402
+    validate_forge_approval_decision,
+    validate_forge_envelope_decision_state,
+    validate_forge_lineage_concept,
+)
+
+RESERVED = {"index.md", "project.md", "log.md"}
 CRITICAL_TYPES = {
     "Project",
     "Requirement",
     "Feature",
     "Architecture",
-    "Component",
     "Decision",
-    "Data Model",
-    "API",
     "Workflow",
     "Runbook",
-    "Prompt",
     "Agent Rule",
     "Agent Skill",
     "Tool Adapter",
     "Risk",
-    "Assumption",
     "Test Case",
     "Test Evidence",
     "Release",
     "Handoff",
-    "Reference",
     "Improvement",
     "Lesson Learned",
     "Retrospective",
 }
-
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
@@ -40,28 +44,33 @@ SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
     re.compile(r"(?i)\b(password|api[_-]?key|token|secret)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{12,}"),
 ]
+# Content patterns only — aligned with @forge-lifecycle/contracts SECRET_CONTENT_PATTERN_SOURCES (LCF-10).
+# Relay-only extras (approval_receipt, signing_key) are not scanned in OKF Markdown.
+LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 
-def split_frontmatter(text: str) -> Optional[str]:
+def split_frontmatter(text):
     if not text.startswith("---\n"):
-        return None
+        return None, text
     end = text.find("\n---", 4)
     if end == -1:
-        return None
-    return text[4:end]
+        return None, text
+    return text[4:end], text[end + 4 :]
 
 
-def parse_simple_yaml(frontmatter: str) -> dict[str, str]:
+def parse_simple_yaml(frontmatter):
     data = {}
     for line in frontmatter.splitlines():
-        if not line.strip() or line.lstrip().startswith("#") or ":" not in line:
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if ":" not in line:
             continue
         key, value = line.split(":", 1)
         data[key.strip()] = value.strip().strip('"').strip("'")
     return data
 
 
-def valid_iso8601(value: str) -> bool:
+def valid_iso8601(value):
     try:
         dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
         return True
@@ -69,50 +78,184 @@ def valid_iso8601(value: str) -> bool:
         return False
 
 
-def main() -> int:
-    root = Path.cwd()
+def find_root():
+    current = Path.cwd()
+    for candidate in [current, *current.parents]:
+        if (candidate / ".okf").is_dir():
+            return candidate
+    return current
+
+
+def check_links(root, path, text):
+    warnings = []
+    for raw in LINK_RE.findall(text):
+        target = raw.split("#", 1)[0].strip()
+        if not target or target.startswith(("http://", "https://", "mailto:")):
+            continue
+        target_path = (path.parent / target).resolve()
+        if not target_path.exists():
+            alt_path = (root / target).resolve()
+            if not alt_path.exists():
+                warnings.append(f"{path}: broken link warning: {raw}")
+    return warnings
+
+
+RELAY_PLACEHOLDERS = frozenset(
+    {
+        "<from forgerelay artifact>",
+        "<from forgerelay>",
+        "pending",
+        "n/a",
+        "tbd",
+        "",
+    }
+)
+
+
+def parse_context_pack_field(text, field_name):
+    """Extract a Context Pack bullet value (relay_session_id, dispatch_packet_id, etc.)."""
+    prefixes = (
+        f"- **{field_name}:**",
+        f"- {field_name}:",
+    )
+    for line in text.splitlines():
+        stripped = line.strip().lower()
+        for prefix in prefixes:
+            if stripped.startswith(prefix.lower()):
+                return line.split(":", 1)[1].strip().strip("*").strip()
+    return None
+
+
+def check_okf_handoff_cross_link(root, path, text, failures, warnings):
+    if path.name in ("TEMPLATE.md", "README.md"):
+        return
+    if "relay_session_id" not in text.lower():
+        return
+
+    relay_id = parse_context_pack_field(text, "relay_session_id")
+    dispatch_id = parse_context_pack_field(text, "dispatch_packet_id")
+
+    if relay_id and relay_id.lower() in RELAY_PLACEHOLDERS:
+        failures.append(
+            f"{path.relative_to(root)}: relay_session_id is placeholder — set real session id or remove field"
+        )
+        return
+
+    if relay_id and not dispatch_id:
+        failures.append(
+            f"{path.relative_to(root)}: relay_session_id set but dispatch_packet_id missing — use packet id or N/A"
+        )
+    elif relay_id and dispatch_id.lower() in {"pending", "tbd", "<if pipeline active, or n/a>"}:
+        failures.append(
+            f"{path.relative_to(root)}: dispatch_packet_id is placeholder — set packet id or N/A"
+        )
+
+    if relay_id and relay_id.lower() not in RELAY_PLACEHOLDERS:
+        check_relay_handoff_drift(root, path, text, failures, warnings, strict=True)
+
+
+def check_relay_handoff_drift(root, path, text, failures, warnings, *, strict=False):
+    if "relay_session_id" not in text.lower():
+        return
+    relay_id = parse_context_pack_field(text, "relay_session_id")
+    if not relay_id or relay_id.lower() in RELAY_PLACEHOLDERS:
+        return
+
+    state_path = root / ".okf" / "forge" / "relay" / "state.json"
+    if not state_path.is_file():
+        return
+    try:
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        warnings.append(f"{path.relative_to(root)}: relay state.json unreadable for drift check")
+        return
+
+    sessions = state.get("sessions") or []
+    session = next((s for s in sessions if s.get("relaySessionId") == relay_id), None)
+    if not session:
+        return
+
+    frontmatter, _ = split_frontmatter(text)
+    handoff_ts = None
+    if frontmatter:
+        handoff_ts = parse_simple_yaml(frontmatter).get("timestamp")
+    session_updated = session.get("updatedAt") or session.get("createdAt")
+    if handoff_ts and session_updated and session_updated > handoff_ts:
+        msg = (
+            f"{path.relative_to(root)}: relay session newer than handoff — "
+            "re-read OKF handoff before acting on resume packet"
+        )
+        if strict:
+            failures.append(msg)
+        else:
+            warnings.append(msg)
+
+
+def main():
+    root = find_root()
     okf = root / ".okf"
-    failures: list[str] = []
-    warnings: list[str] = []
+    failures = []
+    warnings = []
 
     if not okf.is_dir():
         print("FAIL: .okf directory not found")
         return 1
 
-    if not (okf / "improvements").is_dir():
-        failures.append(".okf/improvements directory not found")
-    if not (okf / "improvements" / "continuous-improvement-repository.md").is_file():
-        failures.append(".okf/improvements/continuous-improvement-repository.md not found")
-
     for path in sorted(okf.rglob("*.md")):
         rel = path.relative_to(root)
         text = path.read_text(encoding="utf-8")
-        if any(pattern.search(text) for pattern in SECRET_PATTERNS):
-            failures.append(f"{rel}: likely secret detected")
 
-        frontmatter = split_frontmatter(text)
+        for pattern in SECRET_PATTERNS:
+            if pattern.search(text):
+                failures.append(f"{rel}: likely secret detected")
+                break
+
+        frontmatter, _ = split_frontmatter(text)
+        is_reserved = path.name in RESERVED and path.parent == okf
         if frontmatter is None:
-            failures.append(f"{rel}: missing YAML frontmatter")
+            if is_reserved:
+                warnings.append(f"{rel}: reserved file has no frontmatter")
+            else:
+                failures.append(f"{rel}: missing YAML frontmatter")
             continue
 
         data = parse_simple_yaml(frontmatter)
         concept_type = data.get("type", "")
-        if not concept_type:
+        if not is_reserved and not concept_type:
             failures.append(f"{rel}: missing non-empty type")
 
         timestamp = data.get("timestamp")
         if timestamp and not valid_iso8601(timestamp):
-            failures.append(f"{rel}: timestamp is not ISO 8601")
+            failures.append(f"{rel}: timestamp is not ISO 8601: {timestamp}")
 
-        if concept_type in CRITICAL_TYPES:
-            for field in ("status", "lifecycle_stage", "sensitivity", "verification_status"):
-                if not data.get(field):
-                    warnings.append(f"{rel}: missing {field}")
+        if concept_type in CRITICAL_TYPES and not data.get("sensitivity"):
+            warnings.append(f"{rel}: project-critical concept missing sensitivity")
 
-    for warning in warnings:
-        print(f"WARN: {warning}")
-    for failure in failures:
-        print(f"FAIL: {failure}")
+        if concept_type in CRITICAL_TYPES and not data.get("verification_status"):
+            warnings.append(f"{rel}: project-critical concept missing verification_status")
+
+        if concept_type == "Reference" and data.get("status") == "draft":
+            if data.get("verification_status") != "unverified":
+                failures.append(
+                    f"{rel}: draft Reference must have verification_status: unverified"
+                )
+            if data.get("source_of_truth", "").lower() == "true":
+                failures.append(
+                    f"{rel}: draft Reference must have source_of_truth: false"
+                )
+
+        validate_forge_lineage_concept(str(rel), text, data, failures)
+        validate_forge_envelope_decision_state(str(rel), text, data, failures)
+        validate_forge_approval_decision(str(rel), text, data, failures)
+
+        warnings.extend(check_links(root, path, text))
+        if concept_type == "Handoff":
+            check_okf_handoff_cross_link(root, path, text, failures, warnings)
+
+    for item in warnings:
+        print(f"WARN: {item}")
+    for item in failures:
+        print(f"FAIL: {item}")
 
     if failures:
         print(f"OKF validation failed: {len(failures)} failure(s), {len(warnings)} warning(s)")

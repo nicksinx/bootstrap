@@ -1,0 +1,37 @@
+schema_version: 1
+profile_version: "1.1.0"
+name: legacy-task
+description: >
+  DEPRECATED — pre-v2 bootstrap with ai-task MCP wrappers and worker scripts.
+  Use profile `default` (v2.0.0) for OKF + Forge + dispatch.
+  See docs/migration-from-legacy-bootstrap.md.
+extends: default
+defaults:
+  default_branch: main
+  github:
+    visibility: private
+    create_labels: true
+    create_templates: true
+  mcp:
+    enabled: true
+    transport: stdio
+    auth_profile: local-token
+    token_source: env
+  okf:
+    enabled: true
+    bundle_path: .okf
+    profile: software-development
+    continuous_improvement_path: .okf/improvements
+files:
+  include:
+    - .cursor/mcp.json.example
+    - docs/mcp-integration.md
+    - scripts/mcp/register_project.sh
+    - scripts/mcp/import_backlog.sh
+    - scripts/mcp/sync_backlog.sh
+    - scripts/mcp/dispatch_task.sh
+    - scripts/mcp/review_runs.sh
+    - scripts/mcp/seed_schedules.sh
+    - scripts/mcp/health_check.sh
+  exclude: []
+compat_mode: strict

@@ -1,0 +1,27 @@
+---
+description: Forge → OKF promotion (Option C) and approval receipt rules
+globs: .okf/workflows/forge-*.md,.okf/decisions/0002*.md,.okf/decisions/0004*.md
+alwaysApply: false
+---
+
+# Forge → OKF promotion
+
+Option C: **one-way**, **integrator-reviewed** promotion only (decision 0002).
+
+## Before promoting
+
+1. Use the server-specific checklist under `.okf/workflows/forge-*-promotion-checklist.md` (or the bootstrap stub links in `forge-promotion-checklists-stub.md`).
+2. Source artifact must be traceable to a Forge workspace under `.okf/forge/`.
+3. Run `scripts/okf-validate` after promotion edits.
+
+## OKF concept requirements
+
+- Include Forge lineage fields when promoting (e.g. packet id, stage, receipt id as applicable).
+- New external claims in `.okf/references/` start as `verification_status: unverified`.
+- Do not set `verification_status: accepted` on Forge-promoted **decisions** until:
+  - integrator review is complete, and
+  - approval receipt rules in decision 0004 are satisfied (`forge-verify-receipt` when crypto verify is required).
+
+## What okf-validate does not do
+
+`scripts/okf-validate` checks receipt **presence** and scope fields — not ed25519 authenticity. Do not claim cryptographic verification from Python validation alone.

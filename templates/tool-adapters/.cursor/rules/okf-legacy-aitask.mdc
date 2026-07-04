@@ -1,0 +1,23 @@
+---
+description: Deprecated ai-task MCP and worker paths — prefer OKF dispatch on v2 scaffolds
+globs: scripts/mcp/**,scripts/workers/**
+alwaysApply: false
+---
+
+# Legacy ai-task track (deprecated)
+
+If `scripts/mcp/` or `scripts/workers/` exist, this project may be on the **legacy bootstrap path** (profile `legacy-task` or pre-v2 scaffold).
+
+## Prefer instead (v2 / Project-1 aligned)
+
+- **Delivery:** `scripts/okf-dispatch` — see `docs/okf-dispatch-orchestration.md`
+- **Lifecycle planning:** Forge MCP launchers under `scripts/*forge*.sh`
+- **MCP config:** `.cursor/mcp-forge-lifecycle.json.example` → `.cursor/mcp.json`
+
+## When legacy paths are intentional
+
+Only use ai-task wrappers when the operator explicitly chose profile `legacy-task` or is migrating per `docs/migration-from-legacy-bootstrap.md`.
+
+Do not add new features on `scripts/mcp/*` or `scripts/workers/*` unless the task is explicitly legacy maintenance.
+
+The [cursor-ai-task-mcp-server](https://github.com/nicksinx/cursor-ai-task-mcp-server-updated) is **not** part of the OKF + Forge harness validated in Project-1.

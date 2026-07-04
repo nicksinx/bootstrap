@@ -1,0 +1,26 @@
+---
+description: Bootstrap launcher repo — templates and profiles, not a product harness
+alwaysApply: true
+---
+
+# Bootstrap toolkit repo
+
+This repository **generates** product scaffolds. It is not a Forge integration harness and not a deployed application.
+
+## Do
+
+- Change `templates/new-project/`, `profiles/`, `scripts/launch_project.sh`, and bootstrap tests.
+- Promote stable patterns from [Project-1](https://github.com/nicksinx/Project-1) into templates when they apply to **all** new products.
+- Run `make check` before merging launcher or profile changes.
+- Keep Cursor rules canonical under `templates/tool-adapters/.cursor/rules/`.
+
+## Do not
+
+- Vendor Forge server source into bootstrap.
+- Treat bootstrap as the place for full E2E harness evidence (that lives in Project-1).
+- Add product-only OKF requirements that belong in generated repos.
+
+## Related
+
+- `docs/okf-forge-bootstrap-alignment-plan.md`
+- `docs/install-cursor-rules.md`

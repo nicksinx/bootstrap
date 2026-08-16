@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Perplexity Bootstrap Propagation Validation
 description: Validation evidence for propagating Perplexity and Xcode operating model material into the OKF bootstrap scaffold.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, test-evidence, scaffold, perplexity, xcode]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-27T22:45:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T22:45:00+01:00 }
 ---
 
 # Test Objective

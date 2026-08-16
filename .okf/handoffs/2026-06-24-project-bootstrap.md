@@ -2,7 +2,7 @@
 type: Handoff
 title: Project-1 Bootstrap Handoff
 description: Continuity note for the initial OKF bootstrap project setup.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, bootstrap]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Current State

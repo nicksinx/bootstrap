@@ -2,7 +2,7 @@
 type: Workflow
 title: Multi-Agent Delivery Pipeline
 description: File-queue dispatch workflow for builder, tester, reviewer, and integrator roles across Codex, Claude Code, Cursor, Xcode-connected Claude Agent, and Perplexity overflow.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, workflow, dispatch, multi-agent]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T18:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T18:00:00+01:00 }
 ---
 
 # Purpose

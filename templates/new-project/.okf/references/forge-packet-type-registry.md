@@ -2,7 +2,7 @@
 type: Reference
 title: Forge and OKF Packet Type Registry
 description: Producer → consumer → OKF ingest target for lifecycle envelopes, relay, dispatch, and overflow.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, forge, contracts, registry, phase-1, dispatch, relay]
 applies_to: [cursor, codex, claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-07-04T00:10:00+01:00
+generated: { by: process:bootstrap-launch, at: 2026-07-04T00:10:00+01:00 }
 ---
 
 # Summary

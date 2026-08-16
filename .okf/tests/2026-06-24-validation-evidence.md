@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Initial Validation Evidence
 description: Validation evidence for the initial Project-1 OKF bootstrap kit.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, validation, evidence]
 applies_to: [codex, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Validation Performed

@@ -177,7 +177,7 @@ for path in sorted((root / "backlog/tasks").glob("TASK-*.md")):
 okf_validate = root / "scripts" / "okf-validate"
 if okf_validate.exists():
     okf = subprocess.run(
-        [str(okf_validate)],
+        [str(okf_validate), "--strict"],
         cwd=str(root),
         capture_output=True,
         text=True,

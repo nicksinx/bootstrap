@@ -2,7 +2,7 @@
 type: Handoff
 title: Overflow tester — tester-ece3c5a5
 description: Overflow failover from claude to Perplexity for packet tester-ece3c5a5.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, overflow, perplexity]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-27T22:58:20+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T22:58:20+02:00 }
 ---
 
 # Current State

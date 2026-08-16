@@ -333,7 +333,7 @@ def write_operator_handoff(target: Path, doc: dict) -> None:
 type: Handoff
 title: Operator standup — {project['display_name']}
 description: Initial operator handoff after bootstrap intake and launch.
-status: active
+status: stable
 lifecycle_stage: planning
 owner: {project['owner']}
 source_of_truth: true
@@ -342,7 +342,7 @@ tags: [handoff, bootstrap, standup]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: {dt.datetime.now().astimezone().isoformat(timespec='seconds')}
+generated: {{ by: process:project-intake, at: "{dt.datetime.now().astimezone().isoformat(timespec='seconds')}" }}
 ---
 
 # Current state

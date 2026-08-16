@@ -67,7 +67,7 @@ flowchart TB
 1. **Choose a profile** (`default` v2.0.0 recommended; `legacy-task` deprecated) — see [`profiles/`](profiles/).
 2. **Run** [`scripts/launch_project.sh`](scripts/launch_project.sh) with `--name`, `--target-dir`, and flags.
 3. **Render** templates from [`templates/new-project/`](templates/new-project/) (plus `legacy-task` overlay when applicable).
-4. **Validate** with `make check` in bootstrap, then `scripts/validate_launch.sh` and `scripts/okf-validate` in the new project.
+4. **Validate** with `make check` in bootstrap, then `scripts/validate_launch.sh` and `scripts/okf-validate --strict` in the new project.
 5. **Clone and build** Forge siblings, then reload Cursor MCP.
 
 ---
@@ -113,7 +113,7 @@ make check
 
 cd ./out/my-product
 scripts/forge-clone-siblings.sh   # optional — clone Forge peers
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-dispatch status
 ```
 
@@ -140,7 +140,7 @@ See [docs/migration-from-legacy-bootstrap.md](docs/migration-from-legacy-bootstr
 
 ## OKF augmentation
 
-**Open Knowledge Format (OKF)** is the Git-native curated memory layer every scaffolded project shares.
+**Open Knowledge Format (OKF)** is the Git-native curated memory layer every scaffolded project shares. The kit emits OKF v0.2 and layers its software-delivery profile on top; see [OKF v0.2 conformance](docs/okf-v02-conformance.md).
 
 | Concern | Where it lives |
 |---------|----------------|
@@ -158,7 +158,7 @@ OKF explains and links to code, tests, and backlog—it does not replace them. M
 To extend OKF on a generated project:
 
 1. Add concepts under `.okf/` using your agent’s OKF skill or `scripts/okf-handoff`.
-2. Run `scripts/okf-validate` before and after substantive edits.
+2. Run `scripts/okf-validate --strict` before and after substantive edits.
 3. Promote lessons from `.okf/improvements/` back into **bootstrap templates** when they apply to *all* future projects (see [Continuous improvement](#continuous-improvement)).
 
 ---

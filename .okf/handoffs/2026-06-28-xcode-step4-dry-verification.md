@@ -2,7 +2,7 @@
 type: Handoff
 title: Xcode Step 4 Dry Verification — Wave 3 Complete
 description: Cursor closed Wave 3 dry items for service 4; live Xcode verification and agent rule promotion remain deferred.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, xcode, step-4, wave-3, dry-verification]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Current State

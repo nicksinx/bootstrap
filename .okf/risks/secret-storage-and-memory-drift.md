@@ -2,7 +2,7 @@
 type: Risk
 title: Secret Storage and Project Memory Drift
 description: OKF may become unsafe or unreliable if secrets are stored or adapters drift from the bundle.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, risk, security, agent-memory]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Risk

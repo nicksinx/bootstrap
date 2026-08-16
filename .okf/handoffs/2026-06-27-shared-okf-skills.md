@@ -2,7 +2,7 @@
 type: Handoff
 title: Shared OKF Skills Operating Model
 description: Continuity note for implementing the shared OKF skill layer across Codex, Claude Code, Cursor, and future services.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, shared-skills, sync]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # Current State

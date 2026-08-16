@@ -2,7 +2,7 @@
 type: Feature
 title: Codex OKF Skills (Superseded)
 description: Project-1 provides reusable Codex skills for reading, writing, auditing, and validating OKF.
-status: superseded
+status: deprecated
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, codex, skills]
 applies_to: [codex, cursor, claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # Superseded

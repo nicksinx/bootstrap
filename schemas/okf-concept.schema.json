@@ -1,84 +1,139 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://bootstrap.local/schemas/okf-concept.schema.json",
-  "title": "OKF Concept Frontmatter",
-  "description": "Frontmatter contract for Markdown concept documents in .okf.",
+  "title": "OKF v0.2 Concept Frontmatter",
+  "description": "Portable OKF v0.2 concept metadata with optional Project Bootstrap profile extensions.",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "type",
-    "title",
-    "description",
-    "status",
-    "lifecycle_stage",
-    "owner",
-    "source_of_truth",
-    "resource",
-    "sensitivity",
-    "verification_status",
-    "timestamp"
-  ],
+  "required": ["type"],
   "properties": {
-    "type": {
-      "enum": [
-        "Project",
-        "Requirement",
-        "Feature",
-        "User Story",
-        "Architecture",
-        "Component",
-        "Decision",
-        "Data Model",
-        "API",
-        "Workflow",
-        "Runbook",
-        "Prompt",
-        "Agent Rule",
-        "Agent Skill",
-        "Tool Adapter",
-        "Risk",
-        "Assumption",
-        "Test Case",
-        "Test Evidence",
-        "Release",
-        "Handoff",
-        "Reference",
-        "Glossary Term",
-        "Improvement",
-        "Lesson Learned",
-        "Retrospective"
+    "type": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1},
+    "resource": {"type": "string", "minLength": 1},
+    "tags": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "status": {"enum": ["draft", "stable", "deprecated"]},
+    "stale_after": {"type": "string", "format": "date"},
+    "generated": {"$ref": "#/$defs/actorEvent"},
+    "verified": {
+      "oneOf": [
+        {"$ref": "#/$defs/verifiedEvent"},
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/verifiedEvent"}
+        }
       ]
     },
-    "title": { "type": "string", "minLength": 1 },
-    "description": { "type": "string", "minLength": 1 },
-    "status": {
-      "enum": ["draft", "active", "deprecated", "superseded", "archived"]
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/source"}
     },
+    "usage_window": {"$ref": "#/$defs/usageWindow"},
+    "runtime": {"type": "string", "minLength": 1},
+    "parameters": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/parameter"}
+    },
+    "computation": {"type": "string", "minLength": 1},
+    "executor": {"$ref": "#/$defs/executable"},
+    "attester": {"$ref": "#/$defs/executable"},
     "lifecycle_stage": {
       "enum": ["discovery", "planning", "build", "test", "release", "operate", "retire"]
     },
-    "owner": { "type": "string", "minLength": 1 },
-    "source_of_truth": { "type": "boolean" },
-    "resource": { "type": "string", "minLength": 1 },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
+    "owner": {"type": "string", "minLength": 1},
+    "source_of_truth": {"type": "boolean"},
     "applies_to": {
       "type": "array",
-      "items": {
-        "enum": ["cursor", "claude", "codex", "xcode", "chatgpt", "perplexity", "ollama", "mcp", "local-agent"]
-      }
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
     },
     "sensitivity": {
       "enum": ["public", "internal", "confidential", "secret-prohibited"]
     },
     "verification_status": {
       "enum": ["unverified", "cited", "reviewed", "tested", "accepted"]
-    },
-    "timestamp": {
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"type": {"const": "Attested Computation"}}, "required": ["type"]},
+      "then": {"required": ["runtime", "executor", "attester"]}
+    }
+  ],
+  "$defs": {
+    "actor": {
       "type": "string",
-      "format": "date-time"
+      "pattern": "^(human:[^\\s:]+|process:[^\\s:]+|[^\\s/:]+/[^\\s/]+)$"
+    },
+    "actorEvent": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["by"],
+      "properties": {
+        "by": {"$ref": "#/$defs/actor"},
+        "at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "verifiedEvent": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["by", "at"],
+      "properties": {
+        "by": {"$ref": "#/$defs/actor"},
+        "at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "usageWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": {"type": "string", "format": "date"},
+        "to": {"type": "string", "format": "date"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["resource"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "resource": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "author": {"$ref": "#/$defs/actor"},
+        "usage_count": {"type": "integer", "minimum": 0},
+        "last_modified": {"type": "string", "format": "date"},
+        "usage_window": {"$ref": "#/$defs/usageWindow"}
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["name", "type", "required"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "minLength": 1},
+        "required": {"type": "boolean"}
+      }
+    },
+    "executable": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["resource"],
+      "properties": {
+        "resource": {"type": "string", "minLength": 1},
+        "receipt": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      }
     }
   }
 }

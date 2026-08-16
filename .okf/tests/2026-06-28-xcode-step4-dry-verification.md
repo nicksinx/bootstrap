@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Xcode Step 4 Dry Verification
 description: Repo-only Wave 3 evidence for xcode-claude dispatch runner and step-4 file presence without live Xcode.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, test-evidence, xcode, step-4, dry-verification, dispatch]
 applies_to: [cursor, claude, codex, xcode-claude, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Test Objective

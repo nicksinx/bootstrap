@@ -2,7 +2,7 @@
 type: Feature
 title: Shared OKF Skills
 description: Project-1 provides reusable OKF skills and thin adapters so Codex, Claude Code, Cursor, Perplexity, and future services share the same skill contracts and project context.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, skills, shared-operating-model, cursor, claude, codex, xcode, perple
 applies_to: [cursor, claude, codex, xcode-claude, chatgpt, perplexity, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # User Value

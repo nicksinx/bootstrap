@@ -2,7 +2,7 @@
 type: Improvement
 title: Xcode step 4 dry verification lessons
 description: Lessons from Wave 3 dry verification of service 4 without live Xcode.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, improvement, xcode, step-4, verification]
 applies_to: [cursor, claude, codex, xcode-claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Observation

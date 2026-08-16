@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Scaffold Parity Validation (Wave 1)
 description: Full-kit vs sparse-path smoke evidence for create_okf_project.py BOOTSTRAP_COPY_PATHS and stub replacement.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, test-evidence, scaffold, bootstrap, parity]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-28T15:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T15:00:00+02:00 }
 ---
 
 # Test Objective

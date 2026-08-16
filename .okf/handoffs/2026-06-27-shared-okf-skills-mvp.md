@@ -2,7 +2,7 @@
 type: Handoff
 title: Shared OKF Skills MVP Handoff
 description: Handoff after implementing the shared OKF skills operating model MVP.
-status: superseded
+status: deprecated
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, shared-skills]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # Current State

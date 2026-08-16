@@ -215,7 +215,7 @@ def adapter_future(skills, root):
 type: Agent Rule
 title: Future Service OKF Adapter
 description: Thin adapter template for services that participate in the shared OKF operating model.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: false
@@ -224,7 +224,7 @@ tags: [okf, adapter, future-service]
 applies_to: [local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: {timestamp}
+generated: {{ by: process:okf-sync-skills, at: "{timestamp}" }}
 ---
 
 # Future Service OKF Adapter

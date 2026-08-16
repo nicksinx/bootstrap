@@ -2,7 +2,7 @@
 type: Handoff
 title: Bootstrap Refinement — Session Handoff (2026-06-28)
 description: Session context for Claude Code continuing bootstrap kit and OKF ways-of-working refinement after Perplexity Space curation was completed.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, bootstrap, claude, session-context]
 applies_to: [claude, codex, cursor]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T00:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T00:00:00+01:00 }
 ---
 
 # Bootstrap Refinement — Session Handoff (2026-06-28)

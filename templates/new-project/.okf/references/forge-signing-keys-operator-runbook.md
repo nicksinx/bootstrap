@@ -2,7 +2,7 @@
 type: Reference
 title: Forge Signing Keys Operator Runbook (OQ-2)
 description: Where Forge envelope and approval-receipt keys live relative to OKF git; env layout, rotation, and per-server docs.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, forge, signing, keys, security, oq-2, runbook]
 applies_to: [cursor, codex, claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-07-04T02:30:00+01:00
+generated: { by: process:bootstrap-launch, at: 2026-07-04T02:30:00+01:00 }
 ---
 
 # Summary

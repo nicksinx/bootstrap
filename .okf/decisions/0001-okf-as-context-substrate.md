@@ -2,7 +2,7 @@
 type: Decision
 title: Use OKF as the Shared Context Substrate
 description: Project-1 keeps durable project context in OKF and uses tool adapters as thin entrypoints.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, decision, context]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: accepted
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Decision

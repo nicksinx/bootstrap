@@ -2,7 +2,7 @@
 type: Lesson Learned
 title: OKF Bootstrap Lessons
 description: Initial lessons learned while creating the Project-1 OKF bootstrap kit.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, lessons-learned, bootstrap, codex-skills]
 applies_to: [codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Observation

@@ -2,7 +2,7 @@
 type: Improvement
 title: Dispatch ergonomics Wave 2 lessons
 description: Lessons from role-specific handoff templates and live dispatch dry-run (pipe-cb8dc04e).
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, improvement, dispatch, tester, reviewer, overflow]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T23:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T23:00:00+02:00 }
 ---
 
 # Observation

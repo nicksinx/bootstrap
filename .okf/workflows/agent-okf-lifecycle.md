@@ -2,7 +2,7 @@
 type: Workflow
 title: Agent OKF Lifecycle
 description: Standard pre-task, implementation, post-task, and handoff workflow for OKF-aware agents.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, workflow, agents]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Purpose

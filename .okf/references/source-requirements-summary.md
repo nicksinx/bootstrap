@@ -2,7 +2,7 @@
 type: Reference
 title: Source Requirements Summary
 description: Summary of the draft OKF Companion Requirements used to create Project-1.
-status: active
+status: stable
 lifecycle_stage: planning
 owner: project
 source_of_truth: false
@@ -11,7 +11,7 @@ tags: [okf, requirements, source]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Summary

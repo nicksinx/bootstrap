@@ -2,7 +2,7 @@
 type: Handoff
 title: Wave 2 — Dispatch Ergonomics
 description: Tester and reviewer role templates, handoff README update, dispatch dry-run test evidence, and orchestration doc extended with role handoff expectations.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, dispatch, ergonomics, tester, reviewer]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T23:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T23:00:00+02:00 }
 ---
 
 # Current State

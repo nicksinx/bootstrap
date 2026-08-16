@@ -2,7 +2,7 @@
 type: Reference
 title: Perplexity ProcureLex Research Prompt
 description: MODE A research prompt for ProcureLex application work — not bootstrap kit meta-configuration.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, perplexity, procurelex, research]
 applies_to: [perplexity, cursor, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T12:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T12:00:00+02:00 }
 ---
 
 # Purpose

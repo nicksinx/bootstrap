@@ -2,7 +2,7 @@
 type: Agent Rule
 title: Perplexity Overflow OKF Agent Rule
 description: Perplexity Desktop Pro rules for ad hoc overflow substitution when primary OKF runners are blocked.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, perplexity, overflow, agent-rule, failover]
 applies_to: [perplexity]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T21:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T21:00:00+01:00 }
 ---
 
 # Purpose

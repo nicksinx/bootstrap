@@ -1,8 +1,8 @@
 ---
 type: Handoff
-title: {{Task Title}} — Xcode Step 4
-description: {{One-sentence summary for service 4 handoff to Perplexity step 5}}
-status: active
+title: "{{Task Title}} - Xcode Step 4"
+description: "{{One-sentence summary for service 4 handoff to Perplexity step 5}}"
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, xcode, step-4]
 applies_to: [xcode-claude, cursor, claude, codex, perplexity]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-28T12:00:00+00:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T12:00:00+00:00 }
 ---
 
 Copy to `.okf/handoffs/YYYY-MM-DD-xcode-step4-<task-slug>.md`. Use after Xcode step 4 (dry or live verification).

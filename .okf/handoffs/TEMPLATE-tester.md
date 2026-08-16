@@ -1,8 +1,8 @@
 ---
 type: Handoff
-title: {{Task Title}} — Tester Handoff
-description: {{One-sentence summary of what was tested and the verdict}}
-status: active
+title: "{{Task Title}} - Tester Handoff"
+description: "{{One-sentence summary of what was tested and the verdict}}"
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,12 +11,12 @@ tags: [okf, handoff, tester]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-28T12:00:00+00:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T12:00:00+00:00 }
 ---
 
 Copy to `.okf/handoffs/YYYY-MM-DD-tester-<task-slug>.md`. Use when the `tester` role (default runner: `claude`) completes test work and hands off to the `reviewer` (default runner: `cursor`).
 
-Replace `timestamp` and frontmatter placeholders before saving.
+Replace `generated.at` and frontmatter placeholders before saving.
 
 # Current State
 

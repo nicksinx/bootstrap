@@ -2,7 +2,7 @@
 type: Handoff
 title: Perplexity OKF Configuration Handoff
 description: Continuity note after documenting Perplexity service 5 research and overflow modes.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, perplexity, overflow, research]
 applies_to: [cursor, codex, claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T21:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T21:00:00+01:00 }
 ---
 
 # Current State

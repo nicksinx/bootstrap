@@ -11,7 +11,7 @@ tags: [okf, xcode, claude, agent-rule, dispatch]
 applies_to: [xcode-claude]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Purpose

@@ -2,7 +2,7 @@
 type: Agent Rule
 title: Cursor OKF Agent Rule
 description: Cursor-specific rules for using Project-1 shared OKF context alongside existing Cursor global skills.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, cursor, agent-rule, shared-skills]
 applies_to: [cursor]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # Purpose

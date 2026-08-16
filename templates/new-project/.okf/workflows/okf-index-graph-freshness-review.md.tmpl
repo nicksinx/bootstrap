@@ -1,0 +1,34 @@
+---
+type: Workflow
+title: OKF Index, Graph, and Freshness Review
+description: Deterministic operating sequence for keeping navigation current, inspecting concept relationships, and reviewing stale knowledge.
+status: stable
+lifecycle_stage: operate
+owner: __OKF_OWNER__
+source_of_truth: true
+resource: .okf/workflows/okf-index-graph-freshness-review.md
+tags: [okf, workflow, index, graph, freshness]
+applies_to: [cursor, claude, codex, local-agent]
+sensitivity: internal
+verification_status: reviewed
+stale_after: __STALE_AFTER__
+generated: { by: process:bootstrap-launch, at: __GENERATED_AT__ }
+---
+
+# Purpose
+
+Keep OKF navigation deterministic and make stale knowledge visible without replacing human review or changing concept trust automatically.
+
+# Required Sequence
+
+1. Run `scripts/okf-migrate --check`.
+2. Run `scripts/okf-validate --strict`.
+3. Run `scripts/okf-index --write`, then `scripts/okf-index --check`.
+4. Run `scripts/okf-freshness --check` and review stale results.
+5. Use `scripts/okf-visualize --format html --output /tmp/okf-graph.html` when relationship analysis is useful.
+6. Run `scripts/okf-check-adapters` after canonical skill changes.
+7. Record test evidence, lessons, and a handoff for substantive work.
+
+# Safety
+
+Do not invent `verified` events, silently promote draft research, or delete a concept solely because its review date passed.

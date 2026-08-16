@@ -11,6 +11,7 @@ tags: [okf, risk, xcode, verification, dispatch]
 applies_to: [xcode-claude, cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-09-16
 generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 

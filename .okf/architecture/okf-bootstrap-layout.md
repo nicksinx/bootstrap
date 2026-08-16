@@ -11,6 +11,7 @@ tags: [okf, architecture, layout]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-11-16
 generated: { by: process:okf-v02-migration-scaffold, at: 2026-08-16T17:02:47+01:00 }
 ---
 
@@ -30,7 +31,7 @@ Project-1/
   AGENTS.md               ← Codex adapter (thin, generated)
   CLAUDE.md               ← Claude Code adapter (thin, generated)
   docs/
-  scripts/                ← launcher, v0.2 validation/migration, dispatch
+  scripts/                ← launcher, v0.2 validation/migration, index/graph/freshness, dispatch
     lib/                  ← shared runtime copied into generated projects
   skills/                 ← Canonical OKF skill definitions (skills/*/SKILL.md)
   templates/
@@ -46,7 +47,7 @@ Tool adapters are generated rather than hand-maintained. The sync flow is:
 
 1. Edit the canonical skill definition in `skills/<name>/SKILL.md`.
 2. Run `scripts/okf-sync-skills` to refresh all adapters.
-3. Run `scripts/okf-check-adapters`, `scripts/okf-migrate --check`, and `scripts/okf-validate --strict`.
+3. Run `scripts/okf-check-adapters`, `scripts/okf-migrate --check`, `scripts/okf-index --write`, `scripts/okf-index --check`, and `scripts/okf-validate --strict`.
 
 Each adapter stays thin: it points agents to the canonical skill instead of duplicating the skill body. See `docs/shared-okf-skills.md` for the full operating model.
 
@@ -54,7 +55,7 @@ Each adapter stays thin: it points agents to the canonical skill instead of dupl
 
 `scripts/launch_project.sh` is the canonical generator. The `create-new-okf-project` skill delegates to it when the bootstrap repository is available. Its embedded fallback is self-contained but intentionally smaller; shared validator and migration libraries are byte-for-byte parity tested.
 
-The launcher generates service adapters after copying project-local skills, then `scripts/validate_launch.sh` gates migration drift, strict OKF conformance, and adapter drift.
+The launcher renders the five-service agent rules, prompts, handoff templates, context-pack guide, and Xcode readiness material before generating service adapters and deterministic directory indexes. `scripts/validate_launch.sh` gates required scaffold parity, migration drift, index drift, overdue freshness, strict OKF conformance, and adapter drift.
 
 # Constraints
 
@@ -68,6 +69,9 @@ The launcher generates service adapters after copying project-local skills, then
 - Agents read `.okf/index.md` and `.okf/project.md`.
 - Scripts operate on a repository-local `.okf` directory.
 - `scripts/okf-sync-skills` generates adapters for Codex, Claude Code, Cursor, Perplexity, and future services.
+- `scripts/okf-index` owns marked generated blocks while preserving authored index prose.
+- `scripts/okf-visualize` exports deterministic JSON or self-contained HTML from internal Markdown links.
+- `scripts/okf-freshness` inventories and checks `stale_after` without changing trust or lifecycle state.
 - Codex installs skills by copying folders from `skills/` per `CODEX-SKILL-INSTALL.md`.
 - Claude Code users can run `/project:okf-sync` to refresh adapters without leaving the editor.
 

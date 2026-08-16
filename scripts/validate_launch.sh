@@ -32,7 +32,7 @@ root = Path(sys.argv[1])
 release_gate = sys.argv[2] == "1"
 
 common_files = [
-    "README.md", "Makefile", ".gitignore", "project.config.yaml",
+    "README.md", "Makefile", ".gitignore", "project.config.yaml", "CODEX-SKILL-INSTALL.md",
     "AGENTS.md", "CLAUDE.md", "PERPLEXITY.md", ".cursor/rules/okf.mdc",
     "backlog/queue.yaml", "backlog/tasks/TASK-0001.md",
     "schemas/project.schema.json", "schemas/queue.schema.json",
@@ -43,6 +43,7 @@ common_files = [
     "docs/okf-integration.md",
     ".okf/index.md", ".okf/project.md", ".okf/log.md",
     ".okf/requirements/bootstrap-operational-readiness.md",
+    ".okf/requirements/index.md",
     ".okf/architecture/bootstrap-lifecycle-framework.md",
     ".okf/decisions/0001-okf-as-context-layer.md",
     ".okf/workflows/agent-okf-lifecycle.md",
@@ -63,6 +64,8 @@ v2_files = [
     "docs/okf-ways-of-working-brief.md",
     "docs/okf-v02-conformance.md",
     "docs/migrate-okf-v02.md",
+    "docs/okf-index-graph-freshness.md",
+    "docs/perplexity-project-files-and-skills.md",
     "docs/skill-frontmatter-compatibility.md",
     ".cursor/mcp-forge-lifecycle.json.example",
     "scripts/forgerelay-mcp.sh",
@@ -72,10 +75,28 @@ v2_files = [
     "scripts/okf_dispatch_schema.py",
     "scripts/okf-check-adapters",
     "scripts/okf-migrate",
+    "scripts/okf-index",
+    "scripts/okf-freshness",
+    "scripts/okf-visualize",
     "scripts/okf-check-forge-receipts",
     "scripts/okf-sync-skills",
     "scripts/operator-ready-check.sh",
     ".okf/decisions/0002-okf-forge-integration.md",
+    ".okf/agents/perplexity.md",
+    ".okf/agents/perplexity-overflow.md",
+    ".okf/agents/xcode-claude.md",
+    ".okf/prompts/perplexity-custom-instructions.md",
+    ".okf/prompts/perplexity-deep-research-setup.md",
+    ".okf/prompts/perplexity-overflow-failover.md",
+    ".okf/prompts/perplexity-post-curation-smoke-test.md",
+    ".okf/prompts/xcode-step4-verification-checklist.md",
+    ".okf/handoffs/README.md",
+    ".okf/handoffs/TEMPLATE.md",
+    ".okf/handoffs/TEMPLATE-tester.md",
+    ".okf/handoffs/TEMPLATE-reviewer.md",
+    ".okf/handoffs/TEMPLATE-xcode-step4.md",
+    ".okf/context-packs/INDEX.md",
+    ".okf/risks/xcode-live-verification-pending.md",
     ".okf/workflows/okf-forge-lifecycle-bridge.md",
     ".okf/workflows/multi-agent-delivery-pipeline.md",
     ".okf/references/forge-sibling-layout.md",
@@ -199,6 +220,28 @@ if okf_migrate.exists():
     )
     if migrate.returncode != 0:
         errors.append(("okf-migration-drift", (migrate.stderr + migrate.stdout).strip()))
+
+okf_index = root / "scripts" / "okf-index"
+if okf_index.exists():
+    index = subprocess.run(
+        [str(okf_index), "--check"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if index.returncode != 0:
+        errors.append(("okf-index-drift", (index.stderr + index.stdout).strip()))
+
+okf_freshness = root / "scripts" / "okf-freshness"
+if okf_freshness.exists():
+    freshness = subprocess.run(
+        [str(okf_freshness), "--check"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if freshness.returncode != 0:
+        errors.append(("okf-freshness", (freshness.stderr + freshness.stdout).strip()))
 
 adapter_check = root / "scripts" / "okf-check-adapters"
 if adapter_check.exists():

@@ -15,7 +15,7 @@ Use this skill to start a new project that treats OKF as the durable context lay
 4. Include `.okf/improvements/` as the continuous-improvement repository from the beginning.
 5. Include the canonical five-service setup order: Cursor, Codex, Claude Code, Xcode-connected Claude Agent, and Perplexity Desktop Pro.
 6. Include Perplexity MODE A research and MODE B overflow prompts, workflows, adapter material, and project skills.
-7. Run `scripts/okf-migrate --check` and `scripts/okf-validate --strict`.
+7. Run `scripts/okf-migrate --check`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and `scripts/okf-validate --strict`.
 8. Tell the user which files were created and how to install or invoke any OKF skills.
 
 ## Preferred Script
@@ -51,7 +51,7 @@ The canonical launcher renders `templates/new-project/`, copies schemas/profiles
 
 | Category | Paths |
 |----------|-------|
-| Scripts | `scripts/okf-dispatch`, `scripts/okf-check-adapters`, `scripts/okf-migrate` |
+| Scripts | `scripts/okf-dispatch`, `scripts/okf-check-adapters`, `scripts/okf-migrate`, `scripts/okf-index`, `scripts/okf-freshness`, `scripts/okf-visualize` |
 | Operator docs | `docs/okf-ways-of-working-brief.md`, `docs/okf-dispatch-orchestration.md`, `docs/configure-perplexity-okf.md`, `docs/perplexity-project-files-and-skills.md`, `docs/skill-frontmatter-compatibility.md`, `docs/okf-v02-conformance.md` |
 | Setup guides | `docs/create-new-okf-project-in-{cursor,codex,claude,xcode,perplexity}.md` |
 | Handoffs / context | `.okf/handoffs/README.md`, `TEMPLATE.md`, `TEMPLATE-tester.md`, `TEMPLATE-reviewer.md`, `TEMPLATE-xcode-step4.md`, `.okf/context-packs/INDEX.md` |
@@ -68,11 +68,13 @@ After scaffold, instruct the user to run:
 ```bash
 scripts/okf-sync-skills
 scripts/okf-migrate --check
+scripts/okf-index --check
+scripts/okf-freshness --check
 scripts/okf-validate --strict
 scripts/okf-check-adapters
 ```
 
-**Expected file count (canonical default scaffold):** approximately 260 files, including the self-contained template source and 17 project-local skills. Treat the exact count as informational; validate required paths and strict checks instead.
+**Expected file count (canonical default scaffold):** approximately 330 files, including the five-service OKF material, generated directory indexes, the self-contained template source, and 17 project-local skills. Treat the exact count as informational; validate required paths and strict checks instead.
 
 ## Required Scaffold
 
@@ -100,6 +102,9 @@ Create:
 - `PERPLEXITY.md`
 - `scripts/okf-validate --strict`
 - `scripts/okf-migrate`
+- `scripts/okf-index`
+- `scripts/okf-freshness`
+- `scripts/okf-visualize`
 - `scripts/okf-context-pack`
 - `scripts/okf-handoff`
 - `scripts/okf-sync-skills`

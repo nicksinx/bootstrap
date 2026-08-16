@@ -11,7 +11,8 @@ tags: [okf, operating-model, operator-guide, brief]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-generated: { by: process:okf-v02-skills, at: 2026-08-16T17:02:47+01:00 }
+stale_after: 2026-11-16
+generated: { by: process:okf-index-graph-freshness, at: 2026-08-16T17:25:01+01:00 }
 ---
 
 # Project-1 OKF Ways of Working Brief
@@ -26,7 +27,7 @@ Perplexity is the **cited research layer** for draft `.okf/references/` material
 
 **Handoffs** (`.okf/handoffs/`) are for active work transfer. **Context packs** (`.okf/context-packs/`) are ephemeral paste bundles, not source of truth.
 
-Operators should run `scripts/okf-validate --strict`, check adapter drift with `scripts/okf-check-adapters`, and keep secrets out of OKF.
+Operators should run `scripts/okf-validate --strict`, check deterministic index and adapter drift, review freshness, and keep secrets out of OKF. Use `scripts/okf-visualize` when a graph is more useful than another context dump.
 
 ---
 
@@ -72,7 +73,9 @@ scripts/okf-dispatch overflow --packet-id <id> --reason usage_limit --primary-ru
 
 ### Validation
 
-Run `scripts/okf-validate --strict`. Draft References must remain `verification_status: unverified` and `source_of_truth: false`.
+Run `scripts/okf-validate --strict`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and `scripts/okf-check-adapters`. Draft References must remain `verification_status: unverified` and `source_of_truth: false`.
+
+Directory `index.md` files contain a marked generated block maintained by `scripts/okf-index`; prose outside that block remains operator-owned. `stale_after` is a review deadline, not an automatic trust promotion, lifecycle change, or deletion instruction.
 
 ---
 
@@ -171,9 +174,13 @@ Use `PERPLEXITY.md`. MODE A creates cited draft References. MODE B produces over
 
 ```bash
 scripts/okf-validate --strict
+scripts/okf-migrate --check
+scripts/okf-index --check
+scripts/okf-index --write
+scripts/okf-freshness --check
+scripts/okf-visualize --format html --output /tmp/okf-graph.html
 scripts/okf-sync-skills
 scripts/okf-check-adapters
-scripts/okf-check-adapters --strict
 scripts/okf-dispatch status --verbose
 scripts/okf-dispatch init-pipeline "Task summary"
 scripts/okf-dispatch overflow --packet-id <id> --reason usage_limit --primary-runner codex
@@ -229,17 +236,17 @@ python3 skills/create-new-okf-project/scripts/create_okf_project.py /path/to/pro
   --name "My Project" --owner team
 ```
 
-**Expect approximately 260 files** in the canonical default scaffold, including copied template source and project-local skills. Validate required paths rather than treating the exact count as a contract.
+**Expect approximately 330 files** in the canonical default scaffold, including the five-service OKF material, copied template source, generated directory indexes, and project-local skills. Validate required paths rather than treating the exact count as a contract.
 
 - `.okf/` bundle (requirements, workflows, agents, prompts, handoffs, references, improvements, dispatch queues)
 - Handoffs guide: `.okf/handoffs/README.md`, `TEMPLATE.md`, `TEMPLATE-tester.md`, `TEMPLATE-reviewer.md`, `TEMPLATE-xcode-step4.md`
 - Context packs index: `.okf/context-packs/INDEX.md`
 - Thin adapters: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/okf.mdc`, `PERPLEXITY.md`
 - Docs: `docs/shared-okf-skills.md`, `docs/configure-perplexity-okf.md`, Perplexity/Xcode setup guides (when copied from bootstrap)
-- Scripts: `okf-validate`, `okf-migrate`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`, `okf-dispatch`, `okf-check-adapters`
+- Scripts: `okf-validate`, `okf-migrate`, `okf-index`, `okf-freshness`, `okf-visualize`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`, `okf-dispatch`, `okf-check-adapters`
 - Bundled skills under `skills/` including four `perplexity-okf-*` skills
 
-After scaffold: run `scripts/okf-migrate --check`, `scripts/okf-validate --strict`, and `scripts/okf-check-adapters`.
+After scaffold: run `scripts/okf-migrate --check`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, `scripts/okf-validate --strict`, and `scripts/okf-check-adapters`.
 
 ### Bootstrap kit path (important)
 
@@ -260,6 +267,8 @@ Current evidence: `.okf/tests/2026-08-16-okf-v02-migration-scaffold.md`.
 - Do not let Perplexity write repo files or advance dispatch queues.
 - Do not attach the whole repo to Perplexity; use curated Project Files.
 - Do not hand-edit generated adapter skill indexes (regenerate with `scripts/okf-sync-skills`).
+- Do not hand-edit content inside OKF generated index markers (regenerate with `scripts/okf-index --write`).
+- Do not interpret an overdue `stale_after` date as permission to delete or silently rewrite a concept.
 - Do not confuse handoffs with context packs.
 
 ---

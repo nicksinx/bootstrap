@@ -31,6 +31,7 @@ The kit provides:
 - Xcode-connected Claude Agent setup material for Apple-platform dispatch work.
 - Template OKF files for future projects.
 - A continuous-improvement repository for lessons learned over the life of a project.
+- Optional bounded OpenWiki, read-only OKF MCP, and local attested-computation pilots.
 
 ## Scope
 
@@ -44,12 +45,14 @@ In scope:
 - Five-service setup order: Cursor, Codex, Claude Code, Xcode, Perplexity.
 - Manual Perplexity overflow behavior when a primary runner is blocked.
 - Lessons learned, retrospectives, and improvement actions under `.okf/improvements/`.
+- Disabled-by-default or opt-in integration pilots that preserve the curated OKF write boundary.
 
 Out of scope:
 
 - Replacing source code, tests, issue trackers, OpenAPI documents, formal contracts, or secrets management.
 - Proprietary knowledge platforms.
-- Live MCP server implementation.
+- Write-capable, remote, or production-hosted OKF MCP services.
+- Automated OpenWiki-to-OKF promotion and standardized production attestation.
 
 ## Operating Model
 

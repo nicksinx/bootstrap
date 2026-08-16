@@ -1,4 +1,4 @@
-.PHONY: test-contracts test-launch-smoke test-intake test-okf-conformance test-okf-migration test-scaffold-consolidation test-skill-contracts test-okf-tooling okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-adapter-check check
+.PHONY: test-contracts test-launch-smoke test-intake test-okf-conformance test-okf-migration test-scaffold-consolidation test-skill-contracts test-okf-tooling test-openwiki-sidecar test-okf-mcp test-attested-computation okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-adapter-check check
 
 test-contracts:
 	python3 tests/test_contracts.py
@@ -24,6 +24,15 @@ test-skill-contracts:
 test-okf-tooling:
 	python3 tests/test_okf_tooling.py
 
+test-openwiki-sidecar:
+	python3 tests/test_openwiki_sidecar.py
+
+test-okf-mcp:
+	python3 tests/test_okf_mcp.py
+
+test-attested-computation:
+	python3 tests/test_attested_computation.py
+
 okf-validate-strict:
 	scripts/okf-validate --strict
 
@@ -39,4 +48,4 @@ okf-freshness-check:
 okf-adapter-check:
 	scripts/okf-check-adapters
 
-check: test-contracts test-launch-smoke test-intake test-okf-conformance test-okf-migration test-scaffold-consolidation test-skill-contracts test-okf-tooling okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-adapter-check
+check: test-contracts test-launch-smoke test-intake test-okf-conformance test-okf-migration test-scaffold-consolidation test-skill-contracts test-okf-tooling test-openwiki-sidecar test-okf-mcp test-attested-computation okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-adapter-check

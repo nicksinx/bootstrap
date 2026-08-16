@@ -26,4 +26,17 @@ okf:
   bundle_path: __OKF_BUNDLE_PATH__
   profile: __OKF_PROFILE__
   continuous_improvement_path: __OKF_CONTINUOUS_IMPROVEMENT_PATH__
+integrations:
+  openwiki:
+    enabled: __OPENWIKI_ENABLED__
+    output_path: openwiki
+    instructions_path: openwiki/INSTRUCTIONS.md
+  okf_readonly_mcp:
+    enabled: false
+    transport: stdio
+    command: scripts/okf-mcp-server
+  attested_computation:
+    enabled: false
+    stability: experimental
+    receipt_path: .okf-runtime/attestations/okf-bundle-receipt.json
 compat_mode: __COMPAT_MODE__

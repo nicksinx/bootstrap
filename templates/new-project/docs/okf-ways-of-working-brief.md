@@ -77,6 +77,12 @@ Run `scripts/okf-validate --strict`, `scripts/okf-index --check`, `scripts/okf-f
 
 Directory `index.md` files contain a marked generated block maintained by `scripts/okf-index`; prose outside that block remains operator-owned. `stale_after` is a review deadline, not an automatic trust promotion, lifecycle change, or deletion instruction.
 
+### Optional integration surfaces
+
+- `scripts/okf-mcp-server` is a disabled-by-default, path-contained read-only query pilot. It is separate from Forge lifecycle MCPs and exposes no mutation tools.
+- `.okf/computations/bootstrap-integrity.md` is a spec-valid `Attested Computation`; its receipt/verdict JSON remains a local experiment under `.okf-runtime/`.
+- OpenWiki is an opt-in generated sidecar enabled with `--with-openwiki`. `scripts/openwiki-sidecar` stages execution and imports only `openwiki/` plus complete OpenWiki marker blocks.
+
 ---
 
 ## Dispatch Pipeline
@@ -184,10 +190,15 @@ scripts/okf-check-adapters
 scripts/okf-dispatch status --verbose
 scripts/okf-dispatch init-pipeline "Task summary"
 scripts/okf-dispatch overflow --packet-id <id> --reason usage_limit --primary-runner codex
+scripts/okf-attest-experiment run
+scripts/openwiki-sidecar status
 scripts/okf-context-pack
 scripts/okf-handoff <task-slug> --summary "..."
 python3 skills/create-new-okf-project/scripts/create_okf_project.py /path/to/project \
   --name "My Project" --owner team
+# Optional sidecar:
+python3 skills/create-new-okf-project/scripts/create_okf_project.py /path/to/project \
+  --name "My Project" --owner team --with-openwiki
 ```
 
 Use `--overwrite` on the scaffold script only when replacing an existing OKF scaffold intentionally.
@@ -223,6 +234,8 @@ References are **not obsolete** when docs exist; they remain the traceability la
 
 Also present: `source-requirements-summary.md` (project-specific).
 
+`integration-protocol-boundaries.md` is a separate **stable, reviewed** primary-source record for the MCP and OpenWiki contracts used by the optional pilots. Its short freshness deadline reflects active upstream protocols; review it rather than silently extending trust.
+
 Lessons accepted from this research: `.okf/improvements/2026-06-27-perplexity-research-lessons.md`.
 
 ---
@@ -236,14 +249,14 @@ python3 skills/create-new-okf-project/scripts/create_okf_project.py /path/to/pro
   --name "My Project" --owner team
 ```
 
-**Expect approximately 330 files** in the canonical default scaffold, including the five-service OKF material, copied template source, generated directory indexes, and project-local skills. Validate required paths rather than treating the exact count as a contract.
+**Expect approximately 367 files with the OpenWiki overlay enabled** in the canonical default scaffold, including the five-service OKF material, copied template source, generated directory indexes, integration pilots, and project-local skills. Validate required paths rather than treating the exact count as a contract.
 
 - `.okf/` bundle (requirements, workflows, agents, prompts, handoffs, references, improvements, dispatch queues)
 - Handoffs guide: `.okf/handoffs/README.md`, `TEMPLATE.md`, `TEMPLATE-tester.md`, `TEMPLATE-reviewer.md`, `TEMPLATE-xcode-step4.md`
 - Context packs index: `.okf/context-packs/INDEX.md`
 - Thin adapters: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/okf.mdc`, `PERPLEXITY.md`
 - Docs: `docs/shared-okf-skills.md`, `docs/configure-perplexity-okf.md`, Perplexity/Xcode setup guides (when copied from bootstrap)
-- Scripts: `okf-validate`, `okf-migrate`, `okf-index`, `okf-freshness`, `okf-visualize`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`, `okf-dispatch`, `okf-check-adapters`
+- Scripts: `okf-validate`, `okf-migrate`, `okf-index`, `okf-freshness`, `okf-visualize`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`, `okf-dispatch`, `okf-check-adapters`, `okf-mcp-server`, `okf-attest-experiment`, `openwiki-sidecar`
 - Bundled skills under `skills/` including four `perplexity-okf-*` skills
 
 After scaffold: run `scripts/okf-migrate --check`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, `scripts/okf-validate --strict`, and `scripts/okf-check-adapters`.
@@ -252,7 +265,7 @@ After scaffold: run `scripts/okf-migrate --check`, `scripts/okf-index --check`, 
 
 The scaffold script delegates to the canonical `scripts/launch_project.sh` when the bootstrap repository is discoverable. Use `--bootstrap-root` to select it explicitly. The launcher renders the canonical template tree, copies runtime assets and skills, generates adapters, and validates the result.
 
-**Canonical scaffold includes:** operator brief, all five setup guides, configure-perplexity, dispatch orchestration, Perplexity files/skills guide, dispatch and validation scripts, handoff templates, context-pack index, post-curation smoke-test prompt, and Codex hooks.
+**Canonical scaffold includes:** operator brief, all five setup guides, configure-perplexity, dispatch orchestration, Perplexity files/skills guide, dispatch and validation scripts, handoff templates, context-pack index, post-curation smoke-test prompt, Codex hooks, disabled read-only MCP/attestation pilots, and OpenWiki sidecar tooling. `--with-openwiki` controls only the generated sidecar content overlay.
 
 If you run an installed skill without the bootstrap repository, it announces and uses a smaller embedded fallback. The fallback still carries v0.2 migration/validation and five-service core material. Use the canonical repository for full Forge, operator-guide, and template parity.
 

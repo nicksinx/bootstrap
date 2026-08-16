@@ -1,0 +1,52 @@
+---
+type: Feature
+title: Bounded OKF Integration Pilots
+description: Optional OpenWiki, read-only MCP, and attested-computation surfaces that preserve the curated OKF write boundary.
+status: stable
+lifecycle_stage: build
+owner: __OKF_OWNER__
+source_of_truth: true
+resource: .okf/features/okf-integration-pilots.md
+tags: [okf, feature, openwiki, mcp, attested-computation]
+applies_to: [cursor, claude, codex, local-agent, mcp]
+sensitivity: internal
+verification_status: tested
+stale_after: __STALE_AFTER__
+generated: { by: process:launch-project, at: "__GENERATED_AT__" }
+---
+
+# User Value
+
+Operators can add generated documentation, structured agent queries, and deterministic integrity evidence without granting those integrations an implicit right to edit curated project knowledge.
+
+# Scope
+
+- Opt-in `--with-openwiki` scaffold overlay and isolated `scripts/openwiki-sidecar` execution.
+- Six local read-only MCP tools for summary, search, read, neighbors, types, and tags.
+- One deterministic OKF v0.2 `Attested Computation` with local executor and attester.
+- Canonical scaffold propagation, platform configuration examples, operator docs, and release gates.
+
+# Out of Scope
+
+- OpenWiki installation, hosted operation, or direct `.okf` generation.
+- Read/write MCP tools, HTTP transport, authentication, or remote deployment.
+- A standardized OKF receipt ABI, signatures, trusted hardware, or identity attestation.
+
+# Acceptance Criteria
+
+1. OpenWiki is disabled by default and its overlay appears only with `--with-openwiki`.
+2. OpenWiki executes in staging; concurrent runs, `.okf` mutation, malformed markers, and generated symlinks fail before import.
+3. OKF adapter sync preserves one valid OpenWiki-owned block and fails atomically on malformed ownership markers.
+4. MCP tools are deterministic, read-only, and path-contained; modern and legacy stdio flows pass contract tests.
+5. MCP concept symlinks and traversal attempts are rejected without reading external content.
+6. Attestation receipts are byte-identical for identical inputs and fail after receipt tampering or concept changes.
+7. Runtime receipts cannot be written under `.okf` and remain ignored under `.okf-runtime/`.
+8. Canonical default and OpenWiki-enabled scaffolds pass their own launch validation.
+9. `make check`, strict OKF validation, migration, index, freshness, and adapter gates pass.
+
+# Related Concepts
+
+- [Boundary decision](../decisions/0003-curated-okf-integration-boundary.md)
+- [Attested computation](../computations/bootstrap-integrity.md)
+- [Protocol reference](../references/integration-protocol-boundaries.md)
+- [Bootstrap requirement](../requirements/bootstrap-operational-readiness.md)

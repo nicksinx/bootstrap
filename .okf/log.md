@@ -29,6 +29,16 @@
 - Added cross-platform handling for legacy case-variant `INDEX.md` landing pages so index generation is identical on case-sensitive and case-insensitive filesystems.
 - Added focused idempotence, rollback, graph, HTML, freshness, and scaffold tests; evidence is recorded in [the work package 3 test record](tests/2026-08-16-okf-index-graph-freshness.md).
 
+### Bounded integrations and attested computation
+
+- Added an opt-in OpenWiki sidecar overlay and staged runner that imports only `openwiki/` plus complete OpenWiki-owned adapter blocks; `.okf` mutation, malformed markers, and symlink outputs fail closed.
+- Updated adapter synchronization to preserve valid OpenWiki blocks in `AGENTS.md` and `CLAUDE.md` and to preflight all selected adapters before the first write.
+- Added a local, path-contained, read-only OKF MCP pilot with six deterministic query tools, modern `2026-07-28` discovery, legacy initialization compatibility, and traversal/symlink rejection.
+- Added one deterministic OKF v0.2 `Attested Computation`, an executor and attester, ignored `.okf-runtime/` receipts, and explicit limits on the experimental receipt/verdict ABI.
+- Added the curated integration boundary decision, optional-integration review workflow, reviewed upstream protocol reference, operator guides, project configuration, canonical scaffold propagation, and strict launch/CI probes.
+- Focused adversarial suites and the combined `make check` gate passed; evidence is recorded in [the work package 4 test record](tests/2026-08-16-okf-integrations-attestation.md).
+- Published the four logical work packages as draft GitHub PRs #2-#5; after correcting dependency-free Python setup at the conformance layer and merging it forward without rewriting history, every stacked `bootstrap-ci / validate` check passed.
+
 ## 2026-07-04
 
 ### Forge lifecycle profile — Project-1 harness promotion

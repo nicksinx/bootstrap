@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.0 - 2026-08-16
+
+- Add an opt-in OpenWiki sidecar that runs in staging and imports only bounded generated output.
+- Preserve valid OpenWiki-owned blocks when regenerating `AGENTS.md` and `CLAUDE.md`.
+- Add a path-contained, read-only OKF MCP pilot with modern and legacy stdio protocol tests.
+- Add one deterministic OKF v0.2 `Attested Computation` and an explicitly experimental receipt/verdict ABI.
+- Extend launch validation, canonical scaffolding, and CI checks across all three integration surfaces.
+
 ## 2.2.0 - 2026-08-16
 
 - Add deterministic generated blocks for root and per-directory OKF indexes.

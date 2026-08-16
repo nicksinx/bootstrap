@@ -87,6 +87,23 @@ def test_project_example() -> None:
             "profile": "software-development",
             "continuous_improvement_path": ".okf/improvements",
         },
+        "integrations": {
+            "openwiki": {
+                "enabled": False,
+                "output_path": "openwiki",
+                "instructions_path": "openwiki/INSTRUCTIONS.md",
+            },
+            "okf_readonly_mcp": {
+                "enabled": False,
+                "transport": "stdio",
+                "command": "scripts/okf-mcp-server",
+            },
+            "attested_computation": {
+                "enabled": False,
+                "stability": "experimental",
+                "receipt_path": ".okf-runtime/attestations/okf-bundle-receipt.json",
+            },
+        },
         "compat_mode": "strict",
     }
     assert_valid(schema, project, "project/example")

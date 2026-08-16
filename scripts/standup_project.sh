@@ -42,6 +42,9 @@ GitHub:
   --github-create-labels
   --github-create-templates
 
+Optional integrations:
+  --with-openwiki                    Add the bounded OpenWiki sidecar overlay
+
 MCP:
   --with-mcp
   --with-mcp-config
@@ -88,6 +91,8 @@ GITHUB_DEFAULT_BRANCH="main"
 GITHUB_CREATE_LABELS=0
 GITHUB_CREATE_TEMPLATES=0
 
+WITH_OPENWIKI=0
+
 WITH_MCP=0
 WITH_MCP_CONFIG=0
 ALLOW_INSECURE_MCP=0
@@ -124,6 +129,7 @@ while [[ $# -gt 0 ]]; do
     --github-default-branch) GITHUB_DEFAULT_BRANCH="$2"; shift 2;;
     --github-create-labels) GITHUB_CREATE_LABELS=1; shift;;
     --github-create-templates) GITHUB_CREATE_TEMPLATES=1; shift;;
+    --with-openwiki) WITH_OPENWIKI=1; shift;;
 
     --with-mcp) WITH_MCP=1; shift;;
     --with-mcp-config) WITH_MCP_CONFIG=1; shift;;
@@ -224,6 +230,7 @@ LAUNCH_ARGS=(
 [[ "$NON_INTERACTIVE" == "1" ]] && LAUNCH_ARGS+=(--non-interactive)
 [[ "$FORCE" == "1" ]] && LAUNCH_ARGS+=(--force)
 [[ "$VERBOSE" == "1" ]] && LAUNCH_ARGS+=(--verbose)
+[[ "$WITH_OPENWIKI" == "1" ]] && LAUNCH_ARGS+=(--with-openwiki)
 
 if [[ "$WITH_GITHUB" == "1" ]]; then
   LAUNCH_ARGS+=(--with-github --github-visibility "$GITHUB_VISIBILITY" --github-default-branch "$GITHUB_DEFAULT_BRANCH")

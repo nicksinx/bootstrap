@@ -17,6 +17,7 @@ will preserve everything between the protected markers on subsequent runs.
 make validate-launch   # scaffold validation
 scripts/okf-validate   # OKF bundle validation
 scripts/okf-dispatch status
+scripts/okf-attest-experiment run   # optional local integrity experiment
 scripts/forge-clone-siblings.sh   # optional — clone nicksinx/*Forge peers
 cp .cursor/mcp-forge-lifecycle.json.example .cursor/mcp.json   # if not auto-written
 ```
@@ -44,6 +45,9 @@ scripts/okf-sync-skills
 - `.okf/forge/` — gitignored Forge workspaces (runtime state)
 - `scripts/*-mcp.sh` — Forge MCP launchers (sibling repo layout)
 - `scripts/okf-dispatch` — multi-role delivery pipeline
+- `scripts/okf-mcp-server` — disabled-by-default, read-only local OKF query pilot
+- `scripts/openwiki-sidecar` — optional bounded generated-wiki integration
+- `.okf-runtime/` — gitignored experimental receipts and runtime state
 - `backlog/` — optional human task tracker (dispatch is canonical for agents)
 - `docs/` — five-service setup guides and operator docs
 
@@ -55,3 +59,6 @@ scripts/okf-sync-skills
 - [OKF integration](docs/okf-integration.md)
 - [Agent operating model](docs/agent-operating-model.md)
 - [Agent workflow](docs/agent-workflow.md)
+- [Read-only OKF MCP](docs/okf-readonly-mcp.md)
+- [Attested computation experiment](docs/okf-attested-computation-experiment.md)
+- [OpenWiki sidecar](docs/openwiki-okf-sidecar.md)

@@ -32,6 +32,10 @@ OKF lives in `.okf/` beside the generated backlog, schemas, scripts, docs, and M
 
 # Interfaces
 
+- `scripts/openwiki-sidecar` runs the optional generated wiki in staging and imports only bounded outputs.
+- `scripts/okf-mcp-server` provides path-contained, read-only concept queries and remains disabled by default.
+- `scripts/okf-attest-experiment` writes experimental receipts under gitignored `.okf-runtime/`, never `.okf`.
+
 - `project.config.yaml` declares OKF bundle location.
 - `backlog/tasks/*.md` can use `okf_concepts`.
 - `scripts/okf-validate` validates OKF profile conformance.

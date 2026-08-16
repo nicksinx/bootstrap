@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 PYTHONPATH= python3 - "${PROJECT_ROOT}" "${RELEASE_GATE}" <<'PY' || exit 9
-import json, os, subprocess, sys
+import json, os, subprocess, sys, tempfile
 from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
@@ -65,9 +65,13 @@ v2_files = [
     "docs/okf-v02-conformance.md",
     "docs/migrate-okf-v02.md",
     "docs/okf-index-graph-freshness.md",
+    "docs/okf-readonly-mcp.md",
+    "docs/openwiki-okf-sidecar.md",
+    "docs/okf-attested-computation-experiment.md",
     "docs/perplexity-project-files-and-skills.md",
     "docs/skill-frontmatter-compatibility.md",
     ".cursor/mcp-forge-lifecycle.json.example",
+    ".cursor/mcp-okf-readonly.json.example",
     "scripts/forgerelay-mcp.sh",
     "scripts/conceptforge-mcp.sh",
     "scripts/forge-clone-siblings.sh",
@@ -78,10 +82,18 @@ v2_files = [
     "scripts/okf-index",
     "scripts/okf-freshness",
     "scripts/okf-visualize",
+    "scripts/okf-mcp-server",
+    "scripts/openwiki-sidecar",
+    "scripts/okf-attest-experiment",
+    "scripts/attest/okf_bundle_digest.py",
+    "scripts/attest/verify_okf_bundle_digest.py",
+    "scripts/lib/okf_attestation.py",
     "scripts/okf-check-forge-receipts",
     "scripts/okf-sync-skills",
     "scripts/operator-ready-check.sh",
     ".okf/decisions/0002-okf-forge-integration.md",
+    ".okf/decisions/0003-curated-okf-integration-boundary.md",
+    ".okf/features/okf-integration-pilots.md",
     ".okf/agents/perplexity.md",
     ".okf/agents/perplexity-overflow.md",
     ".okf/agents/xcode-claude.md",
@@ -99,14 +111,18 @@ v2_files = [
     ".okf/risks/xcode-live-verification-pending.md",
     ".okf/workflows/okf-forge-lifecycle-bridge.md",
     ".okf/workflows/multi-agent-delivery-pipeline.md",
+    ".okf/workflows/optional-integration-review.md",
     ".okf/references/forge-sibling-layout.md",
     ".okf/references/forge-packet-type-registry.md",
+    ".okf/references/integration-protocol-boundaries.md",
     ".okf/improvements/forge-lifecycle-operator-notes.md",
     "docs/okf-service-operator-skills.md",
     "skills/okf-reader/SKILL.md",
     "skills/codex-okf-operator/SKILL.md",
     "skills/claude-okf-operator/SKILL.md",
     "skills/cursor-okf-operator/SKILL.md",
+    "mcp_server/okf_readonly_server.py",
+    ".okf/computations/bootstrap-integrity.md",
 ]
 
 legacy_files = [
@@ -150,6 +166,11 @@ schema_dir = root / "schemas"
 proj_schema = json.loads((schema_dir / "project.schema.json").read_text())
 for err in Draft202012Validator(proj_schema).iter_errors(proj):
     errors.append(("project-schema", f"{list(err.path)} -> {err.message}"))
+
+integrations = (proj or {}).get("integrations") or {}
+openwiki = integrations.get("openwiki") or {}
+if openwiki.get("enabled") and not (root / "openwiki" / "INSTRUCTIONS.md").is_file():
+    errors.append(("openwiki-sidecar", "enabled integration is missing openwiki/INSTRUCTIONS.md"))
 
 # Validate queue.yaml against schema and check invariants.
 queue_schema = json.loads((schema_dir / "queue.schema.json").read_text())
@@ -253,6 +274,60 @@ if adapter_check.exists():
     )
     if adapters.returncode != 0:
         errors.append(("okf-adapter-drift", (adapters.stderr + adapters.stdout).strip()))
+
+# Exercise the local read-only MCP protocol without enabling it in a host.
+okf_mcp = root / "scripts" / "okf-mcp-server"
+if okf_mcp.exists():
+    probe = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "server/discover",
+        "params": {
+            "_meta": {
+                "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                "io.modelcontextprotocol/clientInfo": {"name": "validate-launch", "version": "1.0.0"},
+                "io.modelcontextprotocol/clientCapabilities": {},
+            }
+        },
+    }
+    try:
+        mcp = subprocess.run(
+            [str(okf_mcp)],
+            cwd=str(root),
+            input=json.dumps(probe) + "\n",
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        errors.append(("okf-readonly-mcp", str(exc)))
+    else:
+        try:
+            mcp_payload = json.loads(mcp.stdout)
+            mcp_tools = mcp_payload["result"]["capabilities"]["tools"]
+        except (json.JSONDecodeError, KeyError, TypeError):
+            mcp_tools = None
+        if mcp.returncode != 0 or mcp_tools is None:
+            errors.append(("okf-readonly-mcp", (mcp.stderr + mcp.stdout).strip()))
+
+# Generate and verify the experimental receipt outside the curated bundle.
+okf_attest = root / "scripts" / "okf-attest-experiment"
+if okf_attest.exists():
+    with tempfile.TemporaryDirectory(prefix="okf-attest-launch-") as temporary:
+        receipt = Path(temporary) / "receipt.json"
+        try:
+            attest = subprocess.run(
+                [str(okf_attest), "run", "--root", str(root), "--receipt", str(receipt)],
+                cwd=str(root),
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            errors.append(("okf-attestation", str(exc)))
+        else:
+            if attest.returncode != 0:
+                errors.append(("okf-attestation", (attest.stderr + attest.stdout).strip()))
 
 # Deterministic rerun check: launcher dry-run should converge without error.
 project_id = (proj or {}).get("project_id")

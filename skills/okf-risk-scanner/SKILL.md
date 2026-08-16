@@ -17,7 +17,7 @@ Check for:
 - Requirements ambiguity.
 - Missing tests or weak acceptance criteria.
 - Unverified external claims.
-- Deprecated or superseded concepts still being used.
+- Deprecated or stale concepts still being used.
 - Tool adapter drift from `.okf`.
 - Context loss during agent handoff.
 - Release, deployment, signing, or operational risks.

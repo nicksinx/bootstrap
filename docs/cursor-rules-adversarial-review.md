@@ -56,7 +56,7 @@
 **Finding:** Agents can ignore rules; MCP calls are not gated by `.mdc` files.
 
 **Severity:** Accepted limitation  
-**Mitigation:** Pair rules with `scripts/validate_launch.sh`, `scripts/okf-validate`, `scripts/okf-check-forge-receipts`. Rules are **fast guardrails**, not policy enforcement.
+**Mitigation:** Pair rules with `scripts/validate_launch.sh`, `scripts/okf-validate --strict`, `scripts/okf-check-forge-receipts`. Rules are **fast guardrails**, not policy enforcement.
 
 ### Attack F — Glob rules inactive during “drive-by” tasks
 

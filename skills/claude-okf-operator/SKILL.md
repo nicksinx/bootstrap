@@ -1,8 +1,6 @@
 ---
 name: claude-okf-operator
 description: Operate as Claude Code in OKF + Forge v2 projects — tester dispatch role and validation evidence. Use when Claude runs tests, reviews dispatch packets as tester, or completes tester-phase work. Does not wire Forge lifecycle MCPs (Cursor hosts Forge).
-applies_to: [claude]
-canonical_skills: [okf-reader, okf-handoff-writer]
 ---
 
 # Claude Code OKF Operator
@@ -41,7 +39,7 @@ Claude has **no automatic Stop hook**. Advance dispatch explicitly during the se
 
 - Capture test output paths under `runs/` or `.okf/tests/` as project conventions dictate.
 - Link evidence to OKF concepts and dispatch `packet_id` in handoffs.
-- Run `scripts/okf-validate` when adding or editing OKF test evidence concepts.
+- Run `scripts/okf-validate --strict` when adding or editing OKF test evidence concepts.
 
 ## After work
 

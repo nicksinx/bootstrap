@@ -9,15 +9,19 @@ Canonical OKF skills live under `skills/*/SKILL.md`. Platform adapters and Perpl
 | `name` | Yes | Skill identifier (Codex, Perplexity Computer skills) |
 | `description` | Yes | Selection / invocation summary |
 
-## OKF canonical keys (`skills/okf-*`, `skills/perplexity-okf-*`)
+## Canonical and service skills
+
+Canonical `skills/okf-*`, `create-new-okf-project`, and service operator skills consumed by Codex use only `name` and `description` in frontmatter. Put routing details in the body or description.
+
+## Perplexity adapter extensions (`skills/perplexity-okf-*`)
 
 | Key | Required | Purpose |
 |-----|----------|---------|
-| `applies_to` | Recommended | e.g. `[perplexity]`, `[codex, local-agent]` |
-| `okf_mode` | Perplexity adapters | `[research]`, `[overflow]`, or both |
-| `canonical_skill` | Perplexity adapters | Path to shared OKF skill, e.g. `skills/okf-reader/SKILL.md` |
+| `applies_to` | Yes | `[perplexity]` |
+| `okf_mode` | Yes | `[research]`, `[overflow]`, or both |
+| `canonical_skill` | Yes | Path to shared OKF skill, e.g. `skills/okf-reader/SKILL.md` |
 
-Generic `okf-*` skills use minimal frontmatter (`name`, `description` only).
+These extended keys document Perplexity attachment behavior. Do not copy them into Codex-facing canonical or operator skills.
 
 ## Platform consumption
 

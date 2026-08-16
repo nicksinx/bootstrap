@@ -1,8 +1,6 @@
 ---
 name: codex-okf-operator
 description: Operate as Codex in OKF + Forge v2 projects — builder/integrator dispatch, hooks, and OKF promotion. Use when Codex implements or integrates work, runs okf-dispatch, advances pipelines from Stop hooks, or ingests handoffs. Does not wire Forge lifecycle MCPs (Cursor hosts Forge).
-applies_to: [codex]
-canonical_skills: [okf-reader, okf-handoff-writer, okf-concept-writer]
 ---
 
 # Codex OKF Operator
@@ -40,7 +38,7 @@ scripts/okf-dispatch complete --role builder --evidence <path>
 ## After substantive changes
 
 1. Update affected OKF concepts; append `.okf/log.md`.
-2. Run `scripts/okf-validate` when OKF concepts changed.
+2. Run `scripts/okf-migrate --check` and `scripts/okf-validate --strict` when OKF concepts changed.
 3. Handoff to next role or `.okf/handoffs/` if pausing.
 
 ## Canonical skills

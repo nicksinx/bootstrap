@@ -28,7 +28,7 @@ Perplexity must **not** invent project requirements or overwrite accepted OKF co
 4. Marks all outputs `verification_status: unverified` until reviewed by Cursor, Codex, or a human.
 5. Produces a handoff summary listing research gaps and recommended follow-up searches.
 
-Perplexity does not call other services directly. An agent in Cursor or Codex copies research outputs into the repository and runs `scripts/okf-validate`.
+Perplexity does not call other services directly. An agent in Cursor or Codex copies research outputs into the repository and runs `scripts/okf-validate --strict`.
 
 ---
 
@@ -89,18 +89,22 @@ For **each** research topic, output one complete OKF Reference concept using thi
 
 ---
 type: Reference
-title: {{Short descriptive title}}
+title: "{{Short descriptive title}}"
 description: One-sentence summary of what this reference covers.
 status: draft
 lifecycle_stage: planning
 owner: project
 source_of_truth: false
-resource: .okf/references/{{slug-from-title}}.md
+resource: ".okf/references/{{slug-from-title}}.md"
 tags: [okf, reference, perplexity, deep-research]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: {{ISO-8601 timestamp}}
+generated: { by: perplexity/desktop-pro, at: {{ISO-8601 timestamp}} }
+sources:
+  - id: primary-source
+    resource: "{{source URL}}"
+    title: "{{source title}}"
 ---
 
 # Source
@@ -116,7 +120,7 @@ timestamp: {{ISO-8601 timestamp}}
 
 # Relevant claims
 
-(Bullet list of claims this project might rely on, each tied to the source above.)
+(Bullet list of claims this project might rely on, each attributed with `[^primary-source]`.)
 
 # Limitations and uncertainty
 
@@ -142,7 +146,7 @@ timestamp: {{ISO-8601 timestamp}}
 - References produced: (list filenames)
 - Highest-confidence findings: (3–5 bullets)
 - Findings that must not become requirements without review: (bullets)
-- Recommended next actions for Cursor/Codex: copy references into repo, run `scripts/okf-validate`, link references from requirements/architecture, update `.okf/log.md`
+- Recommended next actions for Cursor/Codex: copy references into repo, run `scripts/okf-validate --strict`, link references from requirements/architecture, update `.okf/log.md`
 
 ## Rules
 
@@ -177,9 +181,9 @@ An agent in **Cursor** or **Codex** should:
 1. Save each reference to `.okf/references/<slug>.md`.
 2. Update `.okf/index.md` to link new references.
 3. Link references from affected requirements, risks, or architecture drafts — without promoting unverified claims to accepted requirements.
-4. Activate `.okf/agents/perplexity.md` (set `status: active` after first successful research cycle).
+4. Activate `.okf/agents/perplexity.md` (set `status: stable` after first successful research cycle).
 5. Append to `.okf/log.md` that Perplexity service 5 is configured.
-6. Run `scripts/okf-validate`.
+6. Run `scripts/okf-validate --strict`.
 7. Write a handoff if further research rounds are needed.
 
 ---
@@ -192,7 +196,7 @@ An agent in **Cursor** or **Codex** should:
 - [ ] Every reference has `verification_status: unverified` and reachable citations.
 - [ ] `.okf/agents/perplexity.md` exists and reflects the deep-research role.
 - [ ] `.okf/log.md` records Perplexity as the configured fifth service.
-- [ ] `scripts/okf-validate` passes after references are added.
+- [ ] `scripts/okf-validate --strict` passes after references are added.
 - [ ] Gap analysis and open questions captured in a handoff or `.okf/references/` index note.
 
 ---

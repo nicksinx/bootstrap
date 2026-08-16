@@ -22,7 +22,7 @@ Use this skill for **service 5 (deep research)** in Perplexity Desktop Pro.
 2. Prefer primary sources for technical, legal, security, financial, or policy claims.
 3. Use **Sonar 2** or **Best** when citation retrieval quality matters most.
 4. Output one OKF `Reference` concept draft per research topic with:
-   - YAML frontmatter: `type: Reference`, `verification_status: unverified`, `source_of_truth: false`
+   - YAML frontmatter: `type: Reference`, `status: draft`, `sources`, no `verified`, plus local `verification_status: unverified`
    - Source title, URL, retrieval date, source type
    - Summary in your own words (no long copyrighted paste)
    - Relevant claims, limitations, suggested OKF links
@@ -44,15 +44,22 @@ tags: [okf, reference, perplexity, deep-research]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: YYYY-MM-DDTHH:MM:SS+00:00
+generated: { by: perplexity/desktop-pro, at: YYYY-MM-DDTHH:MM:SS+00:00 }
+sources:
+  - id: primary-source
+    resource: https://example.com/source
+    title: Primary source title
 ---
 ```
+
+Key claim footnotes must use the matching source id, for example `[^primary-source]`.
 
 ## Guardrails
 
 - Do not invent citations or treat snippets as verified fact.
 - Do not overwrite accepted OKF requirements or decisions from research alone.
 - Do not set `verification_status` to `reviewed`, `tested`, or `accepted`.
+- Do not add `verified`; Cursor/Codex or a human reviewer owns verification events.
 - Do not store secrets or confidential third-party material in OKF drafts.
 - Include a **Routing note** (search-heavy vs reasoning-heavy subtasks).
 

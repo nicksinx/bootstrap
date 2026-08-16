@@ -1,5 +1,5 @@
 .PHONY: launch validate-launch github-init backlog-init \
-        okf-validate okf-validate-strict okf-context-pack okf-handoff okf-dispatch-status \
+        okf-validate okf-validate-strict okf-migrate-check okf-adapter-check okf-context-pack okf-handoff okf-dispatch-status \
         release-gate test-launch
 
 PROJECT_ID ?= __PROJECT_ID__
@@ -18,6 +18,12 @@ okf-validate:
 
 okf-validate-strict:
 	./scripts/okf-validate --strict
+
+okf-migrate-check:
+	./scripts/okf-migrate --check
+
+okf-adapter-check:
+	./scripts/okf-check-adapters
 
 okf-context-pack:
 	./scripts/okf-context-pack

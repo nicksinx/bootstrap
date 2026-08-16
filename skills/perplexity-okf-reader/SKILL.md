@@ -24,8 +24,8 @@ Use this skill at the start of every Perplexity thread on an OKF-enabled project
    - Latest `.okf/handoffs/` note
    - Active requirement, spec, or overflow handoff for the task
 2. Identify the active OKF mode (research vs overflow) from the user's first message or custom instructions.
-3. Prefer concepts with `verification_status: reviewed`, `tested`, or `accepted`.
-4. Treat `deprecated`, `superseded`, and `archived` concepts as unsafe unless the user asks for historical analysis.
+3. Derive v0.2 trust from `verified` and note local `verification_status` separately.
+4. Treat `deprecated` or stale concepts as unsafe unless the user asks for historical analysis.
 5. Report only task-relevant facts:
    - Active requirements and acceptance criteria
    - Decisions and architecture constraints

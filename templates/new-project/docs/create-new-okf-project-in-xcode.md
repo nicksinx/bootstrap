@@ -39,7 +39,7 @@ Xcode must:
 3. Confirm whether dispatch is enabled and which role(s) use the `xcode-claude` runner.
 4. Record build, simulator, package, signing, or platform limitations as OKF risks, tests, or handoffs.
 5. Run dry verification (see `.okf/prompts/xcode-step4-verification-checklist.md`) before claiming live setup complete.
-6. Run `scripts/okf-validate` and `scripts/okf-check-adapters`.
+6. Run `scripts/okf-validate --strict` and `scripts/okf-check-adapters`.
 7. Write a handoff for Perplexity service 5.
 
 Xcode does **not** configure Cursor global skills, Codex hooks, Claude Code slash commands, or Perplexity Spaces in step 4. It must not modify `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/okf.mdc`, or `.codex/hooks.json` except via documented sync scripts when repairing broken adapters.
@@ -59,7 +59,7 @@ AGENTS.md
 CLAUDE.md
 PERPLEXITY.md
 .okf/agents/xcode-claude.md          ← draft until live Xcode verification
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-sync-skills
 scripts/okf-check-adapters
 scripts/okf-context-pack
@@ -193,7 +193,7 @@ When a real Apple target exists:
 2. Run tests; capture pass/fail summary in `.okf/tests/` or the active handoff.
 3. Record simulator, signing, SPM/CocoaPods constraints as OKF risks if they block delivery.
 4. Confirm Xcode-connected Claude Agent can read a dispatch packet and act on it in practice.
-5. Only then promote `.okf/agents/xcode-claude.md` to `status: active` and `verification_status: reviewed`.
+5. Only then promote `.okf/agents/xcode-claude.md` to `status: stable` and `verification_status: reviewed`.
 
 If live verification is deferred, document deferral in the step 4 handoff and keep the agent rule at `draft`.
 
@@ -202,7 +202,7 @@ If live verification is deferred, document deferral in the step 4 handoff and ke
 Run:
 
 ```bash
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-check-adapters
 ```
 
@@ -251,7 +251,7 @@ Use before declaring step 4 done:
 - [ ] `.okf/agents/xcode-claude.md` exists and reflects project constraints (still `draft` unless live verified).
 - [ ] Dry verification checklist run (`.okf/prompts/xcode-step4-verification-checklist.md`).
 - [ ] Dispatch role map documented if dispatch is enabled (`xcode-claude` runner tested via dry-run when applicable).
-- [ ] `scripts/okf-validate` run; result recorded.
+- [ ] `scripts/okf-validate --strict` run; result recorded.
 - [ ] `scripts/okf-check-adapters` run when adapters touched.
 - [ ] `.okf/log.md` records Xcode step 4 status (dry vs live).
 - [ ] Xcode to Perplexity handoff exists under `.okf/handoffs/`.
@@ -284,7 +284,7 @@ Use before declaring step 4 done:
 cat .okf/prompts/xcode-step4-verification-checklist.md
 
 # Validate OKF bundle
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-check-adapters
 
 # Dispatch dry-run with xcode-claude as builder

@@ -11,6 +11,14 @@
 - Preserved Project Bootstrap profile extensions and generated-project Forge validation hooks while accepting unknown concept types and extension keys.
 - Validation evidence: [PR 1 conformance tests](tests/2026-08-16-okf-v02-conformance.md).
 
+### OKF v0.2 migration, scaffold consolidation, and skills
+
+- Added atomic, idempotent `scripts/okf-migrate` check/apply behavior with parse-before-write rollback safety and strict post-apply validation.
+- Consolidated normal project generation onto `scripts/launch_project.sh` and `templates/new-project/`; the installed `create-new-okf-project` skill now delegates when the bootstrap checkout is available and retains a strict v0.2 standalone fallback.
+- Bundled byte-identical validator and migration runtimes in the portable skill, synchronized generated adapters after project creation, and made adapter drift a failing gate by default.
+- Updated Codex-compatible skills to minimal frontmatter and current v0.2 examples while preserving the four Perplexity adapters' documented extended metadata contract.
+- Added migration, scaffold-parity, and skill-contract regression suites; full validation evidence is recorded in [the work package 2 test record](tests/2026-08-16-okf-v02-migration-scaffold.md).
+
 ## 2026-07-04
 
 ### Forge lifecycle profile — Project-1 harness promotion

@@ -29,7 +29,7 @@ Use these labels in the audit result:
 - `Needs clarification`: missing detail blocks implementation.
 - `Needs verification`: plausible but unsupported by review, citation, or tests.
 - `Conflicts`: contradicts another active concept.
-- `Unsafe`: deprecated, superseded, archived, or sensitive in a way that blocks use.
+- `Unsafe`: deprecated, stale, unsupported, or sensitive in a way that blocks use.
 
 ## Output
 

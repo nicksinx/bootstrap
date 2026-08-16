@@ -23,7 +23,7 @@ Recorded before/after expectations for OKF + Forge bootstrap alignment.
 ```bash
 make check                    # bootstrap repo
 scripts/validate_launch.sh    # generated project
-scripts/okf-validate        # OKF bundle
+scripts/okf-validate --strict        # OKF bundle
 scripts/okf-dispatch status # dispatch spine
 ```
 

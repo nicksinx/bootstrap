@@ -80,7 +80,7 @@ Before substantive project changes:
 2. Read `.okf/project.md`.
 3. Read relevant requirement, feature, architecture, decision, risk, test, and handoff concepts.
 4. Check for recent files in `.okf/handoffs/`.
-5. Treat `deprecated`, `superseded`, and `archived` concepts as unsafe for direct implementation unless the user explicitly asks for historical work.
+5. Treat `deprecated` or stale concepts as unsafe for direct implementation unless the user explicitly asks for historical work.
 6. Use `skills/okf-reader/SKILL.md` when triage is needed.
 
 During implementation:

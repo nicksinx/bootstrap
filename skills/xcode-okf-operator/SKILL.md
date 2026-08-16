@@ -1,8 +1,6 @@
 ---
 name: xcode-okf-operator
 description: Operate as Xcode-connected Claude Agent in OKF + Forge v2 projects — Apple-platform dispatch consumer and integrator. Use when Xcode builds, tests, or completes platform-specific dispatch work. Does not wire Forge lifecycle MCPs (Cursor hosts Forge).
-applies_to: [xcode-claude]
-canonical_skills: [okf-reader, okf-handoff-writer]
 ---
 
 # Xcode OKF Operator
@@ -35,7 +33,7 @@ Do not call other agents directly. Update OKF risks for signing, simulator, or p
 
 - Follow `.okf/prompts/xcode-step4-verification-checklist.md` for setup claims.
 - Record evidence in `.okf/tests/` (command summary, PASS/FAIL).
-- Run `scripts/okf-validate` before claiming step 4 complete.
+- Run `scripts/okf-validate --strict` before claiming step 4 complete.
 
 ## Handoff
 

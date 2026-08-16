@@ -40,9 +40,12 @@ sources:
 scripts/okf-validate
 scripts/okf-validate --strict
 scripts/okf-validate --strict --format json
+scripts/okf-migrate --check
 make check
 ```
 
 The default command fails on structural and safety errors. `--strict` also fails on warnings and is the CI/release gate. PyYAML is required so nested maps, lists, quoted values, duplicate keys, and malformed YAML are handled by a real parser rather than line splitting.
 
 Fresh projects run the same engine from `scripts/lib/okf_validation.py`. `scripts/validate_launch.sh` invokes strict OKF validation, so scaffold smoke tests cover the emitted bundle as well as the bootstrap repository.
+
+For existing bundles, follow [Migrate an OKF Bundle to v0.2](migrate-okf-v02.md). The migration is atomic, preserves unknown extensions, and does not manufacture verification events.

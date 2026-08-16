@@ -246,4 +246,4 @@ flowchart LR
 
 - Workflow: `.okf/workflows/multi-agent-delivery-pipeline.md`
 - Shared skills model: `docs/shared-okf-skills.md`
-- Validation: `scripts/okf-validate`
+- Validation: `scripts/okf-validate --strict`

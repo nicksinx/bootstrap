@@ -17,6 +17,7 @@ type: Requirement
 title: Human-readable title
 description: One-sentence summary.
 status: draft
+generated: { by: process:concept-authoring, at: 2026-08-16T10:00:00Z }
 lifecycle_stage: planning
 owner: project
 source_of_truth: true
@@ -25,11 +26,12 @@ tags: [okf]
 applies_to: [codex, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-24T15:54:09+01:00
 ---
 ```
 
-Use the real concept type, path, owner, status, lifecycle stage, sensitivity, and verification status. Preserve unknown frontmatter fields when editing existing concepts.
+Use `status: draft`, `stable`, or `deprecated`. Use `generated.by` and `verified[].by` actors that follow the OKF convention. Add `stale_after` when a concept has a known review horizon. Preserve unknown frontmatter fields when editing existing concepts.
+
+Do not put concept metadata on `index.md` or `log.md`. Only the bundle-root index may carry `okf_version: "0.2"`; logs use date headings and no frontmatter.
 
 ## Section Templates
 
@@ -41,7 +43,7 @@ For requirements, include:
 - `# Dependencies`
 - `# Risks`
 - `# Verification`
-- `# Citations`
+- `sources` frontmatter entries and keyed Markdown footnotes for externally sourced claims
 
 For features, include:
 
@@ -89,7 +91,7 @@ For improvements, lessons learned, and retrospectives, include:
 
 Keep concepts human-readable. Link to source files, tests, APIs, issues, and external references instead of copying large authoritative artifacts into OKF.
 
-Mark uncertain material as `verification_status: unverified`. Do not upgrade a concept to `reviewed`, `tested`, or `accepted` without evidence.
+Omit `verified` for uncertain material. Add a verification event only when the named actor actually checked the concept. The Project Bootstrap `verification_status` field may remain as a local workflow extension, but it does not replace the v0.2 trust tier derived from `verified`.
 
 Store continuous-improvement concepts under `.okf/improvements/` and promote accepted improvements into templates, scripts, skills, adapters, or agent rules.
 

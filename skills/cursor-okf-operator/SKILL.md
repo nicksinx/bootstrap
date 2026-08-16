@@ -1,8 +1,6 @@
 ---
 name: cursor-okf-operator
 description: Operate as Cursor in OKF + Forge v2 projects — reviewer dispatch role, Forge MCP lifecycle host, and OKF promotion integrator. Use when Cursor reviews work, runs Forge stage tools, promotes Forge artifacts to OKF, or consumes reviewer dispatch packets.
-applies_to: [cursor]
-canonical_skills: [okf-reader, okf-handoff-writer, okf-concept-writer]
 ---
 
 # Cursor OKF Operator
@@ -41,7 +39,7 @@ When promoting Forge workspace output to OKF:
 
 1. Server-specific checklist under `.okf/workflows/forge-*-promotion-checklist.md`
 2. Lineage fields + decision 0004 receipt rules
-3. `scripts/okf-validate` after edits
+3. `scripts/okf-validate --strict` after edits
 
 ## References
 

@@ -1,6 +1,6 @@
 ---
 name: create-new-okf-project
-description: Create or bootstrap a new OKF-enabled software or agentic project. Use when an agent needs to scaffold a project folder with .okf, thin tool adapters, local OKF scripts, initial concepts, a continuous-improvement repository for lessons learned, five-service agent setup, Perplexity research/overflow material, and validation-ready OKF conventions.
+description: Create or bootstrap an OKF v0.2 software or agentic project from the canonical Project Bootstrap launcher, with a standalone fallback. Use when an agent needs .okf context, migration and strict validation, five-service adapters, dispatch, Forge-ready scaffolding, Perplexity research/overflow, skills, handoffs, or continuous-improvement storage.
 ---
 
 # Create New OKF Project
@@ -11,11 +11,11 @@ Use this skill to start a new project that treats OKF as the durable context lay
 
 1. Identify the target project path and project name. If the user gives a folder, use it.
 2. Inspect the target path before writing. Do not overwrite existing files unless the user explicitly allows it.
-3. Create the OKF scaffold with `.okf`, thin adapters, helper scripts, bundled skills, and starter concepts.
+3. Prefer the canonical Project Bootstrap launcher; use the embedded fallback only when the bootstrap repository is unavailable or omission flags are required.
 4. Include `.okf/improvements/` as the continuous-improvement repository from the beginning.
 5. Include the canonical five-service setup order: Cursor, Codex, Claude Code, Xcode-connected Claude Agent, and Perplexity Desktop Pro.
 6. Include Perplexity MODE A research and MODE B overflow prompts, workflows, adapter material, and project skills.
-7. Run the generated validator when practical.
+7. Run `scripts/okf-migrate --check` and `scripts/okf-validate --strict`.
 8. Tell the user which files were created and how to install or invoke any OKF skills.
 
 ## Preferred Script
@@ -30,7 +30,10 @@ Useful options:
 
 ```bash
 --owner "team-or-person"
+--profile default
+--bootstrap-root /path/to/bootstrap
 --overwrite
+--embedded-fallback
 --no-adapters
 --no-scripts
 --no-skills
@@ -40,33 +43,36 @@ Use `--overwrite` only when the user explicitly allows replacing existing scaffo
 
 ## Bootstrap Kit Path
 
-Run the scaffold script from the **OKF bootstrap kit repository** (Project-1 layout) when you need full five-service parity. The script copies optional files from the bootstrap tree via `copy_optional_bootstrap_files` (see `BOOTSTRAP_COPY_PATHS` in `create_okf_project.py`).
+When the Project Bootstrap repository is discoverable, the skill script delegates to `scripts/launch_project.sh`. That launcher is the canonical template source and preserves the display name and OKF owner while deriving a safe project id. Use `--bootstrap-root` when auto-discovery is ambiguous.
 
-**Full-kit copy set (when bootstrap sources exist):**
+The canonical launcher renders `templates/new-project/`, copies schemas/profiles/skills/runtime libraries, generates all service adapters, initializes Git, and runs launch validation.
+
+**Fallback augmentation set (when fallback is selected inside the bootstrap repository):**
 
 | Category | Paths |
 |----------|-------|
-| Scripts | `scripts/okf-dispatch`, `scripts/okf-check-adapters` |
-| Operator docs | `docs/okf-ways-of-working-brief.md`, `docs/okf-dispatch-orchestration.md`, `docs/configure-perplexity-okf.md`, `docs/perplexity-project-files-and-skills.md`, `docs/skill-frontmatter-compatibility.md` |
+| Scripts | `scripts/okf-dispatch`, `scripts/okf-check-adapters`, `scripts/okf-migrate` |
+| Operator docs | `docs/okf-ways-of-working-brief.md`, `docs/okf-dispatch-orchestration.md`, `docs/configure-perplexity-okf.md`, `docs/perplexity-project-files-and-skills.md`, `docs/skill-frontmatter-compatibility.md`, `docs/okf-v02-conformance.md` |
 | Setup guides | `docs/create-new-okf-project-in-{cursor,codex,claude,xcode,perplexity}.md` |
 | Handoffs / context | `.okf/handoffs/README.md`, `TEMPLATE.md`, `TEMPLATE-tester.md`, `TEMPLATE-reviewer.md`, `TEMPLATE-xcode-step4.md`, `.okf/context-packs/INDEX.md` |
 | Perplexity prompt | `.okf/prompts/perplexity-post-curation-smoke-test.md` |
 | Xcode step 4 | `.okf/prompts/xcode-step4-verification-checklist.md`, `.okf/handoffs/TEMPLATE-xcode-step4.md`, `.okf/risks/xcode-live-verification-pending.md` |
 | Codex | `.codex/hooks.json`, `CODEX-SKILL-INSTALL.md` |
 
-Bootstrap copies **replace embedded stubs** for the five-service setup guides and `docs/configure-perplexity-okf.md`.
+The embedded fallback is intentionally smaller. It carries the same v0.2 validator/migrator runtime and five-service core, but it does not promise every Forge or operator artifact from the canonical launcher.
 
-If the script runs from a **minimal checkout** without those sibling paths, the embedded scaffold still creates core `.okf` concepts, adapters, scripts, bundled skills, and **short fallback stubs** for configure-perplexity and xcode/perplexity setup guides — but not the operator brief, dispatch scripts, or full setup guides. Point the user to the bootstrap kit for missing files.
+If the script runs from an installed skill without the bootstrap repository, it announces the fallback on stderr. Use `--embedded-fallback` to select that behavior explicitly when the repository is present.
 
 After scaffold, instruct the user to run:
 
 ```bash
 scripts/okf-sync-skills
-scripts/okf-validate
+scripts/okf-migrate --check
+scripts/okf-validate --strict
 scripts/okf-check-adapters
 ```
 
-**Expected file count (full kit, default flags):** ~70 files (see `.okf/tests/2026-06-28-scaffold-parity.md`).
+**Expected file count (canonical default scaffold):** approximately 260 files, including the self-contained template source and 17 project-local skills. Treat the exact count as informational; validate required paths and strict checks instead.
 
 ## Required Scaffold
 
@@ -92,7 +98,8 @@ Create:
 - `CLAUDE.md`
 - `.cursor/rules/okf.mdc`
 - `PERPLEXITY.md`
-- `scripts/okf-validate`
+- `scripts/okf-validate --strict`
+- `scripts/okf-migrate`
 - `scripts/okf-context-pack`
 - `scripts/okf-handoff`
 - `scripts/okf-sync-skills`

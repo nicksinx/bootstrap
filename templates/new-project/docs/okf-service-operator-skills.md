@@ -26,7 +26,7 @@ python3 /path/to/bootstrap/scripts/lib/copy_okf_skills.py \
 
 cd /path/to/product
 scripts/okf-sync-skills
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 ### Codex

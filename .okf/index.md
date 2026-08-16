@@ -32,9 +32,12 @@ Project-1 is a reusable OKF bootstrap kit for software development and agentic p
 - Continuous improvement: `.okf/improvements/continuous-improvement-repository.md`
 - Validation plan: `.okf/tests/okf-validation-plan.md`
 - [OKF v0.2 conformance guide](../docs/okf-v02-conformance.md)
+- [OKF v0.2 migration guide](../docs/migrate-okf-v02.md)
 - Initial release: `.okf/releases/2026-06-24-initial-bootstrap.md`
-- [Current handoff](handoffs/2026-08-16-okf-v02-conformance.md)
-- [Current validation evidence](tests/2026-08-16-okf-v02-conformance.md)
+- [Current handoff](handoffs/2026-08-16-okf-v02-migration-scaffold.md)
+- [Current validation evidence](tests/2026-08-16-okf-v02-migration-scaffold.md)
+- [Current lessons learned](improvements/2026-08-16-okf-v02-migration-scaffold-lessons.md)
+- [Prior work package handoff](handoffs/2026-08-16-okf-v02-conformance.md)
 - Prior handoff: `.okf/handoffs/2026-06-28-xcode-step4-dry-verification.md`
 - Prior handoff: `.okf/handoffs/2026-06-28-scaffold-parity.md`
 
@@ -78,7 +81,8 @@ Project-1 is a reusable OKF bootstrap kit for software development and agentic p
 
 ## Local Commands
 
-- Validate OKF: `scripts/okf-validate`
+- Validate OKF: `scripts/okf-validate --strict`
+- Check or apply v0.2 migration: `scripts/okf-migrate --check`, `scripts/okf-migrate --apply --strict`
 - Build context pack: `scripts/okf-context-pack`
 - Create handoff: `scripts/okf-handoff`
 - Sync tool adapters from canonical skills: `scripts/okf-sync-skills`

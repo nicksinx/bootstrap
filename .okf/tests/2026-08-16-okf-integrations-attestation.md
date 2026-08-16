@@ -29,6 +29,7 @@ Validate [the integration feature](../features/okf-integration-pilots.md), [cura
 | Contract and syntax gate | `tests/test_contracts.py`, package `compileall`, `bash -n` | PASS | Project integration schema, Python and shell syntax |
 | Canonical scaffolds | `tests/test_launch_smoke.py`, `tests/test_scaffold_consolidation.py` | PASS | Default and `--with-openwiki` projects validate themselves; root/template/runtime parity |
 | Full release gate | `make check` | PASS | Entire historical and package 4 suite plus strict validator/migration/index/freshness/adapter checks |
+| Published stack | GitHub Actions `bootstrap-ci / validate` on PRs #2-#5 | PASS | Each stacked merge ref executed its package-specific `make check` gate on Ubuntu with Python 3.11 |
 | Whitespace and deterministic drift | `git diff --check`, `okf-index --check`, `okf-sync-skills --dry-run` | PASS | Patch hygiene, generated indexes, adapter preflight |
 
 # Generated Project Smoke
@@ -46,4 +47,4 @@ The exact file and concept counts are informational because the launcher include
 
 # Result
 
-PASS. Each work-package slice passed focused negative tests before integration, and the combined repository passed the complete release gate. No live external OpenWiki CLI or third-party MCP host was required for this deterministic package gate; those remain explicit follow-up smokes.
+PASS. Each work-package slice passed focused negative tests before integration, the combined repository passed the complete release gate, and GitHub Actions passed across the four-PR stack. No live external OpenWiki CLI or third-party MCP host was required for this deterministic package gate; those remain explicit follow-up smokes.

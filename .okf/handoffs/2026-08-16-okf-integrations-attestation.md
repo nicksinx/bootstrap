@@ -17,7 +17,7 @@ generated: { by: process:codex, at: "2026-08-16T18:22:10+01:00" }
 
 # Current State
 
-Work package 4 is implementation-complete on `agent/okf-v02-04-integrations-attestation`, stacked on work package 3. The focused suites and combined `make check` release gate pass. This is the final implementation branch in the four-package stack.
+Work package 4 is implementation-complete on `agent/okf-v02-04-integrations-attestation`, stacked on work package 3 and published as draft GitHub PR #5. The focused suites, combined `make check` release gate, and GitHub Actions checks for PRs #2-#5 pass. This is the final implementation branch in the four-package stack.
 
 # Completed Work
 
@@ -55,7 +55,7 @@ Primary changes are in `scripts/openwiki-sidecar`, `mcp_server/okf_readonly_serv
 
 # Validation Needed
 
-Completed: focused positive/adversarial suites, canonical and OpenWiki-enabled scaffold validation, full `make check`, strict OKF validation, migration/index/freshness/adapter checks, compilation, shell syntax, and whitespace gates. Re-run after conflict resolution, rebases, or upstream protocol changes.
+Completed: focused positive/adversarial suites, canonical and OpenWiki-enabled scaffold validation, full `make check`, strict OKF validation, migration/index/freshness/adapter checks, compilation, shell syntax, whitespace gates, and GitHub Actions across all four stacked pull requests. Re-run after conflict resolution, merges, or upstream protocol changes.
 
 # Context Pack
 

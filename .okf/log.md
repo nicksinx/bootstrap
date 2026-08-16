@@ -37,6 +37,7 @@
 - Added one deterministic OKF v0.2 `Attested Computation`, an executor and attester, ignored `.okf-runtime/` receipts, and explicit limits on the experimental receipt/verdict ABI.
 - Added the curated integration boundary decision, optional-integration review workflow, reviewed upstream protocol reference, operator guides, project configuration, canonical scaffold propagation, and strict launch/CI probes.
 - Focused adversarial suites and the combined `make check` gate passed; evidence is recorded in [the work package 4 test record](tests/2026-08-16-okf-integrations-attestation.md).
+- Published the four logical work packages as draft GitHub PRs #2-#5; after correcting dependency-free Python setup at the conformance layer and merging it forward without rewriting history, every stacked `bootstrap-ci / validate` check passed.
 
 ## 2026-07-04
 

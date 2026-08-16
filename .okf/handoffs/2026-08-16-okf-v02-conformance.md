@@ -25,6 +25,7 @@ Work package 1 is implementation-complete on `agent/okf-v02-01-conformance`. It 
 - Migrated the live bundle and launcher templates to v0.2 metadata.
 - Updated the concept JSON Schema without closing the type or extension vocabulary.
 - Added focused conformance tests and GitHub Actions CI.
+- Corrected the dependency-free Python setup so GitHub Actions does not request pip caching without a requirements or project metadata file.
 - Made generated-project validation strict.
 
 # Decisions Made
@@ -51,7 +52,7 @@ Core changes are under `scripts/lib/okf_validation.py`, `scripts/okf-validate`, 
 
 # Validation Needed
 
-Completed: `make check`, `scripts/okf-check-adapters`, `scripts/okf-sync-skills --dry-run`, and isolated package-wide Python compilation all pass. Re-run after conflict resolution or stacked-branch rebases.
+Completed: `make check`, GitHub Actions `bootstrap-ci / validate`, `scripts/okf-check-adapters`, `scripts/okf-sync-skills --dry-run`, and isolated package-wide Python compilation all pass. Re-run after conflict resolution or stacked-branch merges.
 
 # Context Pack
 

@@ -7,6 +7,7 @@
 - Migrated the live OKF bundle and primary scaffold templates from v0.1 `timestamp`/legacy status values to v0.2 `generated` metadata and lifecycle values.
 - Replaced line-splitting frontmatter parsing with a shared PyYAML validator that enforces reserved files, provenance/trust/lifecycle families, actor syntax, duplicate-key rejection, and Attested Computation structure.
 - Added strict and JSON validator modes, a v0.2 JSON Schema, focused conformance tests, generated-project strict validation, and GitHub Actions CI.
+- Removed unsupported `setup-python` pip caching from the dependency-file-free workflow after the initial hosted run failed before tests; PR #2 then passed `bootstrap-ci / validate` on Ubuntu with Python 3.11.
 - Preserved Project Bootstrap profile extensions and generated-project Forge validation hooks while accepting unknown concept types and extension keys.
 - Validation evidence: [PR 1 conformance tests](tests/2026-08-16-okf-v02-conformance.md).
 

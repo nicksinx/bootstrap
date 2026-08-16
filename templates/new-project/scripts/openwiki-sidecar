@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""Run OpenWiki in staging and import only its bounded sidecar outputs."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+import uuid
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+
+BEGIN = "<!-- OPENWIKI:START -->"
+END = "<!-- OPENWIKI:END -->"
+AGENT_FILES = ("AGENTS.md", "CLAUDE.md")
+IGNORED_NAMES = {
+    ".git",
+    ".env",
+    ".okf-runtime",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "logs",
+    "runs",
+}
+
+
+class SidecarError(RuntimeError):
+    """Raised when the sidecar boundary cannot be maintained."""
+
+
+def _root_from_script() -> Path:
+    return Path(__file__).resolve().parent.parent
+
+
+def _project_config(root: Path) -> dict[str, Any]:
+    path = root / "project.config.yaml"
+    if not path.is_file():
+        raise SidecarError(f"missing project configuration: {path}")
+    value = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(value, dict):
+        raise SidecarError("project.config.yaml must contain a mapping")
+    return value
+
+
+def _enabled(config: dict[str, Any]) -> bool:
+    integrations = config.get("integrations")
+    openwiki = integrations.get("openwiki") if isinstance(integrations, dict) else None
+    return bool(openwiki.get("enabled")) if isinstance(openwiki, dict) else False
+
+
+def _command_parts(raw: str) -> list[str]:
+    parts = shlex.split(raw)
+    if not parts:
+        raise SidecarError("OpenWiki command is empty")
+    executable = Path(parts[0]).expanduser()
+    if executable.parent != Path("."):
+        if not executable.is_file():
+            raise SidecarError(f"OpenWiki command not found: {parts[0]}")
+        parts[0] = str(executable.resolve())
+    elif shutil.which(parts[0]) is None:
+        raise SidecarError(
+            f"OpenWiki command not found: {parts[0]}; install it outside the repository"
+        )
+    return parts
+
+
+def _fingerprint(directory: Path) -> str:
+    digest = hashlib.sha256()
+    if not directory.is_dir():
+        return digest.hexdigest()
+    for path in sorted(directory.rglob("*")):
+        relative = path.relative_to(directory).as_posix()
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        if path.is_symlink():
+            digest.update(b"link:")
+            digest.update(os.readlink(path).encode("utf-8"))
+        elif path.is_file():
+            digest.update(path.read_bytes())
+        else:
+            digest.update(b"dir")
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _ignore(_directory: str, names: list[str]) -> set[str]:
+    return {name for name in names if name in IGNORED_NAMES or name.startswith(".openwiki-import-")}
+
+
+def _extract_block(text: str, label: str) -> str | None:
+    begin_count = text.count(BEGIN)
+    end_count = text.count(END)
+    if begin_count == end_count == 0:
+        return None
+    if begin_count != 1 or end_count != 1:
+        raise SidecarError(f"{label} must contain exactly one complete OpenWiki marker block")
+    start = text.index(BEGIN)
+    finish = text.index(END, start) + len(END)
+    return text[start:finish]
+
+
+def _merge_block(current: str, incoming: str | None, label: str) -> str:
+    current_block = _extract_block(current, label)
+    if incoming is None:
+        return current
+    if current_block is None:
+        return current.rstrip() + "\n\n" + incoming.rstrip() + "\n"
+    return current.replace(current_block, incoming)
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    mode = path.stat().st_mode if path.exists() else None
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, delete=False, newline=""
+    ) as handle:
+        handle.write(content)
+        temporary = Path(handle.name)
+    if mode is not None:
+        os.chmod(temporary, mode)
+    os.replace(temporary, path)
+
+
+def _preflight_import(root: Path, staged: Path) -> dict[Path, str]:
+    generated = staged / "openwiki"
+    if not generated.is_dir():
+        raise SidecarError("OpenWiki did not produce an openwiki/ directory")
+    if not (generated / "INSTRUCTIONS.md").is_file():
+        raise SidecarError("OpenWiki sidecar is missing openwiki/INSTRUCTIONS.md")
+    generated_symlinks = [
+        path.relative_to(staged).as_posix()
+        for path in generated.rglob("*")
+        if path.is_symlink()
+    ]
+    if generated_symlinks:
+        raise SidecarError(
+            "OpenWiki output contains prohibited symlink(s): " + ", ".join(generated_symlinks)
+        )
+
+    merged: dict[Path, str] = {}
+    for name in AGENT_FILES:
+        real_path = root / name
+        staged_path = staged / name
+        if real_path.is_symlink() or staged_path.is_symlink():
+            raise SidecarError(f"{name} must not be a symlink")
+        current = real_path.read_text(encoding="utf-8") if real_path.is_file() else ""
+        staged_text = staged_path.read_text(encoding="utf-8") if staged_path.is_file() else ""
+        incoming = _extract_block(staged_text, f"staged {name}")
+        merged[real_path] = _merge_block(current, incoming, name)
+    return merged
+
+
+def _import_outputs(root: Path, staged: Path, merged: dict[Path, str]) -> None:
+    destination = root / "openwiki"
+    if destination.is_symlink():
+        raise SidecarError("openwiki/ must not be a symlink")
+    runtime = root / ".okf-runtime" / "openwiki-import"
+    runtime.mkdir(parents=True, exist_ok=True)
+    incoming = runtime / f"incoming-{uuid.uuid4().hex}"
+    backup = runtime / f"backup-{uuid.uuid4().hex}"
+    originals = {
+        path: path.read_text(encoding="utf-8") if path.is_file() else None for path in merged
+    }
+    had_destination = destination.exists()
+    try:
+        shutil.copytree(staged / "openwiki", incoming, symlinks=False)
+        if had_destination:
+            destination.rename(backup)
+        incoming.rename(destination)
+        for path, content in merged.items():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            _atomic_write(path, content)
+    except Exception:
+        for path, content in originals.items():
+            if content is None:
+                path.unlink(missing_ok=True)
+            else:
+                _atomic_write(path, content)
+        if destination.exists():
+            shutil.rmtree(destination)
+        if had_destination and backup.exists():
+            backup.rename(destination)
+        raise
+    finally:
+        if incoming.exists():
+            shutil.rmtree(incoming)
+        if backup.exists():
+            shutil.rmtree(backup)
+
+
+def status(root: Path, command: str) -> int:
+    config = _project_config(root)
+    available = True
+    diagnostic = "available"
+    try:
+        _command_parts(command)
+    except SidecarError as exc:
+        available = False
+        diagnostic = str(exc)
+    payload = {
+        "enabled": _enabled(config),
+        "instructions": (root / "openwiki" / "INSTRUCTIONS.md").is_file(),
+        "generated_sidecar": (root / "openwiki").is_dir(),
+        "command_available": available,
+        "command_status": diagnostic,
+        "lock_held": (root / ".okf-runtime" / "openwiki-sidecar.lock").is_file(),
+        "curated_okf_path": ".okf",
+        "generated_output_path": "openwiki",
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def run_sidecar(root: Path, action: str, command: str, dry_run: bool) -> int:
+    config = _project_config(root)
+    if not _enabled(config):
+        raise SidecarError(
+            "OpenWiki sidecar is disabled; scaffold or relaunch with --with-openwiki"
+        )
+    parts = _command_parts(command)
+    invocation = [*parts, f"--{action}"]
+    if dry_run:
+        print(
+            json.dumps(
+                {
+                    "action": action,
+                    "command": invocation,
+                    "execution": "isolated staging copy",
+                    "allowed_imports": ["openwiki/", *AGENT_FILES],
+                    "protected_path": ".okf",
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    lock = root / ".okf-runtime" / "openwiki-sidecar.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError as exc:
+        raise SidecarError(f"another OpenWiki sidecar run holds {lock}") from exc
+    os.close(descriptor)
+    try:
+        root_okf_before = _fingerprint(root / ".okf")
+        with tempfile.TemporaryDirectory(prefix="okf-openwiki-sidecar-") as temporary:
+            staged = Path(temporary) / "project"
+            shutil.copytree(root, staged, symlinks=True, ignore=_ignore)
+            for path in sorted(staged.rglob("*"), reverse=True):
+                if path.is_symlink():
+                    path.unlink()
+            staged_okf_before = _fingerprint(staged / ".okf")
+            completed = subprocess.run(invocation, cwd=str(staged), check=False)
+            if completed.returncode != 0:
+                raise SidecarError(f"OpenWiki exited with status {completed.returncode}")
+            if _fingerprint(staged / ".okf") != staged_okf_before:
+                raise SidecarError("OpenWiki attempted to change .okf in staging; no output imported")
+            if _fingerprint(root / ".okf") != root_okf_before:
+                raise SidecarError("live .okf changed during sidecar execution; no output imported")
+            merged = _preflight_import(root, staged)
+            _import_outputs(root, staged, merged)
+        if _fingerprint(root / ".okf") != root_okf_before:
+            raise SidecarError(".okf changed during sidecar import")
+    finally:
+        lock.unlink(missing_ok=True)
+    print(f"OpenWiki {action} complete; imported bounded sidecar output")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("status", "init", "update"))
+    parser.add_argument("--root", type=Path, default=_root_from_script())
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--command",
+        default=os.environ.get("OPENWIKI_COMMAND", "openwiki"),
+        help="OpenWiki command (default: OPENWIKI_COMMAND or openwiki).",
+    )
+    args = parser.parse_args()
+    root = args.root.expanduser().resolve()
+    try:
+        if args.action == "status":
+            return status(root, args.command)
+        return run_sidecar(root, args.action, args.command, args.dry_run)
+    except (OSError, SidecarError, yaml.YAMLError) as exc:
+        print(f"openwiki-sidecar: {exc}", file=sys.stderr)
+        return 9
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

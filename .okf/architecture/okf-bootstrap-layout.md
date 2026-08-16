@@ -31,8 +31,11 @@ Project-1/
   AGENTS.md               ← Codex adapter (thin, generated)
   CLAUDE.md               ← Claude Code adapter (thin, generated)
   docs/
+  mcp_server/             ← path-contained read-only OKF query pilot
+  openwiki/               ← optional generated sidecar, never curated truth
   scripts/                ← launcher, v0.2 validation/migration, index/graph/freshness, dispatch
     lib/                  ← shared runtime copied into generated projects
+    attest/               ← deterministic experimental executor and attester
   skills/                 ← Canonical OKF skill definitions (skills/*/SKILL.md)
   templates/
 ```
@@ -55,7 +58,7 @@ Each adapter stays thin: it points agents to the canonical skill instead of dupl
 
 `scripts/launch_project.sh` is the canonical generator. The `create-new-okf-project` skill delegates to it when the bootstrap repository is available. Its embedded fallback is self-contained but intentionally smaller; shared validator and migration libraries are byte-for-byte parity tested.
 
-The launcher renders the five-service agent rules, prompts, handoff templates, context-pack guide, and Xcode readiness material before generating service adapters and deterministic directory indexes. `scripts/validate_launch.sh` gates required scaffold parity, migration drift, index drift, overdue freshness, strict OKF conformance, and adapter drift.
+The launcher renders the five-service agent rules, prompts, handoff templates, context-pack guide, Xcode readiness material, disabled integration pilots, and optional OpenWiki overlay before generating service adapters and deterministic directory indexes. `scripts/validate_launch.sh` gates required scaffold parity, migration drift, index drift, overdue freshness, strict OKF conformance, adapter drift, MCP discovery, and a temporary attestation receipt.
 
 # Constraints
 
@@ -72,6 +75,9 @@ The launcher renders the five-service agent rules, prompts, handoff templates, c
 - `scripts/okf-index` owns marked generated blocks while preserving authored index prose.
 - `scripts/okf-visualize` exports deterministic JSON or self-contained HTML from internal Markdown links.
 - `scripts/okf-freshness` inventories and checks `stale_after` without changing trust or lifecycle state.
+- `scripts/openwiki-sidecar` runs OpenWiki in staging and imports only bounded sidecar outputs.
+- `scripts/okf-mcp-server` exposes deterministic read-only concept queries and rejects traversal and symlink concepts.
+- `scripts/okf-attest-experiment` writes deterministic runtime receipts outside `.okf` and verifies them against current concept bytes.
 - Codex installs skills by copying folders from `skills/` per `CODEX-SKILL-INSTALL.md`.
 - Claude Code users can run `/project:okf-sync` to refresh adapters without leaving the editor.
 
@@ -85,6 +91,9 @@ The launcher renders the five-service agent rules, prompts, handoff templates, c
 - Adapters drift from OKF when `scripts/okf-sync-skills` is not run after canonical skill changes.
 - Context packs are mistaken for durable source material.
 - Draft or unverified concepts are treated as accepted implementation input.
+- Optional generators bypass the integrator and mutate curated `.okf` concepts.
+- Read-only MCP intent is assumed from annotations without enforcing path and method boundaries in code.
+- Experimental receipts are mistaken for signatures or a standardized OKF transport.
 - Lessons learned remain in chat or handoffs and never become reusable project knowledge.
 
 # Open Questions

@@ -66,7 +66,9 @@ def find_bootstrap_root(explicit=None):
     return None
 
 
-def create_with_bootstrap(bootstrap_root, target, project_name, owner, overwrite, profile):
+def create_with_bootstrap(
+    bootstrap_root, target, project_name, owner, overwrite, profile, with_openwiki
+):
     command = [
         str(bootstrap_root / "scripts" / "launch_project.sh"),
         "--name",
@@ -83,6 +85,8 @@ def create_with_bootstrap(bootstrap_root, target, project_name, owner, overwrite
     ]
     if overwrite:
         command.append("--force")
+    if with_openwiki:
+        command.append("--with-openwiki")
     completed = subprocess.run(
         command,
         cwd=str(bootstrap_root),
@@ -316,6 +320,9 @@ Canonical skill definitions live under `skills/*/SKILL.md`. Tool adapters stay t
 
 """
 
+OPENWIKI_BEGIN = "<!-- OPENWIKI:START -->"
+OPENWIKI_END = "<!-- OPENWIKI:END -->"
+
 
 def find_root():
     current = Path.cwd().resolve()
@@ -548,6 +555,28 @@ def write_adapter(root, target, content, dry_run):
     return "written"
 
 
+def preserve_openwiki_block(root, target, generated):
+    """Keep one valid OpenWiki-owned block when OKF regenerates shared adapters."""
+    if target not in {"codex", "claude"}:
+        return generated
+    path = root / ADAPTER_TARGETS[target]
+    if not path.is_file():
+        return generated
+    current = path.read_text(encoding="utf-8")
+    begin_count = current.count(OPENWIKI_BEGIN)
+    end_count = current.count(OPENWIKI_END)
+    if begin_count == end_count == 0:
+        return generated
+    if begin_count != 1 or end_count != 1:
+        raise ValueError(
+            f"{ADAPTER_TARGETS[target]} must contain exactly one complete OpenWiki marker block"
+        )
+    start = current.index(OPENWIKI_BEGIN)
+    finish = current.index(OPENWIKI_END, start) + len(OPENWIKI_END)
+    block = current[start:finish]
+    return generated.rstrip() + "\n\n" + block.rstrip() + "\n"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Sync thin OKF tool adapters from canonical skills.")
     parser.add_argument(
@@ -578,9 +607,16 @@ def main():
         print("WARN: no canonical skills found under skills/*/SKILL.md")
 
     selected = list(ADAPTER_BUILDERS.keys()) if args.target == "all" else [args.target]
-    for target in selected:
-        builder = ADAPTER_BUILDERS[target]
-        content = builder(skills, root)
+    prepared = []
+    try:
+        for target in selected:
+            builder = ADAPTER_BUILDERS[target]
+            content = preserve_openwiki_block(root, target, builder(skills, root))
+            prepared.append((target, content))
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        print(f"FAIL: adapter preflight: {exc}", file=sys.stderr)
+        return 1
+    for target, content in prepared:
         write_adapter(root, target, content, args.dry_run)
 
     mode = "dry-run" if args.dry_run else "sync"
@@ -776,7 +812,7 @@ def copy_bundled_runtime(root, overwrite):
     """Copy the self-contained v0.2 validation, migration, and tooling libraries."""
     source_root = Path(__file__).resolve().parent / "lib"
     results = []
-    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py"):
+    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py", "okf_attestation.py"):
         source = source_root / name
         if source.is_file():
             results.append(
@@ -815,6 +851,13 @@ BOOTSTRAP_COPY_PATHS = [
     "scripts/okf-visualize",
     "scripts/okf-dispatch",
     "scripts/okf-check-adapters",
+    "scripts/okf-mcp-server",
+    "scripts/openwiki-sidecar",
+    "scripts/okf-attest-experiment",
+    "scripts/attest/okf_bundle_digest.py",
+    "scripts/attest/verify_okf_bundle_digest.py",
+    "scripts/lib/okf_attestation.py",
+    "mcp_server/okf_readonly_server.py",
     "docs/okf-dispatch-orchestration.md",
     "docs/okf-ways-of-working-brief.md",
     "docs/create-new-okf-project-in-cursor.md",
@@ -827,6 +870,10 @@ BOOTSTRAP_COPY_PATHS = [
     "docs/skill-frontmatter-compatibility.md",
     "docs/okf-v02-conformance.md",
     "docs/okf-index-graph-freshness.md",
+    "docs/okf-readonly-mcp.md",
+    "docs/openwiki-okf-sidecar.md",
+    "docs/okf-attested-computation-experiment.md",
+    ".cursor/mcp-okf-readonly.json.example",
     ".okf/handoffs/README.md",
     ".okf/handoffs/TEMPLATE.md",
     ".okf/handoffs/TEMPLATE-tester.md",
@@ -1711,6 +1758,11 @@ def main():
     parser.add_argument("--profile", default="default", help="Canonical bootstrap profile (default: default).")
     parser.add_argument("--bootstrap-root", help="Explicit Project Bootstrap repository root.")
     parser.add_argument(
+        "--with-openwiki",
+        action="store_true",
+        help="Enable the optional bounded OpenWiki sidecar (canonical launcher only).",
+    )
+    parser.add_argument(
         "--embedded-fallback",
         action="store_true",
         help="Use the minimal self-contained skill scaffold instead of the canonical launcher.",
@@ -1727,6 +1779,8 @@ def main():
     fallback_requested = args.embedded_fallback or args.no_adapters or args.no_scripts or args.no_skills
     if args.bootstrap_root and bootstrap_root is None:
         parser.error("--bootstrap-root does not contain scripts/launch_project.sh and templates/new-project")
+    if args.with_openwiki and (bootstrap_root is None or fallback_requested):
+        parser.error("--with-openwiki requires the canonical Project Bootstrap launcher")
     if bootstrap_root is not None and not fallback_requested:
         try:
             completed = create_with_bootstrap(
@@ -1736,6 +1790,7 @@ def main():
                 args.owner,
                 args.overwrite,
                 args.profile,
+                args.with_openwiki,
             )
         except RuntimeError as exc:
             parser.error(str(exc))

@@ -15,6 +15,9 @@ Validated patterns come from real integration work in the [Project-1 harness](ht
 | **Forge lifecycle MCP** | Eleven Forge launchers, sibling-clone helper, auto-written `.cursor/mcp.json` |
 | **OKF dispatch** | `scripts/okf-dispatch` multi-role delivery pipeline (Project-1 aligned) |
 | **Agent adapters** | Thin `AGENTS.md`, `CLAUDE.md`, Cursor rules—pointing at OKF, not duplicating it |
+| **Read-only OKF MCP** | Optional local query pilot with path-contained concept tools and no write surface |
+| **Attestation experiment** | Deterministic OKF concept receipt and verifier; runtime output stays outside `.okf` |
+| **OpenWiki sidecar** | Opt-in generated wiki under `openwiki/`, isolated from curated OKF v0.2 |
 | **Legacy ai-task path** | Deprecated `legacy-task` profile only—see [migration doc](docs/migration-from-legacy-bootstrap.md) |
 
 Bootstrap **generates** product repositories. It does not run your application, vend Forge server code, or replace OKF as the source of curated project truth.
@@ -121,6 +124,8 @@ scripts/okf-dispatch status
 Forge `.cursor/mcp.json` is written automatically. Build sibling Forge repos and reload Cursor MCP before calling Forge tools.
 
 Sync OKF skills from the bootstrap kit when needed: `scripts/okf-sync-skills --dry-run` then `scripts/okf-sync-skills`.
+
+Optional integrations are documented in [the read-only MCP guide](docs/okf-readonly-mcp.md), [attestation experiment](docs/okf-attested-computation-experiment.md), and [OpenWiki sidecar guide](docs/openwiki-okf-sidecar.md). Add `--with-openwiki` at launch time to emit the OpenWiki instructions overlay; the launcher never installs or runs OpenWiki.
 
 ---
 
@@ -239,7 +244,8 @@ Durable lessons from harness → bootstrap promotion: [`.okf/improvements/forge-
   [--non-interactive] \
   [--dry-run] \
   [--force] \
-  [--with-github]
+  [--with-github] \
+  [--with-openwiki]
 ```
 
 Legacy profile only: `--with-mcp`, `--with-mcp-config`, and related ai-task flags.
@@ -248,6 +254,7 @@ Legacy profile only: `--with-mcp`, `--with-mcp-config`, and related ai-task flag
 |------|---------|
 | `--dry-run` | Print actions without writing |
 | `--with-github` | Create remote via `gh` (optional) |
+| `--with-openwiki` | Emit the bounded OpenWiki sidecar instructions (optional) |
 | `--with-mcp` | **legacy-task only** — register with ai-task MCP |
 | `--with-mcp-config` | **legacy-task only** — write ai-task `.cursor/mcp.json` |
 
@@ -262,6 +269,8 @@ Full flag list: `./scripts/launch_project.sh --help`.
 | [`scripts/`](scripts/) | `launch_project.sh`, validation, GitHub helpers |
 | [`templates/new-project/`](templates/new-project/) | v2 scaffold (`.tmpl` Go templates) |
 | [`templates/legacy-task/`](templates/legacy-task/) | Deprecated ai-task overlay |
+| [`templates/openwiki-sidecar/`](templates/openwiki-sidecar/) | Opt-in OpenWiki instructions overlay |
+| [`mcp_server/`](mcp_server/) | First-party read-only OKF MCP pilot |
 | [`profiles/`](profiles/) | `default.yaml` v2, `legacy-task.yaml`, `forge-lifecycle.yaml` (alias) |
 | [`schemas/`](schemas/) | JSON Schema contracts for backlog, handoffs, OKF concepts |
 | [`skills/`](skills/) | Canonical OKF skill definitions (synced to generated projects) |

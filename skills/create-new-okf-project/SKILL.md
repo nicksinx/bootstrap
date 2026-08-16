@@ -34,6 +34,7 @@ Useful options:
 --bootstrap-root /path/to/bootstrap
 --overwrite
 --embedded-fallback
+--with-openwiki
 --no-adapters
 --no-scripts
 --no-skills
@@ -45,7 +46,7 @@ Use `--overwrite` only when the user explicitly allows replacing existing scaffo
 
 When the Project Bootstrap repository is discoverable, the skill script delegates to `scripts/launch_project.sh`. That launcher is the canonical template source and preserves the display name and OKF owner while deriving a safe project id. Use `--bootstrap-root` when auto-discovery is ambiguous.
 
-The canonical launcher renders `templates/new-project/`, copies schemas/profiles/skills/runtime libraries, generates all service adapters, initializes Git, and runs launch validation.
+The canonical launcher renders `templates/new-project/`, copies schemas/profiles/skills/runtime libraries, generates all service adapters, initializes Git, and runs launch validation. `--with-openwiki` adds the bounded OpenWiki sidecar overlay; it never installs or runs OpenWiki and is unavailable in the minimal fallback.
 
 **Fallback augmentation set (when fallback is selected inside the bootstrap repository):**
 
@@ -58,6 +59,8 @@ The canonical launcher renders `templates/new-project/`, copies schemas/profiles
 | Perplexity prompt | `.okf/prompts/perplexity-post-curation-smoke-test.md` |
 | Xcode step 4 | `.okf/prompts/xcode-step4-verification-checklist.md`, `.okf/handoffs/TEMPLATE-xcode-step4.md`, `.okf/risks/xcode-live-verification-pending.md` |
 | Codex | `.codex/hooks.json`, `CODEX-SKILL-INSTALL.md` |
+
+Canonical scaffolds also include the disabled-by-default read-only OKF MCP pilot, the local attested-computation experiment, and OpenWiki sidecar tooling. The OpenWiki content overlay itself is emitted only with `--with-openwiki`.
 
 The embedded fallback is intentionally smaller. It carries the same v0.2 validator/migrator runtime and five-service core, but it does not promise every Forge or operator artifact from the canonical launcher.
 
@@ -74,7 +77,7 @@ scripts/okf-validate --strict
 scripts/okf-check-adapters
 ```
 
-**Expected file count (canonical default scaffold):** approximately 330 files, including the five-service OKF material, generated directory indexes, the self-contained template source, and 17 project-local skills. Treat the exact count as informational; validate required paths and strict checks instead.
+**Expected file count (canonical default scaffold):** approximately 367 files with the OpenWiki overlay enabled, including the five-service OKF material, generated directory indexes, self-contained template source, integration pilots, and 17 project-local skills. Treat the exact count as informational; validate required paths and strict checks instead.
 
 ## Required Scaffold
 
@@ -109,6 +112,9 @@ Create:
 - `scripts/okf-handoff`
 - `scripts/okf-sync-skills`
 - `scripts/okf-dispatch` when available from the bootstrap kit
+- `scripts/okf-mcp-server` and `.cursor/mcp-okf-readonly.json.example` when available from the bootstrap kit
+- `scripts/okf-attest-experiment` and `.okf/computations/bootstrap-integrity.md` when available from the bootstrap kit
+- `scripts/openwiki-sidecar` and `docs/openwiki-okf-sidecar.md` when available from the bootstrap kit
 - `.claude/commands/okf-sync.md`
 - `.codex/hooks.json` when available from the bootstrap kit
 - `docs/shared-okf-skills.md`

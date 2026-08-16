@@ -72,6 +72,45 @@
         "continuous_improvement_path": { "type": "string" }
       }
     },
+    "integrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["openwiki", "okf_readonly_mcp", "attested_computation"],
+      "properties": {
+        "openwiki": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "output_path", "instructions_path"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "output_path": {"const": "openwiki"},
+            "instructions_path": {"const": "openwiki/INSTRUCTIONS.md"}
+          }
+        },
+        "okf_readonly_mcp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "transport", "command"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "transport": {"const": "stdio"},
+            "command": {"const": "scripts/okf-mcp-server"}
+          }
+        },
+        "attested_computation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "stability", "receipt_path"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "stability": {"const": "experimental"},
+            "receipt_path": {
+              "const": ".okf-runtime/attestations/okf-bundle-receipt.json"
+            }
+          }
+        }
+      }
+    },
     "compat_mode": {
       "enum": ["strict", "warn", "legacy"],
       "default": "strict"

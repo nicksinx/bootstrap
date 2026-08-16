@@ -42,6 +42,9 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 15. CI validates both the bootstrap bundle and a freshly generated project.
 16. Generated directory indexes are deterministic and preserve operator-authored prose.
 17. Operators can export the internal concept graph and inspect `stale_after` freshness locally.
+18. Optional generated-documentation integrations cannot write curated `.okf` content directly.
+19. Agents can query recognized OKF concepts through a local read-only, path-contained MCP surface.
+20. At least one deterministic `Attested Computation` demonstrates receipt verification while keeping runtime artifacts outside `.okf`.
 
 # Dependencies
 
@@ -57,7 +60,7 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 
 # Verification
 
-Run `make check`, `scripts/okf-validate --strict`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and validate each skill with the Codex skill validator.
+Run `make check`, `scripts/okf-validate --strict`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and validate each skill with the Codex skill validator. Package 4 additionally exercises OpenWiki mutation/symlink rejection, MCP traversal/symlink rejection, and attestation tamper detection.
 
 # Citations
 

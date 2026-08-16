@@ -42,6 +42,20 @@ def assert_strict_project(target: Path) -> None:
     freshness = run([str(target / "scripts" / "okf-freshness"), "--check"], cwd=target)
     if freshness.returncode != 0:
         raise AssertionError(freshness.stdout + freshness.stderr)
+    if (target / "scripts" / "okf-attest-experiment").is_file():
+        with tempfile.TemporaryDirectory(prefix="okf-scaffold-attest-") as td:
+            receipt = Path(td) / "receipt.json"
+            attested = run(
+                [
+                    str(target / "scripts" / "okf-attest-experiment"),
+                    "run",
+                    "--receipt",
+                    str(receipt),
+                ],
+                cwd=target,
+            )
+            if attested.returncode != 0:
+                raise AssertionError(attested.stdout + attested.stderr)
 
 
 def test_repo_script_delegates_to_canonical_launcher() -> None:
@@ -67,6 +81,28 @@ def test_repo_script_delegates_to_canonical_launcher() -> None:
             raise AssertionError(project)
         if project["owner"] != "team-platform":
             raise AssertionError(project)
+        assert_strict_project(target)
+
+
+def test_repo_script_can_enable_openwiki_sidecar() -> None:
+    with tempfile.TemporaryDirectory(prefix="okf-canonical-openwiki-") as td:
+        target = Path(td) / "openwiki-product"
+        command = run(
+            [
+                sys.executable,
+                str(CREATE),
+                str(target),
+                "--name",
+                "OpenWiki Product",
+                "--owner",
+                "team-platform",
+                "--with-openwiki",
+            ]
+        )
+        if command.returncode != 0:
+            raise AssertionError(command.stdout + command.stderr)
+        if not (target / "openwiki" / "INSTRUCTIONS.md").is_file():
+            raise AssertionError("canonical --with-openwiki omitted sidecar instructions")
         assert_strict_project(target)
 
 
@@ -98,9 +134,14 @@ def test_standalone_skill_fallback_is_v02_clean() -> None:
 def test_bundled_runtime_matches_canonical_runtime() -> None:
     canonical = ROOT / "scripts" / "lib"
     bundled = ROOT / "skills" / "create-new-okf-project" / "scripts" / "lib"
-    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py"):
+    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py", "okf_attestation.py"):
         if (canonical / name).read_bytes() != (bundled / name).read_bytes():
             raise AssertionError(f"bundled runtime drift: {name}")
+    for name in ("okf_attestation.py",):
+        if (canonical / name).read_bytes() != (
+            ROOT / "templates" / "new-project" / "scripts" / "lib" / name
+        ).read_bytes():
+            raise AssertionError(f"template runtime drift: {name}")
     if (
         ROOT / "scripts" / "okf-check-adapters"
     ).read_bytes() != (
@@ -112,11 +153,29 @@ def test_bundled_runtime_matches_canonical_runtime() -> None:
             ROOT / "skills" / "create-new-okf-project" / "assets" / "scripts" / name
         ).read_bytes():
             raise AssertionError(f"bundled runtime drift: {name}")
+    parity_paths = (
+        "scripts/okf-mcp-server",
+        "scripts/openwiki-sidecar",
+        "scripts/okf-attest-experiment",
+        "scripts/attest/okf_bundle_digest.py",
+        "scripts/attest/verify_okf_bundle_digest.py",
+        "mcp_server/okf_readonly_server.py",
+        ".cursor/mcp-okf-readonly.json.example",
+        "docs/okf-readonly-mcp.md",
+        "docs/openwiki-okf-sidecar.md",
+        "docs/okf-attested-computation-experiment.md",
+    )
+    for relative in parity_paths:
+        if (ROOT / relative).read_bytes() != (
+            ROOT / "templates" / "new-project" / relative
+        ).read_bytes():
+            raise AssertionError(f"package 4 template drift: {relative}")
 
 
 def main() -> int:
     tests = [
         test_repo_script_delegates_to_canonical_launcher,
+        test_repo_script_can_enable_openwiki_sidecar,
         test_standalone_skill_fallback_is_v02_clean,
         test_bundled_runtime_matches_canonical_runtime,
     ]

@@ -22,6 +22,9 @@ Canonical skill definitions live under `skills/*/SKILL.md`. Tool adapters stay t
 
 """
 
+OPENWIKI_BEGIN = "<!-- OPENWIKI:START -->"
+OPENWIKI_END = "<!-- OPENWIKI:END -->"
+
 
 def find_root():
     current = Path.cwd().resolve()
@@ -265,6 +268,28 @@ def write_adapter(root, target, content, dry_run):
     return "written"
 
 
+def preserve_openwiki_block(root, target, generated):
+    """Keep one valid OpenWiki-owned block when OKF regenerates shared adapters."""
+    if target not in {"codex", "claude"}:
+        return generated
+    path = root / ADAPTER_TARGETS[target]
+    if not path.is_file():
+        return generated
+    current = path.read_text(encoding="utf-8")
+    begin_count = current.count(OPENWIKI_BEGIN)
+    end_count = current.count(OPENWIKI_END)
+    if begin_count == end_count == 0:
+        return generated
+    if begin_count != 1 or end_count != 1:
+        raise ValueError(
+            f"{ADAPTER_TARGETS[target]} must contain exactly one complete OpenWiki marker block"
+        )
+    start = current.index(OPENWIKI_BEGIN)
+    finish = current.index(OPENWIKI_END, start) + len(OPENWIKI_END)
+    block = current[start:finish]
+    return generated.rstrip() + "\n\n" + block.rstrip() + "\n"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Sync thin OKF tool adapters from canonical skills.")
     parser.add_argument(
@@ -295,9 +320,16 @@ def main():
         print("WARN: no canonical skills found under skills/*/SKILL.md")
 
     selected = list(ADAPTER_BUILDERS.keys()) if args.target == "all" else [args.target]
-    for target in selected:
-        builder = ADAPTER_BUILDERS[target]
-        content = builder(skills, root)
+    prepared = []
+    try:
+        for target in selected:
+            builder = ADAPTER_BUILDERS[target]
+            content = preserve_openwiki_block(root, target, builder(skills, root))
+            prepared.append((target, content))
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        print(f"FAIL: adapter preflight: {exc}", file=sys.stderr)
+        return 1
+    for target, content in prepared:
         write_adapter(root, target, content, args.dry_run)
 
     mode = "dry-run" if args.dry_run else "sync"

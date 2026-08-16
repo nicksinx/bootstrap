@@ -20,7 +20,7 @@ source "${BOOTSTRAP_LIB_DIR}/secret.sh"
 # shellcheck source=lib/scaffold.sh
 source "${BOOTSTRAP_LIB_DIR}/scaffold.sh"
 
-readonly TEMPLATE_VERSION="2.2.0"
+readonly TEMPLATE_VERSION="2.3.0"
 
 usage() {
   cat <<USAGE
@@ -44,6 +44,9 @@ GitHub:
   --github-default-branch <branch>
   --github-create-labels
   --github-create-templates
+
+Optional integrations:
+  --with-openwiki                  Add the bounded OpenWiki sidecar overlay
 
 Legacy MCP (profile legacy-task only):
   --with-mcp
@@ -83,6 +86,8 @@ GITHUB_DEFAULT_BRANCH="main"
 GITHUB_CREATE_LABELS=0
 GITHUB_CREATE_TEMPLATES=0
 
+WITH_OPENWIKI=0
+
 WITH_MCP=0
 WITH_MCP_CONFIG=0
 MCP_SERVER_NAME="ai-task-orchestrator"
@@ -116,6 +121,7 @@ while [[ $# -gt 0 ]]; do
     --github-default-branch) GITHUB_DEFAULT_BRANCH="$2"; shift 2;;
     --github-create-labels) GITHUB_CREATE_LABELS=1; shift;;
     --github-create-templates) GITHUB_CREATE_TEMPLATES=1; shift;;
+    --with-openwiki) WITH_OPENWIKI=1; shift;;
     --with-mcp) WITH_MCP=1; shift;;
     --with-mcp-config) WITH_MCP_CONFIG=1; shift;;
     --mcp-server-name) MCP_SERVER_NAME="$2"; shift 2;;
@@ -249,6 +255,7 @@ export BOOTSTRAP_VAR_OKF_ENABLED=true
 export BOOTSTRAP_VAR_OKF_BUNDLE_PATH=".okf"
 export BOOTSTRAP_VAR_OKF_PROFILE="software-development"
 export BOOTSTRAP_VAR_OKF_CONTINUOUS_IMPROVEMENT_PATH=".okf/improvements"
+export BOOTSTRAP_VAR_OPENWIKI_ENABLED=$([[ "$WITH_OPENWIKI" == "1" ]] && echo true || echo false)
 
 # Render every templated file from the new-project template tree.
 render_tree() {
@@ -280,6 +287,14 @@ if [[ "$PROFILE_NAME" == "legacy-task" ]] && [[ -d "$LEGACY_OVERLAY_DIR" ]]; the
   render_tree "$LEGACY_OVERLAY_DIR"
 fi
 
+OPENWIKI_OVERLAY_DIR="${BOOTSTRAP_ROOT}/templates/openwiki-sidecar"
+if [[ "$WITH_OPENWIKI" == "1" ]]; then
+  if [[ ! -d "$OPENWIKI_OVERLAY_DIR" ]]; then
+    bs_die "E0007" "$BS_EXIT_VALIDATION" "missing OpenWiki sidecar overlay"
+  fi
+  render_tree "$OPENWIKI_OVERLAY_DIR"
+fi
+
 if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
   # Copy schemas into the project so it is self-contained.
   mkdir -p "${TARGET_DIR}/schemas"
@@ -307,6 +322,13 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
   if [[ -d "${LEGACY_OVERLAY_SOURCE}" ]] && [[ "${LEGACY_OVERLAY_SOURCE}" != "${LEGACY_OVERLAY_TARGET}" ]]; then
     rm -rf "${LEGACY_OVERLAY_TARGET}"
     cp -R "${LEGACY_OVERLAY_SOURCE}" "${LEGACY_OVERLAY_TARGET}"
+  fi
+
+  OPENWIKI_OVERLAY_SOURCE="${BOOTSTRAP_ROOT}/templates/openwiki-sidecar"
+  OPENWIKI_OVERLAY_TARGET="${TARGET_DIR}/templates/openwiki-sidecar"
+  if [[ -d "${OPENWIKI_OVERLAY_SOURCE}" ]] && [[ "${OPENWIKI_OVERLAY_SOURCE}" != "${OPENWIKI_OVERLAY_TARGET}" ]]; then
+    rm -rf "${OPENWIKI_OVERLAY_TARGET}"
+    cp -R "${OPENWIKI_OVERLAY_SOURCE}" "${OPENWIKI_OVERLAY_TARGET}"
   fi
 
   # Copy canonical OKF skills (exclude bootstrap-only intake skill).
@@ -340,6 +362,7 @@ if [[ "${BOOTSTRAP_ROOT}" != "${TARGET_DIR}" ]]; then
 fi
 chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/hooks/*.sh "${TARGET_DIR}"/scripts/*forge*.sh "${TARGET_DIR}"/scripts/forgerelay-mcp.sh 2>/dev/null || true
 chmod +x "${TARGET_DIR}"/scripts/mcp/*.sh 2>/dev/null || true
+chmod +x "${TARGET_DIR}"/scripts/attest/*.py "${TARGET_DIR}"/mcp_server/*.py 2>/dev/null || true
 chmod +x "${TARGET_DIR}"/scripts/workers/*.sh 2>/dev/null || true
 
 if [[ "$DRY_RUN" != "1" ]] && [[ -x "${TARGET_DIR}/scripts/okf-sync-skills" ]]; then

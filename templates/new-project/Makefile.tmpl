@@ -1,5 +1,5 @@
 .PHONY: launch validate-launch github-init backlog-init \
-        okf-validate okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-visualize okf-adapter-check okf-context-pack okf-handoff okf-dispatch-status \
+        okf-validate okf-validate-strict okf-migrate-check okf-index-check okf-freshness-check okf-visualize okf-adapter-check okf-context-pack okf-handoff okf-dispatch-status okf-attest openwiki-status \
         release-gate test-launch
 
 PROJECT_ID ?= __PROJECT_ID__
@@ -43,6 +43,12 @@ okf-handoff:
 
 okf-dispatch-status:
 	./scripts/okf-dispatch status
+
+okf-attest:
+	./scripts/okf-attest-experiment run
+
+openwiki-status:
+	./scripts/openwiki-sidecar status
 
 github-init:
 	./scripts/github_init.sh

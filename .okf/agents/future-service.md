@@ -12,7 +12,7 @@ applies_to: [local-agent]
 sensitivity: internal
 verification_status: reviewed
 stale_after: 2026-11-14
-generated: { by: process:okf-sync-skills, at: "2026-08-16T17:51:14+01:00" }
+generated: { by: process:okf-sync-skills, at: "2026-08-16T18:18:56+01:00" }
 ---
 
 # Future Service OKF Adapter

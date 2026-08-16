@@ -84,7 +84,7 @@ Any agent can pause and another can continue if work follows the same contract:
 2. Use `skills/okf-reader/SKILL.md` for triage when needed.
 3. Implement using the relevant canonical skill.
 4. Update OKF concepts, append to `.okf/log.md`, and write a handoff with `skills/okf-handoff-writer/SKILL.md` or `scripts/okf-handoff`.
-5. Run `scripts/okf-validate --strict` before commit or release when practical.
+5. Run `scripts/okf-index --write`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and `scripts/okf-validate --strict` before commit or release when practical.
 
 Context packs (`scripts/okf-context-pack` or `skills/okf-context-pack-builder/SKILL.md`) are generated task context, not durable source material.
 
@@ -102,6 +102,9 @@ scripts/okf-sync-skills
 3. Run validation:
 
 ```bash
+scripts/okf-index --write
+scripts/okf-index --check
+scripts/okf-freshness --check
 scripts/okf-validate --strict
 ```
 
@@ -116,8 +119,15 @@ scripts/okf-sync-skills --list-skills
 scripts/okf-sync-skills --target cursor
 scripts/okf-sync-skills --target perplexity
 scripts/okf-check-adapters
-scripts/okf-check-adapters --strict
 ```
+
+## Index, graph, and freshness
+
+- `scripts/okf-index` refreshes deterministic marked blocks while preserving authored index prose.
+- `scripts/okf-visualize` exports the concept-link graph as JSON or self-contained HTML.
+- `scripts/okf-freshness` reports `stale_after` coverage and can fail CI for overdue concepts.
+
+See `docs/okf-index-graph-freshness.md` for command contracts and safety behavior.
 
 ## Assumptions about Cursor project rules
 

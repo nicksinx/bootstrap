@@ -34,4 +34,4 @@ Secret detection failures should block unless the user explicitly confirms an ap
 
 ## Follow-up
 
-After fixing validation issues, rerun `scripts/okf-migrate --check` and `scripts/okf-validate --strict`, then record the result in `.okf/log.md` or a `Test Evidence` concept.
+After fixing validation issues, rerun `scripts/okf-migrate --check`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and `scripts/okf-validate --strict`, then record the result in `.okf/log.md` or a `Test Evidence` concept.

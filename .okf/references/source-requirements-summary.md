@@ -11,6 +11,7 @@ tags: [okf, requirements, source]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-09-16
 generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 

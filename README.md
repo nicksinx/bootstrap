@@ -150,7 +150,7 @@ See [docs/migration-from-legacy-bootstrap.md](docs/migration-from-legacy-bootstr
 | Decisions & risks | `.okf/decisions/`, `.okf/risks/` |
 | Agent continuity | `.okf/handoffs/` |
 | Lessons learned | `.okf/improvements/` |
-| Validation | `scripts/okf-validate`, `scripts/okf-migrate`, `scripts/okf-handoff`, `scripts/okf-context-pack` |
+| Validation and navigation | `scripts/okf-validate`, `scripts/okf-migrate`, `scripts/okf-index`, `scripts/okf-freshness`, `scripts/okf-visualize`, `scripts/okf-handoff`, `scripts/okf-context-pack` |
 
 **Reading order for any agent:** index → project → task-relevant concepts → recent handoffs → improvements.
 

@@ -11,6 +11,7 @@ tags: [okf, skills, shared-operating-model, cursor, claude, codex, xcode, perple
 applies_to: [cursor, claude, codex, xcode-claude, chatgpt, perplexity, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-11-16
 generated: { by: process:okf-v02-migration-scaffold, at: 2026-08-16T17:25:01+01:00 }
 ---
 

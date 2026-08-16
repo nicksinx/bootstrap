@@ -11,6 +11,7 @@ tags: [okf, workflow, dispatch, multi-agent]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-11-16
 generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T18:00:00+01:00 }
 ---
 

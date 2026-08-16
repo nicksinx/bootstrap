@@ -11,6 +11,7 @@ tags: [okf, reference, perplexity, deep-research, shared-services]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
+stale_after: 2026-09-16
 generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T19:42:00+02:00 }
 ---
 

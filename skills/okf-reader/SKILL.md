@@ -15,7 +15,7 @@ Use this skill before substantive work in an OKF-enabled project.
 4. Read relevant requirement, feature, architecture, decision, workflow, risk, test, release, reference, improvement, and agent-rule concepts for the task.
 5. Check `.okf/handoffs/` for the most recent continuity note.
 6. Check `.okf/improvements/` for applicable lessons learned.
-7. Note concepts with `status: draft` or `deprecated`, and any concepts whose `stale_after` date has passed.
+7. Run `scripts/okf-freshness` when available; otherwise note concepts with `status: draft` or `deprecated` and any concepts whose `stale_after` date has passed.
 8. Derive trust from `verified`: no event is unverified, non-human events are machine-confirmed, and a `human:` event is human-reviewed.
 9. Treat Project Bootstrap `verification_status` as workflow metadata, not a replacement for v0.2 trust.
 
@@ -42,6 +42,7 @@ Report only the task-relevant facts:
 - Applicable lessons learned or process improvements.
 - Recent handoff notes.
 - Missing or unverified concepts that affect implementation.
+- Overdue or untracked freshness deadlines that affect implementation.
 
 ## Safety Rules
 

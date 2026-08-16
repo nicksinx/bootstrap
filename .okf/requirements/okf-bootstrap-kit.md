@@ -11,6 +11,7 @@ tags: [okf, requirement, bootstrap]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: 2026-11-16
 generated: { by: process:okf-v02-conformance, at: 2026-08-16T17:02:47+01:00 }
 ---
 
@@ -39,6 +40,8 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 13. Generated bundles conform to OKF v0.2 reserved-file and concept metadata rules.
 14. `scripts/okf-validate --strict` uses a real YAML parser and passes without warnings.
 15. CI validates both the bootstrap bundle and a freshly generated project.
+16. Generated directory indexes are deterministic and preserve operator-authored prose.
+17. Operators can export the internal concept graph and inspect `stale_after` freshness locally.
 
 # Dependencies
 
@@ -54,7 +57,7 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 
 # Verification
 
-Run `make check`, `scripts/okf-validate --strict`, and validate each skill with the Codex skill validator.
+Run `make check`, `scripts/okf-validate --strict`, `scripts/okf-index --check`, `scripts/okf-freshness --check`, and validate each skill with the Codex skill validator.
 
 # Citations
 

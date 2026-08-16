@@ -20,7 +20,7 @@ source "${BOOTSTRAP_LIB_DIR}/secret.sh"
 # shellcheck source=lib/scaffold.sh
 source "${BOOTSTRAP_LIB_DIR}/scaffold.sh"
 
-readonly TEMPLATE_VERSION="2.1.0"
+readonly TEMPLATE_VERSION="2.2.0"
 
 usage() {
   cat <<USAGE
@@ -214,6 +214,7 @@ bs_log_info "launching ${PROJECT_NAME} at ${TARGET_DIR}"
 
 GENERATED_AT="$(bs_iso_timestamp)"
 GENERATED_DATE="${GENERATED_AT%%T*}"
+STALE_AFTER="$(python3 -c 'import datetime as dt,sys; print((dt.date.fromisoformat(sys.argv[1]) + dt.timedelta(days=90)).isoformat())' "$GENERATED_DATE")"
 TEMPLATE_DIR="${BOOTSTRAP_ROOT}/templates/new-project"
 
 # Export __VAR__ values used by render_template.py
@@ -226,6 +227,7 @@ export BOOTSTRAP_VAR_PROFILE_VERSION="$PROFILE_VERSION"
 export BOOTSTRAP_VAR_DEFAULT_BRANCH="$GITHUB_DEFAULT_BRANCH"
 export BOOTSTRAP_VAR_GENERATED_AT="$GENERATED_AT"
 export BOOTSTRAP_VAR_GENERATED_DATE="$GENERATED_DATE"
+export BOOTSTRAP_VAR_STALE_AFTER="$STALE_AFTER"
 export BOOTSTRAP_VAR_GITHUB_OWNER="$GITHUB_OWNER"
 export BOOTSTRAP_VAR_GITHUB_VISIBILITY="$GITHUB_VISIBILITY"
 export BOOTSTRAP_VAR_GITHUB_CREATE_LABELS=$([[ "$GITHUB_CREATE_LABELS" == "1" ]] && echo true || echo false)
@@ -343,6 +345,11 @@ chmod +x "${TARGET_DIR}"/scripts/workers/*.sh 2>/dev/null || true
 if [[ "$DRY_RUN" != "1" ]] && [[ -x "${TARGET_DIR}/scripts/okf-sync-skills" ]]; then
   ( cd "${TARGET_DIR}" && scripts/okf-sync-skills ) \
     || bs_die "E0009" "$BS_EXIT_VALIDATION" "failed to generate OKF service adapters"
+fi
+
+if [[ "$DRY_RUN" != "1" ]] && [[ -x "${TARGET_DIR}/scripts/okf-index" ]]; then
+  ( cd "${TARGET_DIR}" && scripts/okf-index --write ) \
+    || bs_die "E0009" "$BS_EXIT_VALIDATION" "failed to generate OKF directory indexes"
 fi
 
 if [[ "$PROFILE_NAME" == "legacy-task" ]]; then

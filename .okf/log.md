@@ -18,6 +18,16 @@
 - Updated Codex-compatible skills to minimal frontmatter and current v0.2 examples while preserving the four Perplexity adapters' documented extended metadata contract.
 - Added migration, scaffold-parity, and skill-contract regression suites; full validation evidence is recorded in [the work package 2 test record](tests/2026-08-16-okf-v02-migration-scaffold.md).
 
+### Deterministic indexes, graph exports, and freshness review
+
+- Added `scripts/okf-index` with atomic check/write modes, marked generated blocks, authored-prose preservation, parse-before-write safety, and per-directory indexes.
+- Added `scripts/okf-visualize` for deterministic JSON and self-contained HTML concept graphs derived from resolvable internal Markdown links.
+- Added `scripts/okf-freshness` with explicit audit dates, overdue checks, optional deadline coverage enforcement, and no automatic trust or lifecycle mutation.
+- Added 90-day freshness deadlines to canonical and standalone project scaffolds and propagated all tooling through launch validation, Make targets, skills, and operator docs.
+- Closed a canonical launcher parity gap by adding the documented Perplexity/Xcode agents and prompts, handoff templates, context-pack guide, Xcode risk, Perplexity file guide, and Codex skill-install instructions to `templates/new-project/`.
+- Added cross-platform handling for legacy case-variant `INDEX.md` landing pages so index generation is identical on case-sensitive and case-insensitive filesystems.
+- Added focused idempotence, rollback, graph, HTML, freshness, and scaffold tests; evidence is recorded in [the work package 3 test record](tests/2026-08-16-okf-index-graph-freshness.md).
+
 ## 2026-07-04
 
 ### Forge lifecycle profile — Project-1 harness promotion

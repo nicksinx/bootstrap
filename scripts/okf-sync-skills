@@ -214,7 +214,9 @@ Agent rules: `.okf/agents/perplexity.md`, `.okf/agents/perplexity-overflow.md`
 
 
 def adapter_future(skills, root):
-    timestamp = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    generated = dt.datetime.now().astimezone()
+    timestamp = generated.isoformat(timespec="seconds")
+    stale_after = (generated.date() + dt.timedelta(days=90)).isoformat()
     return f"""---
 type: Agent Rule
 title: Future Service OKF Adapter
@@ -228,6 +230,7 @@ tags: [okf, adapter, future-service]
 applies_to: [local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: {stale_after}
 generated: {{ by: process:okf-sync-skills, at: "{timestamp}" }}
 ---
 

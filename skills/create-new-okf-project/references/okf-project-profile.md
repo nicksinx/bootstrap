@@ -32,6 +32,9 @@ project-root/
   scripts/
     okf-validate
     okf-migrate
+    okf-index
+    okf-freshness
+    okf-visualize
     okf-context-pack
     okf-handoff
 ```
@@ -60,6 +63,7 @@ tags: [okf]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: unverified
+stale_after: 2026-11-16
 generated: { by: process:project-scaffold, at: 2026-08-16T10:00:00Z }
 ---
 ```
@@ -98,3 +102,5 @@ Accepted improvements should be promoted into templates, scripts, skills, adapte
 - Prefer non-stale stable concepts with appropriate v0.2 verification events over draft or unverified concepts.
 - Create a handoff before stopping unfinished work.
 - Append to `.okf/log.md` after substantive changes.
+- Regenerate deterministic index blocks with `scripts/okf-index --write` and prove convergence with `--check`.
+- Treat `stale_after` as a review deadline; never mutate trust or delete content solely because it is overdue.

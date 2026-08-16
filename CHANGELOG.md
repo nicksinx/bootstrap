@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0 - 2026-08-16
+
+- Add deterministic generated blocks for root and per-directory OKF indexes.
+- Add JSON and self-contained HTML concept graph exports.
+- Add `stale_after` freshness inventory and CI-friendly check modes.
+- Include indexing, graph, and freshness tooling in canonical and standalone project scaffolds.
+- Restore canonical scaffold parity for five-service agent rules, prompts, handoff templates, context-pack guidance, Xcode risk material, and Codex installation instructions.
+
 ## 2.1.0 - 2026-08-16
 
 ### Added

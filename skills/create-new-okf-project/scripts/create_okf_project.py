@@ -114,10 +114,15 @@ def frontmatter(
     sensitivity="internal",
     verification_status="unverified",
     timestamp=None,
+    stale_after=None,
 ):
     tags = tags or ["okf"]
     applies_to = applies_to or ["cursor", "claude", "codex", "xcode-claude", "perplexity", "local-agent"]
     timestamp = timestamp or dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    stale_after = stale_after or (
+        dt.datetime.fromisoformat(timestamp.replace("Z", "+00:00")).date()
+        + dt.timedelta(days=90)
+    ).isoformat()
     status = {
         "active": "stable",
         "superseded": "deprecated",
@@ -138,6 +143,7 @@ def frontmatter(
         applies_to: {yaml_list(applies_to)}
         sensitivity: {sensitivity}
         verification_status: {verification_status}
+        stale_after: {stale_after}
         generated: {{ by: process:create-okf-project, at: "{timestamp}" }}
         ---
         """
@@ -491,7 +497,9 @@ Agent rules: `.okf/agents/perplexity.md`, `.okf/agents/perplexity-overflow.md`
 
 
 def adapter_future(skills, root):
-    timestamp = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    generated = dt.datetime.now().astimezone()
+    timestamp = generated.isoformat(timespec="seconds")
+    stale_after = (generated.date() + dt.timedelta(days=90)).isoformat()
     return f"""---
 type: Agent Rule
 title: Future Service OKF Adapter
@@ -505,6 +513,7 @@ tags: [okf, adapter, future-service]
 applies_to: [local-agent]
 sensitivity: internal
 verification_status: reviewed
+stale_after: {stale_after}
 generated: {{ by: process:okf-sync-skills, at: "{timestamp}" }}
 ---
 
@@ -764,10 +773,10 @@ def copy_bundled_skills(root, overwrite):
 
 
 def copy_bundled_runtime(root, overwrite):
-    """Copy the self-contained v0.2 validator and migration libraries."""
+    """Copy the self-contained v0.2 validation, migration, and tooling libraries."""
     source_root = Path(__file__).resolve().parent / "lib"
     results = []
-    for name in ("okf_validation.py", "okf_migration.py"):
+    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py"):
         source = source_root / name
         if source.is_file():
             results.append(
@@ -784,7 +793,7 @@ def copy_bundled_runtime(root, overwrite):
 def copy_bundled_helper_scripts(root, overwrite):
     source_root = Path(__file__).resolve().parents[1] / "assets" / "scripts"
     results = []
-    for name in ("okf-check-adapters",):
+    for name in ("okf-check-adapters", "okf-index", "okf-freshness", "okf-visualize"):
         source = source_root / name
         if source.is_file():
             results.append(
@@ -801,6 +810,9 @@ def copy_bundled_helper_scripts(root, overwrite):
 
 BOOTSTRAP_COPY_PATHS = [
     "scripts/okf-migrate",
+    "scripts/okf-index",
+    "scripts/okf-freshness",
+    "scripts/okf-visualize",
     "scripts/okf-dispatch",
     "scripts/okf-check-adapters",
     "docs/okf-dispatch-orchestration.md",
@@ -814,6 +826,7 @@ BOOTSTRAP_COPY_PATHS = [
     "docs/perplexity-project-files-and-skills.md",
     "docs/skill-frontmatter-compatibility.md",
     "docs/okf-v02-conformance.md",
+    "docs/okf-index-graph-freshness.md",
     ".okf/handoffs/README.md",
     ".okf/handoffs/TEMPLATE.md",
     ".okf/handoffs/TEMPLATE-tester.md",
@@ -1113,7 +1126,36 @@ Role order is `builder` -> `tester` -> `reviewer` -> `integrator`.
 
 # Required Behaviour
 
-Update OKF concepts, append `.okf/log.md`, and run `scripts/okf-validate` after substantive work.
+Update OKF concepts, append `.okf/log.md`, and run `scripts/okf-validate --strict` after substantive work.
+"""
+    files[".okf/workflows/okf-index-graph-freshness-review.md"] = frontmatter(
+        "Workflow",
+        "OKF Index, Graph, and Freshness Review",
+        "Deterministic operating sequence for navigation and stale knowledge review.",
+        ".okf/workflows/okf-index-graph-freshness-review.md",
+        status="active",
+        lifecycle_stage="operate",
+        owner=owner,
+        tags=["okf", "workflow", "index", "graph", "freshness"],
+        applies_to=["cursor", "claude", "codex", "local-agent"],
+        verification_status="reviewed",
+        timestamp=timestamp,
+    ) + """# Purpose
+
+Keep OKF navigation deterministic and make stale knowledge visible without replacing human review.
+
+# Required Sequence
+
+1. Run `scripts/okf-migrate --check`.
+2. Run `scripts/okf-validate --strict`.
+3. Run `scripts/okf-index --write`, then `scripts/okf-index --check`.
+4. Run `scripts/okf-freshness --check` and review stale results.
+5. Use `scripts/okf-visualize` when relationship analysis is useful.
+6. Run `scripts/okf-check-adapters` after canonical skill changes.
+
+# Safety
+
+Do not invent verification events, promote draft research, or delete a concept solely because its review date passed.
 """
     files[".okf/workflows/perplexity-research-cycle.md"] = frontmatter(
         "Workflow",
@@ -1730,6 +1772,15 @@ def main():
         )
         if sync.returncode != 0:
             parser.error(f"embedded adapter sync failed: {(sync.stderr or sync.stdout).strip()}")
+        indexes = subprocess.run(
+            [str(root / "scripts" / "okf-index"), "--write"],
+            cwd=str(root),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if indexes.returncode != 0:
+            parser.error(f"embedded index generation failed: {(indexes.stderr or indexes.stdout).strip()}")
 
     created = [path for status, path in results if status in {"created", "written"}]
     skipped = [path for status, path in results if status == "skipped"]

@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""CLI entry point for read-only OKF graph exports."""
+
+import sys
+from pathlib import Path
+
+LIB_DIR = Path(__file__).resolve().parent / "lib"
+if str(LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(LIB_DIR))
+
+from okf_tooling import visualize_cli  # noqa: E402
+
+
+if __name__ == "__main__":
+    sys.exit(visualize_cli())

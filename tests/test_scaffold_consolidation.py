@@ -36,6 +36,12 @@ def assert_strict_project(target: Path) -> None:
     adapters = run([str(target / "scripts" / "okf-check-adapters")], cwd=target)
     if adapters.returncode != 0:
         raise AssertionError(adapters.stdout + adapters.stderr)
+    indexes = run([str(target / "scripts" / "okf-index"), "--check"], cwd=target)
+    if indexes.returncode != 0:
+        raise AssertionError(indexes.stdout + indexes.stderr)
+    freshness = run([str(target / "scripts" / "okf-freshness"), "--check"], cwd=target)
+    if freshness.returncode != 0:
+        raise AssertionError(freshness.stdout + freshness.stderr)
 
 
 def test_repo_script_delegates_to_canonical_launcher() -> None:
@@ -92,7 +98,7 @@ def test_standalone_skill_fallback_is_v02_clean() -> None:
 def test_bundled_runtime_matches_canonical_runtime() -> None:
     canonical = ROOT / "scripts" / "lib"
     bundled = ROOT / "skills" / "create-new-okf-project" / "scripts" / "lib"
-    for name in ("okf_validation.py", "okf_migration.py"):
+    for name in ("okf_validation.py", "okf_migration.py", "okf_tooling.py"):
         if (canonical / name).read_bytes() != (bundled / name).read_bytes():
             raise AssertionError(f"bundled runtime drift: {name}")
     if (
@@ -101,6 +107,11 @@ def test_bundled_runtime_matches_canonical_runtime() -> None:
         ROOT / "skills" / "create-new-okf-project" / "assets" / "scripts" / "okf-check-adapters"
     ).read_bytes():
         raise AssertionError("bundled runtime drift: okf-check-adapters")
+    for name in ("okf-index", "okf-freshness", "okf-visualize"):
+        if (ROOT / "scripts" / name).read_bytes() != (
+            ROOT / "skills" / "create-new-okf-project" / "assets" / "scripts" / name
+        ).read_bytes():
+            raise AssertionError(f"bundled runtime drift: {name}")
 
 
 def main() -> int:

@@ -28,10 +28,11 @@ Validate the work package against [the bootstrap requirement](../requirements/ok
 | `PYTHONPYCACHEPREFIX=/private/tmp/okf-pycache python3 -m compileall -q scripts tests` | PASS | Python syntax without writing into the macOS protected cache |
 | `scripts/okf-validate --strict --format json` | PASS | 73 pre-evidence concepts, zero errors, zero warnings |
 | `make check` | PASS | Full contracts, launch, intake, conformance, and strict live-bundle suite |
+| GitHub Actions `bootstrap-ci / validate` on PR #2 | PASS | Ubuntu/Python 3.11 dependency install and the full `make check` gate after removing unsupported pip caching |
 | `scripts/okf-check-adapters` | PASS | 18 canonical skills, zero drift warnings |
 | `scripts/okf-sync-skills --dry-run` | PASS | All five generated adapter targets render successfully |
 | `PYTHONPYCACHEPREFIX=/private/tmp/okf-pycache-pr1 python3 -m compileall -q scripts skills tests` | PASS | Final package-wide Python compilation |
 
 # Result
 
-PASS. The full package gate completed with 76 live concepts, zero strict OKF warnings, zero adapter-drift warnings, and no known conformance defects.
+PASS. The full package gate completed locally and on GitHub Actions with 76 live concepts, zero strict OKF warnings, zero adapter-drift warnings, and no known conformance defects.

@@ -11,17 +11,18 @@ Use this skill when external claims influence project requirements, architecture
 
 1. Identify claims that depend on external sources.
 2. Prefer primary sources for technical, legal, security, financial, or policy claims.
-3. Store durable source summaries as `Reference` concepts under `.okf/references/`.
-4. Link implementation concepts to the reference concept or citation.
-5. Mark unreviewed external claims as `verification_status: unverified`.
-6. Upgrade verification only when a human review, stronger model review, test, or accepted source supports it.
+3. Record provenance in `sources` frontmatter; each entry requires `resource` and should have a stable `id`.
+4. Attribute individual claims with Markdown footnotes keyed to `sources[].id`.
+5. Store durable source summaries as `Reference` concepts under `.okf/references/` when useful.
+6. Omit `verified` for unreviewed research; only add actual verification events.
+7. Preserve objective credibility signals such as author, usage count/window, and last modified date without inventing a score.
 
 ## Reference Concepts
 
 Reference concepts should include:
 
 - Source title.
-- Source URL or file path.
+- `sources` entries with URL or file path and stable ids.
 - Retrieval or review date when known.
 - Short summary.
 - Relevant claims.

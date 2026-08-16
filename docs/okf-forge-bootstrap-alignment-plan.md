@@ -171,7 +171,7 @@ make test-launch-smoke  # after Phase 3 dispatch smoke added
 
 ```bash
 ./scripts/launch_project.sh --name dispatch-smoke --target-dir /tmp/dispatch-smoke --profile default --non-interactive
-cd /tmp/dispatch-smoke && scripts/okf-dispatch status && scripts/okf-validate
+cd /tmp/dispatch-smoke && scripts/okf-dispatch status && scripts/okf-validate --strict
 ```
 
 **Exit:** Dispatch works in fresh launch without manual file copy.
@@ -247,7 +247,7 @@ Add `.tmpl` wrappers where `__GENERATED_AT__` needed; add all paths to `profiles
 | `.okf/index.md.tmpl` | Link dispatch, Forge integration, five-service docs |
 | `PERPLEXITY.md` | Copy from Project-1 if not already in bootstrap |
 
-**Validation:** `scripts/okf-validate` on generated project; manual read-order spot check.
+**Validation:** `scripts/okf-validate --strict` on generated project; manual read-order spot check.
 
 **Exit:** Agent reading order in generated project matches Project-1 harness (index → project → task concepts → handoffs).
 
@@ -271,7 +271,7 @@ Add `.tmpl` wrappers where `__GENERATED_AT__` needed; add all paths to `profiles
 make check
 ./scripts/launch_project.sh --name v2-smoke --target-dir /tmp/v2-smoke --non-interactive
 cd /tmp/v2-smoke
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-dispatch status
 rg -i 'ai_task|ai-task-orchestrator' .  # must be empty
 test -f scripts/conceptforge-mcp.sh
@@ -329,7 +329,7 @@ Phases 1–3 are the **minimum viable alignment** (~3 sessions). Phases 4–6 co
 - [ ] Generated project has **no** `scripts/workers/` or `scripts/mcp/`
 - [ ] Generated project includes `scripts/okf-dispatch`, Forge launchers, `.cursor/mcp.json` (Forge)
 - [ ] `make check` passes on bootstrap `main`
-- [ ] Fresh launch passes `scripts/okf-validate` and `scripts/okf-dispatch status`
+- [ ] Fresh launch passes `scripts/okf-validate --strict` and `scripts/okf-dispatch status`
 - [ ] README describes one integration model: **OKF + dispatch + Forge (+ ForgeRelay)**
 - [ ] Project-1 harness remains authoritative for full spec, promotion checklists, and E2E evidence
 - [ ] Migration path documented for pre-v2 scaffolds

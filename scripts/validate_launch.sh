@@ -33,7 +33,7 @@ release_gate = sys.argv[2] == "1"
 
 common_files = [
     "README.md", "Makefile", ".gitignore", "project.config.yaml",
-    "AGENTS.md", "CLAUDE.md", ".cursor/rules/okf.mdc",
+    "AGENTS.md", "CLAUDE.md", "PERPLEXITY.md", ".cursor/rules/okf.mdc",
     "backlog/queue.yaml", "backlog/tasks/TASK-0001.md",
     "schemas/project.schema.json", "schemas/queue.schema.json",
     "schemas/task.schema.json", "schemas/error.schema.json",
@@ -61,6 +61,9 @@ v2_files = [
     "docs/forge-lifecycle-integration.md",
     "docs/okf-dispatch-orchestration.md",
     "docs/okf-ways-of-working-brief.md",
+    "docs/okf-v02-conformance.md",
+    "docs/migrate-okf-v02.md",
+    "docs/skill-frontmatter-compatibility.md",
     ".cursor/mcp-forge-lifecycle.json.example",
     "scripts/forgerelay-mcp.sh",
     "scripts/conceptforge-mcp.sh",
@@ -68,6 +71,7 @@ v2_files = [
     "scripts/okf-dispatch",
     "scripts/okf_dispatch_schema.py",
     "scripts/okf-check-adapters",
+    "scripts/okf-migrate",
     "scripts/okf-check-forge-receipts",
     "scripts/okf-sync-skills",
     "scripts/operator-ready-check.sh",
@@ -184,6 +188,28 @@ if okf_validate.exists():
     )
     if okf.returncode != 0:
         errors.append(("okf-validation", (okf.stderr + okf.stdout).strip()))
+
+okf_migrate = root / "scripts" / "okf-migrate"
+if okf_migrate.exists():
+    migrate = subprocess.run(
+        [str(okf_migrate), "--check"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if migrate.returncode != 0:
+        errors.append(("okf-migration-drift", (migrate.stderr + migrate.stdout).strip()))
+
+adapter_check = root / "scripts" / "okf-check-adapters"
+if adapter_check.exists():
+    adapters = subprocess.run(
+        [str(adapter_check)],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+    )
+    if adapters.returncode != 0:
+        errors.append(("okf-adapter-drift", (adapters.stderr + adapters.stdout).strip()))
 
 # Deterministic rerun check: launcher dry-run should converge without error.
 project_id = (proj or {}).get("project_id")

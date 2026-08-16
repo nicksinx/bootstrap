@@ -31,11 +31,18 @@ project-root/
   .cursor/rules/okf.mdc
   scripts/
     okf-validate
+    okf-migrate
     okf-context-pack
     okf-handoff
 ```
 
-## Frontmatter
+## Reserved files
+
+- Root `index.md` may carry only `okf_version: "0.2"` in frontmatter.
+- Nested `index.md` files have no frontmatter.
+- `log.md` has no frontmatter and uses newest-first `## YYYY-MM-DD` headings.
+
+## Concept frontmatter
 
 Every concept should include:
 
@@ -53,9 +60,11 @@ tags: [okf]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:project-scaffold, at: 2026-08-16T10:00:00Z }
 ---
 ```
+
+Use only `draft`, `stable`, or `deprecated` for standard lifecycle status. Preserve unknown extension fields. Omit `verified` until an actor actually verifies the concept.
 
 ## Continuous Improvement
 
@@ -86,6 +95,6 @@ Accepted improvements should be promoted into templates, scripts, skills, adapte
 - Treat `.okf` as source-of-context, not a replacement for source code, tests, API specs, schemas, issue trackers, or contracts.
 - Keep tool adapters thin and point them back to `.okf`.
 - Do not store secrets, credentials, private keys, sensitive personal data, or confidential third-party material in OKF.
-- Prefer reviewed, tested, and accepted concepts over draft or unverified concepts.
+- Prefer non-stale stable concepts with appropriate v0.2 verification events over draft or unverified concepts.
 - Create a handoff before stopping unfinished work.
 - Append to `.okf/log.md` after substantive changes.

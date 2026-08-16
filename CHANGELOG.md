@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.1.0 - 2026-08-16
+
+### Added
+
+- OKF v0.2 strict validator with real YAML parsing and JSON output
+- Idempotent `scripts/okf-migrate` check/apply workflow
+- Canonical scaffold delegation from `create-new-okf-project`
+- Strict skill/adaptor and generated-project validation gates
+
+### Changed
+
+- OKF concepts and templates use v0.2 generated/status metadata
+- Launcher accepts a separate display name and OKF owner
+- Generated service adapters are synchronized during launch
+- Template version bumped to `2.1.0`
+
 ## 2.0.0 — 2026-06-27
 
 **Breaking:** `default` profile v2.0.0 replaces ai-task MCP and worker orchestration with OKF + Forge + `okf-dispatch`.

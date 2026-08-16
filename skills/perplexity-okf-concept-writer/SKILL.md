@@ -38,7 +38,10 @@ tags: [okf]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: YYYY-MM-DDTHH:MM:SS+00:00
+generated: { by: perplexity/desktop-pro, at: YYYY-MM-DDTHH:MM:SS+00:00 }
+sources:
+  - id: source-id
+    resource: https://example.com/source
 ---
 ```
 
@@ -49,6 +52,7 @@ Use the correct `type`, `resource` path, and fields for the concept kind (Refere
 - Perplexity-sourced concepts: always `verification_status: unverified` unless the user explicitly pastes already-reviewed OKF material.
 - Reference concepts: always `source_of_truth: false` until promoted through review.
 - Do not upgrade to `reviewed`, `tested`, or `accepted` from Perplexity alone.
+- Do not emit `verified` events from Perplexity alone; attach `sources` and keyed footnotes instead.
 
 ## Reference sections
 

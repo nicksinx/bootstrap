@@ -54,7 +54,7 @@ Before Codex starts step 2, the project should already contain:
 .cursor/rules/okf.mdc
 AGENTS.md
 CLAUDE.md
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-context-pack
 scripts/okf-handoff
 scripts/okf-sync-skills
@@ -121,7 +121,7 @@ Before configuring Codex, verify:
 - `.okf/index.md`, `.okf/project.md`, and `.okf/log.md` identify the new project.
 - At least one requirement concept exists under `.okf/requirements/`.
 - A Cursor to Codex handoff exists under `.okf/handoffs/`.
-- `scripts/okf-validate` can be run.
+- `scripts/okf-validate --strict` can be run.
 - Cursor has not fully configured Codex, Claude Code, or Xcode out of order.
 
 If Cursor changed Codex-specific files beyond stubs, preserve useful work but re-align it to this document and the shared OKF model.
@@ -236,14 +236,14 @@ The Codex agent concept should state:
 - Codex hooks may advance dispatch state but must not directly drive other services.
 - Codex records validation evidence and handoffs.
 
-If the concept was a draft placeholder, move it to `status: active` only after `AGENTS.md`, native skill installation guidance, and hooks are verified.
+If the concept was a draft placeholder, move it to `status: stable` only after `AGENTS.md`, native skill installation guidance, and hooks are verified.
 
 ### 9. Validate
 
 Run:
 
 ```bash
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 If available, also run a safe adapter check:
@@ -285,7 +285,7 @@ Include this checklist in the handoff so Claude Code receives consistent instruc
 5. Finalize `CLAUDE.md` and `.claude/commands/` as thin project-local adapters.
 6. Do not modify Cursor global skills or Codex installed skill copies.
 7. Preserve canonical skill definitions in `skills/*/SKILL.md`.
-8. Run `scripts/okf-validate`.
+8. Run `scripts/okf-validate --strict`.
 9. Append to `.okf/log.md`.
 10. Write a handoff for Xcode-connected Claude Agent (step 4).
 
@@ -302,7 +302,7 @@ Use this checklist before declaring step 2 done:
 - [ ] `.codex/hooks.json` exists when dispatch is enabled.
 - [ ] Codex hooks enqueue or advance dispatch only; they do not directly call Claude Code, Cursor, or Xcode.
 - [ ] `.okf/agents/codex.md` reflects Codex as service 2.
-- [ ] `scripts/okf-validate` was run and the result recorded.
+- [ ] `scripts/okf-validate --strict` was run and the result recorded.
 - [ ] `.okf/log.md` records Codex as the configured second service.
 - [ ] A Codex to Claude Code handoff exists under `.okf/handoffs/`.
 - [ ] Claude Code and Xcode remain unconfigured except for thin stubs and handoff instructions.

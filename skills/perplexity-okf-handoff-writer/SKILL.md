@@ -40,7 +40,7 @@ Also include:
 - **References produced** — list draft filenames for `.okf/references/`
 - **Highest-confidence findings** — 3–5 bullets
 - **Findings that must not become requirements without review**
-- **Integrator commands** — `scripts/okf-validate`, update `.okf/index.md`, append `.okf/log.md`
+- **Integrator commands** — `scripts/okf-validate --strict`, update `.okf/index.md`, append `.okf/log.md`
 
 ## MODE B — Overflow closing block
 

@@ -48,7 +48,7 @@ Then refresh the skill index in `okf.mdc`:
 
 ```bash
 scripts/okf-sync-skills
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 Reload the Cursor window (or restart Cursor) so rules are picked up.
@@ -82,7 +82,7 @@ cp "$BOOTSTRAP/templates/tool-adapters/.cursor/rules/okf.mdc" \
 
 cd "$PRODUCT"
 scripts/okf-sync-skills    # refreshes skill list inside okf.mdc
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 **Do not** copy `bootstrap-toolkit.mdc` or `integration-harness.mdc` into product repos.
@@ -129,7 +129,7 @@ do
 done
 
 scripts/okf-sync-skills
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-check-adapters
 ```
 

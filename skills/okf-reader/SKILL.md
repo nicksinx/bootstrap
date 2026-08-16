@@ -15,8 +15,9 @@ Use this skill before substantive work in an OKF-enabled project.
 4. Read relevant requirement, feature, architecture, decision, workflow, risk, test, release, reference, improvement, and agent-rule concepts for the task.
 5. Check `.okf/handoffs/` for the most recent continuity note.
 6. Check `.okf/improvements/` for applicable lessons learned.
-7. Note any relevant concepts with `status: draft`, `deprecated`, `superseded`, or `archived`.
-8. Prefer concepts with `verification_status: reviewed`, `tested`, or `accepted`.
+7. Note concepts with `status: draft` or `deprecated`, and any concepts whose `stale_after` date has passed.
+8. Derive trust from `verified`: no event is unverified, non-human events are machine-confirmed, and a `human:` event is human-reviewed.
+9. Treat Project Bootstrap `verification_status` as workflow metadata, not a replacement for v0.2 trust.
 
 ## Ecosystem routing (OKF + Forge v2)
 
@@ -44,7 +45,7 @@ Report only the task-relevant facts:
 
 ## Safety Rules
 
-Do not treat deprecated, superseded, or archived concepts as current guidance unless the user asks for historical analysis.
+Do not treat deprecated or stale concepts as current guidance unless the user asks for historical analysis.
 
 Do not copy secrets, credentials, private keys, or sensitive personal data into summaries or generated concepts.
 

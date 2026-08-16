@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Warn when canonical skills are missing from generated adapter indexes."""
+"""Fail when generated adapter indexes drift from canonical skills."""
 
 import argparse
 import re
@@ -50,7 +50,8 @@ def main():
         default="all",
         help="Which adapter(s) to check",
     )
-    parser.add_argument("--strict", action="store_true", help="Exit 1 when any skill is missing from an adapter")
+    parser.add_argument("--strict", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--warn-only", action="store_true", help="Report drift without a non-zero exit")
     args = parser.parse_args()
 
     root = find_root()
@@ -85,7 +86,7 @@ def main():
     for item in warnings:
         print(f"WARN: {item}")
 
-    if args.strict:
+    if not args.warn_only:
         print(f"Adapter check failed: {len(warnings)} warning(s)")
         return 1
 

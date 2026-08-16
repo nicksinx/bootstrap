@@ -11,7 +11,7 @@ tags: [okf, skills, shared-operating-model, cursor, claude, codex, xcode, perple
 applies_to: [cursor, claude, codex, xcode-claude, chatgpt, perplexity, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
-generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
+generated: { by: process:okf-v02-migration-scaffold, at: 2026-08-16T17:25:01+01:00 }
 ---
 
 # User Value
@@ -20,7 +20,10 @@ Agents across Codex, Claude Code, Cursor, Perplexity, and future services can wo
 
 # Scope
 
-Canonical skill definitions live under `skills/*/SKILL.md`.
+Canonical skill definitions live under `skills/*/SKILL.md`. Codex-compatible
+skills use only `name` and `description` frontmatter. The four Perplexity
+adapter skills intentionally add `applies_to`, `okf_mode`, and
+`canonical_skill` for their service-specific attachment contract.
 
 The project includes these skills:
 
@@ -69,9 +72,23 @@ Canonical skill changes propagate by editing `skills/*/SKILL.md` once, then runn
 
 Codex installs skills by copying folders from `skills/` per `CODEX-SKILL-INSTALL.md`.
 
+`create-new-okf-project` shall delegate to `scripts/launch_project.sh` when the
+bootstrap repository is available, keeping `templates/new-project/` as the
+canonical scaffold source. Its embedded scaffold is a portable fallback for an
+installed skill with no bootstrap checkout and must emit a strict v0.2 bundle.
+
 `create-new-okf-project` shall scaffold `.okf/improvements/` by default so lessons learned and improvement actions are captured from project inception.
 
 `create-new-okf-project` shall also scaffold Perplexity MODE A/MODE B prompts, workflows, agent rules, `PERPLEXITY.md`, dispatch directories, and the bundled `skills/` tree when available.
+
+Generated projects shall include `scripts/okf-migrate`. Migration must be
+atomic and idempotent, preserve unknown fields and Markdown bodies, avoid
+inventing verification events, and refuse all writes when any source concept
+cannot be parsed.
+
+Adapter drift is a failing condition by default. Operators may use
+`scripts/okf-check-adapters --warn-only` only for an explicitly non-gating
+inventory run.
 
 # UX Notes
 
@@ -85,9 +102,13 @@ No external API is required.
 
 # Test Expectations
 
-- `scripts/okf-validate` passes after adapter sync.
+- `scripts/okf-validate --strict` passes after adapter sync.
+- `scripts/okf-migrate --check` reports no pending migration.
+- `scripts/okf-check-adapters` reports no drift.
 - `scripts/okf-sync-skills --dry-run` lists expected adapter updates.
-- Each Codex skill folder should pass the Codex skill quick validator when installed.
+- Each Codex-compatible skill folder passes the Codex skill quick validator
+  when installed; Perplexity adapters are checked against their documented
+  extended-frontmatter contract instead.
 
 # Related Concepts
 
@@ -95,3 +116,4 @@ No external API is required.
 - `.okf/requirements/okf-bootstrap-kit.md`
 - `.okf/workflows/agent-okf-lifecycle.md`
 - `docs/shared-okf-skills.md`
+- `docs/migrate-okf-v02.md`

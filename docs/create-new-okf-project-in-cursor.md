@@ -210,7 +210,7 @@ Optionally add placeholder agent concepts under `.okf/agents/` for Codex, Claude
 From the project root:
 
 ```bash
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 Resolve any blocking failures before handoff. Warnings about missing sensitivity or verification fields on draft concepts are acceptable at this stage.
@@ -230,7 +230,7 @@ Fill in the handoff with:
 - **Decisions made** — project name, owner, bootstrap kit source, service order commitment.
 - **Files changed** — list scaffold paths.
 - **Next recommended actions** — explicit instructions for Codex step 2 (see below).
-- **Validation needed** — `scripts/okf-validate` pass/fail, any open warnings.
+- **Validation needed** — `scripts/okf-validate --strict` pass/fail, any open warnings.
 
 ---
 
@@ -243,8 +243,8 @@ Include this checklist in the handoff so Codex receives consistent instructions 
 3. Finalize `AGENTS.md` via `scripts/okf-sync-skills --target codex` (or follow `CODEX-SKILL-INSTALL.md`).
 4. Install canonical OKF skills from `skills/` into Codex home when needed.
 5. Create or verify `.codex/hooks.json` (for example a `Stop` hook calling `scripts/okf-dispatch advance --from codex` when dispatch is enabled).
-6. Update `.okf/agents/codex.md` to `status: active` and record verification evidence.
-7. Run `scripts/okf-validate` and append to `.okf/log.md`.
+6. Update `.okf/agents/codex.md` to `status: stable` and record verification evidence.
+7. Run `scripts/okf-validate --strict` and append to `.okf/log.md`.
 8. Write a handoff for Claude Code (step 3).
 
 ---
@@ -260,7 +260,7 @@ Use this checklist before declaring step 1 done:
 - [ ] Helper scripts exist: `okf-validate`, `okf-handoff`, `okf-context-pack`, `okf-sync-skills`.
 - [ ] `PERPLEXITY.md`, Perplexity prompts, and four `skills/perplexity-okf-*/SKILL.md` files exist.
 - [ ] Dispatch queues exist under `.okf/dispatch/` when multi-agent delivery is planned.
-- [ ] `scripts/okf-validate` passes (or failures are documented in the handoff).
+- [ ] `scripts/okf-validate --strict` passes (or failures are documented in the handoff).
 - [ ] Handoff for Codex (step 2) exists under `.okf/handoffs/`.
 - [ ] `.okf/log.md` records Cursor as the configured first service.
 - [ ] `AGENTS.md`, `CLAUDE.md`, Xcode, and Perplexity material are stubs only — not fully configured beyond setup scaffolding.
@@ -288,7 +288,7 @@ python3 /path/to/Project-1/skills/create-new-okf-project/scripts/create_okf_proj
 scripts/okf-sync-skills --target cursor
 
 # Validate bundle
-scripts/okf-validate
+scripts/okf-validate --strict
 
 # Create handoff for Codex
 scripts/okf-handoff codex-service-setup --summary "Cursor step 1 complete."

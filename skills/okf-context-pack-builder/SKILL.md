@@ -14,7 +14,7 @@ Use this skill for larger tasks or handoffs where the full project is too broad.
 3. Include the latest relevant handoff.
 4. Include applicable lessons learned from `.okf/improvements/`.
 5. Include source and test snippets only when they materially affect the task.
-6. Preserve status, lifecycle stage, sensitivity, and verification status.
+6. Preserve `sources`, `generated`, `verified`, `status`, `stale_after`, and relevant profile extensions.
 7. State that the context pack is generated task context, not durable source-of-context.
 
 Use `scripts/okf-context-pack` when the project provides it.

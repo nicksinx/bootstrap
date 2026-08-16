@@ -20,7 +20,7 @@ source "${BOOTSTRAP_LIB_DIR}/secret.sh"
 # shellcheck source=lib/scaffold.sh
 source "${BOOTSTRAP_LIB_DIR}/scaffold.sh"
 
-readonly TEMPLATE_VERSION="2.0.0"
+readonly TEMPLATE_VERSION="2.1.0"
 
 usage() {
   cat <<USAGE
@@ -28,6 +28,8 @@ launch_project.sh - Project Launch Automation
 
 Common:
   --name <project-name>            Project id (lowercase, dashes)
+  --display-name <name>            Human-readable project name (defaults to id)
+  --okf-owner <owner>              OKF profile owner (default: project)
   --profile <name>                 Profile name (default: default)
   --target-dir <path>              Where to create the project
   --dry-run                        Print actions, do not write
@@ -65,6 +67,8 @@ USAGE
 
 # Defaults; overlaid by profile, then overridden by CLI flags.
 PROJECT_NAME=""
+PROJECT_DISPLAY_NAME=""
+OKF_OWNER="project"
 PROFILE_NAME="default"
 TARGET_DIR=""
 DRY_RUN=0
@@ -98,6 +102,8 @@ COMPAT_MODE="strict"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --name) PROJECT_NAME="$2"; shift 2;;
+    --display-name) PROJECT_DISPLAY_NAME="$2"; shift 2;;
+    --okf-owner) OKF_OWNER="$2"; shift 2;;
     --profile) PROFILE_NAME="$2"; shift 2;;
     --target-dir) TARGET_DIR="$2"; shift 2;;
     --dry-run) DRY_RUN=1; shift;;
@@ -143,6 +149,16 @@ if ! bs_validate_project_id "$PROJECT_NAME"; then
     "invalid --name '$PROJECT_NAME'" \
     "Use lowercase letters, digits, and dashes (3-64 chars)" \
     "docs/errors.md"
+fi
+
+PROJECT_DISPLAY_NAME="${PROJECT_DISPLAY_NAME:-$PROJECT_NAME}"
+if [[ -z "$PROJECT_DISPLAY_NAME" ]] || [[ "$PROJECT_DISPLAY_NAME" == *$'\n'* ]]; then
+  bs_die "E0002" "$BS_EXIT_INPUT" "--display-name must be a non-empty single line"
+fi
+if [[ ! "$OKF_OWNER" =~ ^[A-Za-z0-9._:@/-]+$ ]]; then
+  bs_die "E0002" "$BS_EXIT_INPUT" \
+    "invalid --okf-owner '$OKF_OWNER'" \
+    "Use letters, digits, dots, underscores, colons, @, slashes, or dashes"
 fi
 
 if [[ -z "$TARGET_DIR" ]]; then
@@ -202,7 +218,8 @@ TEMPLATE_DIR="${BOOTSTRAP_ROOT}/templates/new-project"
 
 # Export __VAR__ values used by render_template.py
 export BOOTSTRAP_VAR_PROJECT_ID="$PROJECT_NAME"
-export BOOTSTRAP_VAR_PROJECT_NAME="$PROJECT_NAME"
+export BOOTSTRAP_VAR_PROJECT_NAME="$PROJECT_DISPLAY_NAME"
+export BOOTSTRAP_VAR_OKF_OWNER="$OKF_OWNER"
 export BOOTSTRAP_VAR_TEMPLATE_VERSION="$TEMPLATE_VERSION"
 export BOOTSTRAP_VAR_PROFILE_NAME="$PROFILE_NAME"
 export BOOTSTRAP_VAR_PROFILE_VERSION="$PROFILE_VERSION"
@@ -322,6 +339,11 @@ fi
 chmod +x "${TARGET_DIR}"/scripts/*.sh "${TARGET_DIR}"/scripts/okf-* "${TARGET_DIR}"/scripts/hooks/*.sh "${TARGET_DIR}"/scripts/*forge*.sh "${TARGET_DIR}"/scripts/forgerelay-mcp.sh 2>/dev/null || true
 chmod +x "${TARGET_DIR}"/scripts/mcp/*.sh 2>/dev/null || true
 chmod +x "${TARGET_DIR}"/scripts/workers/*.sh 2>/dev/null || true
+
+if [[ "$DRY_RUN" != "1" ]] && [[ -x "${TARGET_DIR}/scripts/okf-sync-skills" ]]; then
+  ( cd "${TARGET_DIR}" && scripts/okf-sync-skills ) \
+    || bs_die "E0009" "$BS_EXIT_VALIDATION" "failed to generate OKF service adapters"
+fi
 
 if [[ "$PROFILE_NAME" == "legacy-task" ]]; then
   if [[ "$WITH_MCP_CONFIG" == "1" ]]; then

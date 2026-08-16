@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import datetime as dt
+import os
 import re
 import stat
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
@@ -39,6 +41,61 @@ def slugify(value):
     return value.strip("-") or "project"
 
 
+def find_bootstrap_root(explicit=None):
+    candidates = []
+    if explicit:
+        candidates.append(Path(explicit).expanduser())
+    if os.environ.get("OKF_BOOTSTRAP_ROOT"):
+        candidates.append(Path(os.environ["OKF_BOOTSTRAP_ROOT"]).expanduser())
+    script = Path(__file__).resolve()
+    candidates.extend(script.parents)
+    cwd = Path.cwd().resolve()
+    candidates.extend([cwd, *cwd.parents])
+    seen = set()
+    for candidate in candidates:
+        candidate = candidate.resolve()
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if (
+            (candidate / "scripts" / "launch_project.sh").is_file()
+            and (candidate / "templates" / "new-project").is_dir()
+            and (candidate / "profiles" / "default.yaml").is_file()
+        ):
+            return candidate
+    return None
+
+
+def create_with_bootstrap(bootstrap_root, target, project_name, owner, overwrite, profile):
+    command = [
+        str(bootstrap_root / "scripts" / "launch_project.sh"),
+        "--name",
+        slugify(project_name),
+        "--display-name",
+        project_name,
+        "--okf-owner",
+        owner,
+        "--profile",
+        profile,
+        "--target-dir",
+        str(target.expanduser().resolve()),
+        "--non-interactive",
+    ]
+    if overwrite:
+        command.append("--force")
+    completed = subprocess.run(
+        command,
+        cwd=str(bootstrap_root),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout).strip()
+        raise RuntimeError(f"canonical bootstrap launcher failed ({completed.returncode}): {detail}")
+    return completed
+
+
 def yaml_list(values):
     return "[" + ", ".join(values) + "]"
 
@@ -61,6 +118,11 @@ def frontmatter(
     tags = tags or ["okf"]
     applies_to = applies_to or ["cursor", "claude", "codex", "xcode-claude", "perplexity", "local-agent"]
     timestamp = timestamp or dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    status = {
+        "active": "stable",
+        "superseded": "deprecated",
+        "archived": "deprecated",
+    }.get(status, status)
     return textwrap.dedent(
         f"""\
         ---
@@ -76,7 +138,7 @@ def frontmatter(
         applies_to: {yaml_list(applies_to)}
         sensitivity: {sensitivity}
         verification_status: {verification_status}
-        timestamp: {timestamp}
+        generated: {{ by: process:create-okf-project, at: "{timestamp}" }}
         ---
         """
     )
@@ -300,7 +362,7 @@ Before substantive project changes:
 2. Read `.okf/project.md`.
 3. Read relevant requirement, feature, architecture, decision, risk, test, and handoff concepts.
 4. Check for recent files in `.okf/handoffs/`.
-5. Treat `deprecated`, `superseded`, and `archived` concepts as unsafe for direct implementation unless the user explicitly asks for historical work.
+5. Treat `deprecated` or stale concepts as unsafe for direct implementation unless the user explicitly asks for historical work.
 6. Use `skills/okf-reader/SKILL.md` when triage is needed.
 
 During implementation:
@@ -434,7 +496,7 @@ def adapter_future(skills, root):
 type: Agent Rule
 title: Future Service OKF Adapter
 description: Thin adapter template for services that participate in the shared OKF operating model.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: false
@@ -443,7 +505,7 @@ tags: [okf, adapter, future-service]
 applies_to: [local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: {timestamp}
+generated: {{ by: process:okf-sync-skills, at: "{timestamp}" }}
 ---
 
 # Future Service OKF Adapter
@@ -523,96 +585,35 @@ if __name__ == "__main__":
 
 
 OKF_VALIDATE = r'''#!/usr/bin/env python3
-import datetime as dt
-import re
+"""CLI entry point for the shared OKF v0.2 validator."""
+
 import sys
 from pathlib import Path
 
-CRITICAL_TYPES = {
-    "Project", "Requirement", "Feature", "Architecture", "Decision", "Workflow",
-    "Runbook", "Agent Rule", "Agent Skill", "Tool Adapter", "Risk", "Test Case",
-    "Test Evidence", "Release", "Handoff", "Improvement", "Lesson Learned",
-    "Retrospective",
-}
-SECRET_PATTERNS = [
-    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
-    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
-    re.compile(r"\bghp_[A-Za-z0-9_]{20,}\b"),
-    re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
-    re.compile(r"(?i)\b(password|api[_-]?key|token|secret)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{12,}"),
-]
+LIB_DIR = Path(__file__).resolve().parent / "lib"
+if str(LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(LIB_DIR))
 
-
-def split_frontmatter(text):
-    if not text.startswith("---\n"):
-        return None
-    end = text.find("\n---", 4)
-    if end == -1:
-        return None
-    return text[4:end]
-
-
-def parse_simple_yaml(frontmatter):
-    data = {}
-    for line in frontmatter.splitlines():
-        if not line.strip() or line.lstrip().startswith("#") or ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        data[key.strip()] = value.strip().strip('"').strip("'")
-    return data
-
-
-def valid_iso8601(value):
-    try:
-        dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
-        return True
-    except ValueError:
-        return False
-
-
-def main():
-    root = Path.cwd()
-    okf = root / ".okf"
-    failures = []
-    warnings = []
-    if not okf.is_dir():
-        print("FAIL: .okf directory not found")
-        return 1
-
-    for path in sorted(okf.rglob("*.md")):
-        rel = path.relative_to(root)
-        text = path.read_text(encoding="utf-8")
-        if any(pattern.search(text) for pattern in SECRET_PATTERNS):
-            failures.append(f"{rel}: likely secret detected")
-        frontmatter = split_frontmatter(text)
-        if frontmatter is None:
-            failures.append(f"{rel}: missing YAML frontmatter")
-            continue
-        data = parse_simple_yaml(frontmatter)
-        concept_type = data.get("type", "")
-        if not concept_type:
-            failures.append(f"{rel}: missing non-empty type")
-        timestamp = data.get("timestamp")
-        if timestamp and not valid_iso8601(timestamp):
-            failures.append(f"{rel}: timestamp is not ISO 8601")
-        if concept_type in CRITICAL_TYPES:
-            for field in ("status", "lifecycle_stage", "sensitivity", "verification_status"):
-                if not data.get(field):
-                    warnings.append(f"{rel}: missing {field}")
-
-    for warning in warnings:
-        print(f"WARN: {warning}")
-    for failure in failures:
-        print(f"FAIL: {failure}")
-    if failures:
-        print(f"OKF validation failed: {len(failures)} failure(s), {len(warnings)} warning(s)")
-        return 1
-    print(f"OKF validation passed: {len(warnings)} warning(s)")
-    return 0
-
+from okf_validation import cli  # noqa: E402
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())
+'''
+
+OKF_MIGRATE = r'''#!/usr/bin/env python3
+"""CLI entry point for OKF v0.2 migration."""
+
+import sys
+from pathlib import Path
+
+LIB_DIR = Path(__file__).resolve().parent / "lib"
+if str(LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(LIB_DIR))
+
+from okf_migration import cli  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(cli())
 '''
 
 
@@ -685,7 +686,7 @@ def main():
 type: Handoff
 title: {title}
 description: Continuity note for paused or transferred work.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -694,7 +695,7 @@ tags: [okf, handoff]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: {now.isoformat(timespec='seconds')}
+generated: {{ by: process:okf-handoff, at: "{now.isoformat(timespec='seconds')}" }}
 ---
 
 # Current State
@@ -762,7 +763,44 @@ def copy_bundled_skills(root, overwrite):
     return results
 
 
+def copy_bundled_runtime(root, overwrite):
+    """Copy the self-contained v0.2 validator and migration libraries."""
+    source_root = Path(__file__).resolve().parent / "lib"
+    results = []
+    for name in ("okf_validation.py", "okf_migration.py"):
+        source = source_root / name
+        if source.is_file():
+            results.append(
+                write_file(
+                    root,
+                    Path("scripts/lib") / name,
+                    source.read_text(encoding="utf-8"),
+                    overwrite=overwrite,
+                )
+            )
+    return results
+
+
+def copy_bundled_helper_scripts(root, overwrite):
+    source_root = Path(__file__).resolve().parents[1] / "assets" / "scripts"
+    results = []
+    for name in ("okf-check-adapters",):
+        source = source_root / name
+        if source.is_file():
+            results.append(
+                write_file(
+                    root,
+                    Path("scripts") / name,
+                    source.read_text(encoding="utf-8"),
+                    overwrite=overwrite,
+                    executable=True,
+                )
+            )
+    return results
+
+
 BOOTSTRAP_COPY_PATHS = [
+    "scripts/okf-migrate",
     "scripts/okf-dispatch",
     "scripts/okf-check-adapters",
     "docs/okf-dispatch-orchestration.md",
@@ -775,6 +813,7 @@ BOOTSTRAP_COPY_PATHS = [
     "docs/configure-perplexity-okf.md",
     "docs/perplexity-project-files-and-skills.md",
     "docs/skill-frontmatter-compatibility.md",
+    "docs/okf-v02-conformance.md",
     ".okf/handoffs/README.md",
     ".okf/handoffs/TEMPLATE.md",
     ".okf/handoffs/TEMPLATE-tester.md",
@@ -1226,18 +1265,11 @@ def initial_files(project_name, owner, timestamp):
     today = timestamp.split("T", 1)[0]
     files = {}
     files[".gitignore"] = ".DS_Store\ntmp/\n"
-    files[".okf/index.md"] = frontmatter(
-        "Reference",
-        "OKF Bundle Index",
-        f"Navigation index for {project_name}.",
-        ".okf/index.md",
-        status="active",
-        lifecycle_stage="build",
-        owner=owner,
-        tags=["okf", "index"],
-        verification_status="reviewed",
-        timestamp=timestamp,
-    ) + f"""# OKF Bundle Index
+    files[".okf/index.md"] = f"""---
+okf_version: "0.2"
+---
+
+# OKF Bundle Index
 
 ## Required Reading Order
 
@@ -1323,18 +1355,7 @@ Five-service setup order:
 
 Perplexity overflow is allowed only when a primary runner is blocked. Cursor or Codex applies overflow output and runs validation.
 """
-    files[".okf/log.md"] = frontmatter(
-        "Reference",
-        "OKF Project Log",
-        "Chronological record of material project knowledge changes.",
-        ".okf/log.md",
-        status="active",
-        lifecycle_stage="operate",
-        owner=owner,
-        tags=["okf", "log"],
-        verification_status="reviewed",
-        timestamp=timestamp,
-    ) + f"""# OKF Project Log
+    files[".okf/log.md"] = f"""# OKF Project Log
 
 ## {today}
 
@@ -1626,9 +1647,12 @@ def create_project(target, project_name, owner, overwrite, include_adapters, inc
 
     if include_scripts:
         results.append(write_file(root, "scripts/okf-validate", OKF_VALIDATE, overwrite=overwrite, executable=True))
+        results.append(write_file(root, "scripts/okf-migrate", OKF_MIGRATE, overwrite=overwrite, executable=True))
         results.append(write_file(root, "scripts/okf-context-pack", OKF_CONTEXT_PACK, overwrite=overwrite, executable=True))
         results.append(write_file(root, "scripts/okf-handoff", OKF_HANDOFF, overwrite=overwrite, executable=True))
         results.append(write_file(root, "scripts/okf-sync-skills", OKF_SYNC_SKILLS, overwrite=overwrite, executable=True))
+        results.extend(copy_bundled_runtime(root, overwrite))
+        results.extend(copy_bundled_helper_scripts(root, overwrite))
         results.extend(copy_optional_bootstrap_files(root, overwrite))
 
     if include_adapters:
@@ -1642,6 +1666,13 @@ def main():
     parser.add_argument("target", help="Target project directory.")
     parser.add_argument("--name", help="Project display name. Defaults to target folder name.")
     parser.add_argument("--owner", default="project", help="Owner value for OKF frontmatter.")
+    parser.add_argument("--profile", default="default", help="Canonical bootstrap profile (default: default).")
+    parser.add_argument("--bootstrap-root", help="Explicit Project Bootstrap repository root.")
+    parser.add_argument(
+        "--embedded-fallback",
+        action="store_true",
+        help="Use the minimal self-contained skill scaffold instead of the canonical launcher.",
+    )
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing scaffold files.")
     parser.add_argument("--no-adapters", action="store_true", help="Do not create AGENTS.md, CLAUDE.md, Cursor rules, or PERPLEXITY.md.")
     parser.add_argument("--no-scripts", action="store_true", help="Do not create helper scripts.")
@@ -1650,6 +1681,35 @@ def main():
 
     target = Path(args.target)
     project_name = args.name or target.name
+    bootstrap_root = find_bootstrap_root(args.bootstrap_root)
+    fallback_requested = args.embedded_fallback or args.no_adapters or args.no_scripts or args.no_skills
+    if args.bootstrap_root and bootstrap_root is None:
+        parser.error("--bootstrap-root does not contain scripts/launch_project.sh and templates/new-project")
+    if bootstrap_root is not None and not fallback_requested:
+        try:
+            completed = create_with_bootstrap(
+                bootstrap_root,
+                target,
+                project_name,
+                args.owner,
+                args.overwrite,
+                args.profile,
+            )
+        except RuntimeError as exc:
+            parser.error(str(exc))
+        if completed.stdout.strip():
+            print(completed.stdout.strip())
+        print(f"OKF project scaffold ready: {target.expanduser().resolve()}")
+        print("Scaffold source: canonical Project Bootstrap launcher")
+        return 0
+    if bootstrap_root is None and not args.embedded_fallback:
+        print(
+            "WARN: canonical Project Bootstrap repository not found; "
+            "using the minimal embedded fallback",
+            file=sys.stderr,
+        )
+    elif fallback_requested:
+        print("Using minimal embedded fallback because fallback-only options were selected.")
     root, results = create_project(
         target,
         project_name,
@@ -1659,6 +1719,17 @@ def main():
         not args.no_scripts,
         not args.no_skills,
     )
+
+    if not (args.no_adapters or args.no_scripts or args.no_skills):
+        sync = subprocess.run(
+            [str(root / "scripts" / "okf-sync-skills")],
+            cwd=str(root),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if sync.returncode != 0:
+            parser.error(f"embedded adapter sync failed: {(sync.stderr or sync.stdout).strip()}")
 
     created = [path for status, path in results if status in {"created", "written"}]
     skipped = [path for status, path in results if status == "skipped"]

@@ -63,7 +63,7 @@ Edit YAML before `apply` only for non-defaults (legacy profile, disable a servic
 2. Copy `skills/` (excludes bootstrap-only `bootstrap-okf-forge-project`)
 3. Patch `.okf/project.md` from intake
 4. `scripts/okf-sync-skills`
-5. `scripts/validate_launch.sh` + `scripts/okf-validate`
+5. `scripts/validate_launch.sh` + `scripts/okf-validate --strict`
 6. `scripts/forge-clone-siblings.sh` when Forge enabled
 7. `.okf/project-intake.yaml` + `.okf/handoffs/YYYY-MM-DD-operator-standup.md`
 
@@ -202,7 +202,7 @@ scripts/project-intake apply intake/my-product.yaml --execute
 ## Troubleshooting
 
 - Missing rules on old scaffolds: bootstrap docs/install-cursor-rules.md section B
-- Stale adapters: scripts/okf-sync-skills && scripts/okf-validate
+- Stale adapters: scripts/okf-sync-skills && scripts/okf-validate --strict
 - github.enabled without owner: set github.owner in intake YAML before apply
 
 ---

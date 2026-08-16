@@ -51,7 +51,7 @@ Perplexity Desktop Pro has two OKF modes:
 1. Paste custom instructions from `.okf/prompts/perplexity-custom-instructions.md` into Perplexity Desktop settings.
 2. For research, use **MODE A** and `docs/create-new-okf-project-in-perplexity.md`.
 3. For failover, use **MODE B** and `.okf/prompts/perplexity-overflow-failover.md`.
-4. Cursor or Codex always ingests outputs into the repo and runs `scripts/okf-validate`.
+4. Cursor or Codex always ingests outputs into the repo and runs `scripts/okf-validate --strict`.
 
 Perplexity does not replace Cursor global skills or execute dispatch hooks directly.
 
@@ -84,7 +84,7 @@ Any agent can pause and another can continue if work follows the same contract:
 2. Use `skills/okf-reader/SKILL.md` for triage when needed.
 3. Implement using the relevant canonical skill.
 4. Update OKF concepts, append to `.okf/log.md`, and write a handoff with `skills/okf-handoff-writer/SKILL.md` or `scripts/okf-handoff`.
-5. Run `scripts/okf-validate` before commit or release when practical.
+5. Run `scripts/okf-validate --strict` before commit or release when practical.
 
 Context packs (`scripts/okf-context-pack` or `skills/okf-context-pack-builder/SKILL.md`) are generated task context, not durable source material.
 
@@ -102,7 +102,7 @@ scripts/okf-sync-skills
 3. Run validation:
 
 ```bash
-scripts/okf-validate
+scripts/okf-validate --strict
 ```
 
 4. Append a short note to `.okf/log.md`.

@@ -66,7 +66,7 @@ Durable project state belongs in .okf, not only in this chat.
 2. Open a new Perplexity thread. Select **Best** or **Sonar 2** for citation-heavy work.
 3. Paste the research prompt from `docs/create-new-okf-project-in-perplexity.md` or `.okf/prompts/perplexity-deep-research-setup.md`.
 4. Save outputs via **Cursor or Codex** into `.okf/references/`.
-5. Update `.okf/index.md`, append `.okf/log.md`, run `scripts/okf-validate`.
+5. Update `.okf/index.md`, append `.okf/log.md`, run `scripts/okf-validate --strict`.
 
 Workflow detail: `.okf/workflows/perplexity-research-cycle.md`
 
@@ -124,7 +124,7 @@ Record `overflow_model_used` and Perplexity's Routing note in the handoff when u
 
 After the first successful research cycle:
 
-1. Set `.okf/agents/perplexity.md` to `status: active`.
+1. Set `.okf/agents/perplexity.md` to `status: stable`.
 2. Keep `.okf/agents/perplexity-overflow.md` as reference for overflow (no Perplexity app install step).
 3. Append to `.okf/log.md` that Perplexity service 5 is configured.
 
@@ -141,7 +141,7 @@ After the first overflow event:
 - [ ] Service 5 research prompt tested; references saved under `.okf/references/`
 - [ ] `.okf/agents/perplexity.md` active after first research cycle
 - [ ] Overflow prompt and workflow reviewed by integrator (Cursor/Codex)
-- [ ] `scripts/okf-validate` passes
+- [ ] `scripts/okf-validate --strict` passes
 
 ---
 

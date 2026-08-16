@@ -1,6 +1,6 @@
 ---
 name: okf-conformance-validator
-description: Validate an Open Knowledge Format bundle against the local software development OKF profile. Use when an agent needs to check .okf documents for frontmatter, required type fields, ISO timestamps, sensitivity, verification status, reserved files, likely secrets, broken internal links, and soft warnings versus blocking failures.
+description: Validate an Open Knowledge Format v0.2 bundle and the local software-development profile. Use when an agent needs to check YAML frontmatter, reserved index/log files, provenance, trust, lifecycle, stale dates, Attested Computation contracts, profile extensions, likely secrets, links, or strict release readiness.
 ---
 
 # OKF Conformance Validator
@@ -10,14 +10,15 @@ Use this skill before commits, releases, handoffs, or large OKF refactors.
 ## Validation Steps
 
 1. Locate `.okf`.
-2. Run `scripts/okf-validate` when available.
-3. Check every non-reserved Markdown concept has YAML frontmatter.
+2. Run `scripts/okf-validate --strict` when available.
+3. Parse frontmatter with a real YAML parser and reject duplicate keys.
 4. Check every concept has a non-empty `type`.
-5. Check project-critical concepts include `status`, `lifecycle_stage`, `sensitivity`, and `verification_status`.
-6. Check timestamps are ISO 8601 values.
-7. Scan for likely secrets.
-8. Report broken internal links as warnings unless project policy says otherwise.
-9. Preserve unknown fields instead of rejecting them.
+5. Check root/nested `index.md` and `log.md` reserved-file rules.
+6. Check `status`, `generated`, `verified`, `sources`, and `stale_after` when present.
+7. Check Project Bootstrap profile fields such as `sensitivity` and `verification_status` without confusing them with standard trust metadata.
+8. Check Attested Computation executor and deterministic attester contracts.
+9. Scan for likely secrets; report broken links as tolerated warnings.
+10. Preserve unknown types and fields instead of rejecting them.
 
 Treat `Improvement`, `Lesson Learned`, and `Retrospective` as project-critical concept types because they can change future agent behavior.
 
@@ -33,4 +34,4 @@ Secret detection failures should block unless the user explicitly confirms an ap
 
 ## Follow-up
 
-After fixing validation issues, rerun the validator and record the result in `.okf/log.md` or a `Test Evidence` concept.
+After fixing validation issues, rerun `scripts/okf-migrate --check` and `scripts/okf-validate --strict`, then record the result in `.okf/log.md` or a `Test Evidence` concept.

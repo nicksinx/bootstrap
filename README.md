@@ -114,6 +114,7 @@ make check
 cd ./out/my-product
 scripts/forge-clone-siblings.sh   # optional — clone Forge peers
 scripts/okf-validate --strict
+scripts/okf-migrate --check
 scripts/okf-dispatch status
 ```
 
@@ -149,7 +150,7 @@ See [docs/migration-from-legacy-bootstrap.md](docs/migration-from-legacy-bootstr
 | Decisions & risks | `.okf/decisions/`, `.okf/risks/` |
 | Agent continuity | `.okf/handoffs/` |
 | Lessons learned | `.okf/improvements/` |
-| Validation | `scripts/okf-validate`, `scripts/okf-handoff`, `scripts/okf-context-pack` |
+| Validation | `scripts/okf-validate`, `scripts/okf-migrate`, `scripts/okf-handoff`, `scripts/okf-context-pack` |
 
 **Reading order for any agent:** index → project → task-relevant concepts → recent handoffs → improvements.
 
@@ -158,7 +159,7 @@ OKF explains and links to code, tests, and backlog—it does not replace them. M
 To extend OKF on a generated project:
 
 1. Add concepts under `.okf/` using your agent’s OKF skill or `scripts/okf-handoff`.
-2. Run `scripts/okf-validate --strict` before and after substantive edits.
+2. Run `scripts/okf-migrate --check` and `scripts/okf-validate --strict` before and after substantive edits.
 3. Promote lessons from `.okf/improvements/` back into **bootstrap templates** when they apply to *all* future projects (see [Continuous improvement](#continuous-improvement)).
 
 ---

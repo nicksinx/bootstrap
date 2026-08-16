@@ -79,7 +79,7 @@ Edit the YAML before `apply` only if you need non-defaults (disable a service, `
 2. Copy `skills/` into the product (excludes bootstrap-only `bootstrap-okf-forge-project`)
 3. Patch `.okf/project.md` from intake
 4. `scripts/okf-sync-skills` — refresh thin adapters (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/okf.mdc`, …)
-5. `scripts/validate_launch.sh` + `scripts/okf-validate`
+5. `scripts/validate_launch.sh` + `scripts/okf-validate --strict`
 6. `scripts/forge-clone-siblings.sh` when Forge enabled (default)
 7. Write `.okf/project-intake.yaml` and `.okf/handoffs/YYYY-MM-DD-operator-standup.md`
 
@@ -150,7 +150,7 @@ In Cursor **Settings → Rules**, confirm project rules are listed. Sanity check
 ### Troubleshooting (pre-v2 or broken scaffold)
 
 - Missing rules: [install-cursor-rules.md](install-cursor-rules.md) section B (bootstrap kit only — not copied into products by design).
-- Stale adapters: `scripts/okf-sync-skills` then `scripts/okf-validate`.
+- Stale adapters: `scripts/okf-sync-skills` then `scripts/okf-validate --strict`.
 
 ---
 

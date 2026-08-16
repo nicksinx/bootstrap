@@ -2,7 +2,7 @@
 type: Reference
 title: Forge Lifecycle Integration (Operator Guide)
 description: Slim operator guide for OKF + Forge MCP wiring on product projects.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: false
@@ -11,7 +11,7 @@ tags: [okf, forge, mcp, integration, operator]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: __GENERATED_AT__
+generated: { by: process:bootstrap-launch, at: __GENERATED_AT__ }
 ---
 
 # Purpose
@@ -38,7 +38,7 @@ Forge is **not** a sixth OKF bootstrap service. Enable Forge **after** the five-
 
 # Setup order
 
-1. Complete OKF bootstrap validation: `scripts/okf-validate`, `scripts/validate_launch.sh`.
+1. Complete OKF bootstrap validation: `scripts/okf-validate --strict`, `scripts/validate_launch.sh`.
 2. Clone Forge siblings (optional helper): `scripts/forge-clone-siblings.sh` or manual clones as peers of this project.
 3. Build each Forge repo: `cd ../<Repo> && npm ci && npm run build`.
 4. Copy MCP config: `cp .cursor/mcp-forge-lifecycle.json.example .cursor/mcp.json`.

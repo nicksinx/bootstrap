@@ -2,7 +2,7 @@
 type: Reference
 title: OKF Ways of Working Brief
 description: Operator-facing brief for the Project-1 five-service OKF operating model, dispatch, Perplexity, and validation workflow.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, operating-model, operator-guide, brief]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:okf-v02-skills, at: 2026-08-16T17:02:47+01:00 }
 ---
 
 # Project-1 OKF Ways of Working Brief
@@ -26,7 +26,7 @@ Perplexity is the **cited research layer** for draft `.okf/references/` material
 
 **Handoffs** (`.okf/handoffs/`) are for active work transfer. **Context packs** (`.okf/context-packs/`) are ephemeral paste bundles, not source of truth.
 
-Operators should run `scripts/okf-validate`, check adapter drift with `scripts/okf-check-adapters`, and keep secrets out of OKF.
+Operators should run `scripts/okf-validate --strict`, check adapter drift with `scripts/okf-check-adapters`, and keep secrets out of OKF.
 
 ---
 
@@ -72,7 +72,7 @@ scripts/okf-dispatch overflow --packet-id <id> --reason usage_limit --primary-ru
 
 ### Validation
 
-Run `scripts/okf-validate`. Draft References must remain `verification_status: unverified` and `source_of_truth: false`.
+Run `scripts/okf-validate --strict`. Draft References must remain `verification_status: unverified` and `source_of_truth: false`.
 
 ---
 
@@ -170,7 +170,7 @@ Use `PERPLEXITY.md`. MODE A creates cited draft References. MODE B produces over
 ## Commands Cheat Sheet
 
 ```bash
-scripts/okf-validate
+scripts/okf-validate --strict
 scripts/okf-sync-skills
 scripts/okf-check-adapters
 scripts/okf-check-adapters --strict
@@ -229,27 +229,27 @@ python3 skills/create-new-okf-project/scripts/create_okf_project.py /path/to/pro
   --name "My Project" --owner team
 ```
 
-**Expect approximately 70+ files**, including:
+**Expect approximately 260 files** in the canonical default scaffold, including copied template source and project-local skills. Validate required paths rather than treating the exact count as a contract.
 
 - `.okf/` bundle (requirements, workflows, agents, prompts, handoffs, references, improvements, dispatch queues)
 - Handoffs guide: `.okf/handoffs/README.md`, `TEMPLATE.md`, `TEMPLATE-tester.md`, `TEMPLATE-reviewer.md`, `TEMPLATE-xcode-step4.md`
 - Context packs index: `.okf/context-packs/INDEX.md`
 - Thin adapters: `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/okf.mdc`, `PERPLEXITY.md`
 - Docs: `docs/shared-okf-skills.md`, `docs/configure-perplexity-okf.md`, Perplexity/Xcode setup guides (when copied from bootstrap)
-- Scripts: `okf-validate`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`; optionally `okf-dispatch`, `okf-check-adapters` from bootstrap
+- Scripts: `okf-validate`, `okf-migrate`, `okf-sync-skills`, `okf-handoff`, `okf-context-pack`, `okf-dispatch`, `okf-check-adapters`
 - Bundled skills under `skills/` including four `perplexity-okf-*` skills
 
-After scaffold: run `scripts/okf-sync-skills`, then `scripts/okf-validate`.
+After scaffold: run `scripts/okf-migrate --check`, `scripts/okf-validate --strict`, and `scripts/okf-check-adapters`.
 
 ### Bootstrap kit path (important)
 
-The scaffold script **copies optional docs and scripts from the bootstrap repository** when `create_okf_project.py` is run from a checkout that includes Project-1 layout (see `BOOTSTRAP_COPY_PATHS` in the script). Bootstrap copies **replace embedded stubs** for full five-service setup guides and `docs/configure-perplexity-okf.md`.
+The scaffold script delegates to the canonical `scripts/launch_project.sh` when the bootstrap repository is discoverable. Use `--bootstrap-root` to select it explicitly. The launcher renders the canonical template tree, copies runtime assets and skills, generates adapters, and validates the result.
 
-**Full-kit copies include:** operator brief, all five setup guides, configure-perplexity, dispatch orchestration, Perplexity files/skills guide, dispatch and check-adapters scripts, handoff README/TEMPLATE, context-pack index, post-curation smoke-test prompt, Codex hooks.
+**Canonical scaffold includes:** operator brief, all five setup guides, configure-perplexity, dispatch orchestration, Perplexity files/skills guide, dispatch and validation scripts, handoff templates, context-pack index, post-curation smoke-test prompt, and Codex hooks.
 
-If you run the script from a **minimal or sparse clone** without those source paths, you still get embedded `.okf` concepts, adapters, core scripts, bundled skills, and **short fallback stubs** for configure-perplexity and xcode/perplexity guides — but not the operator brief, dispatch scripts, or full setup guides. For full five-service parity, run the scaffold from the OKF bootstrap kit repository or copy missing files afterward.
+If you run an installed skill without the bootstrap repository, it announces and uses a smaller embedded fallback. The fallback still carries v0.2 migration/validation and five-service core material. Use the canonical repository for full Forge, operator-guide, and template parity.
 
-Evidence: `.okf/tests/2026-06-28-scaffold-parity.md` (~74 files full kit vs ~35 sparse).
+Current evidence: `.okf/tests/2026-08-16-okf-v02-migration-scaffold.md`.
 
 ---
 
@@ -277,10 +277,10 @@ Refresh this brief when `.okf/log.md` records a **material operating-model chang
 **Checklist after such a log entry:**
 
 1. Update affected sections in `docs/okf-ways-of-working-brief.md`.
-2. Update `timestamp` in this file's frontmatter.
+2. Update `generated.at` in this file's frontmatter.
 3. Append one line to `.okf/log.md` noting the brief refresh.
 4. Re-attach the brief in Perplexity Project Files if you use a Space for this repo.
-5. Run `scripts/okf-validate`.
+5. Run `scripts/okf-validate --strict`.
 
 If Perplexity or another agent proposes policy that already appears here, **read the brief first** — do not re-derive implemented rules from chat memory.
 

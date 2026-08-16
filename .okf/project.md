@@ -2,7 +2,7 @@
 type: Project
 title: Project-1 OKF Bootstrap Kit
 description: Reusable OKF project scaffold with adapters, scripts, shared skills, and five-service LLM ops setup.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, software-development, agentic-workflows, shared-skills, perplexity]
 applies_to: [cursor, claude, codex, chatgpt, xcode-claude, perplexity, ollama, mcp, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Project-1 OKF Bootstrap Kit

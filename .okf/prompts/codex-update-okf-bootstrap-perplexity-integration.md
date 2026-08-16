@@ -2,7 +2,7 @@
 type: Reference
 title: Codex Prompt — Update OKF Bootstrap for Perplexity Integration
 description: Copy-paste prompt for Codex to propagate Perplexity integration, Project Files/Skills guidance, and skill-format lessons into the OKF Project Bootstrap repository.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, codex, perplexity, bootstrap]
 applies_to: [codex, cursor, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T22:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T22:00:00+01:00 }
 ---
 
 # Purpose

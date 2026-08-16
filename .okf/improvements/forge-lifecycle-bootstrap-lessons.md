@@ -2,7 +2,7 @@
 type: Improvement
 title: Forge Lifecycle Bootstrap Lessons
 description: Durable lessons from Project-1 Forge+OKF integration harness, promoted to bootstrap toolkit.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, forge, bootstrap, lessons-learned, mcp, integration]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-07-04T01:40:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-07-04T01:40:00+01:00 }
 ---
 
 # Context

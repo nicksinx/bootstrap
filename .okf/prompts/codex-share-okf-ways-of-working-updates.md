@@ -2,7 +2,7 @@
 type: Reference
 title: Codex Prompt — Share OKF Ways of Working Updates
 description: Copy-paste prompt for Codex to communicate OKF operating model updates to stakeholders or downstream project repos.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, codex, communication, operating-model]
 applies_to: [codex, cursor, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T23:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T23:00:00+02:00 }
 ---
 
 # Purpose

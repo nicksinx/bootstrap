@@ -1,17 +1,5 @@
 ---
-type: Reference
-title: OKF Bundle Index
-description: Navigation index for the Project-1 OKF bootstrap kit.
-status: active
-lifecycle_stage: build
-owner: project
-source_of_truth: true
-resource: .okf/index.md
-tags: [okf, index, bootstrap]
-applies_to: [cursor, claude, codex, chatgpt, xcode-claude, perplexity, ollama, local-agent]
-sensitivity: internal
-verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+okf_version: "0.2"
 ---
 
 # OKF Bundle Index
@@ -43,8 +31,10 @@ Project-1 is a reusable OKF bootstrap kit for software development and agentic p
 - Risk: `.okf/risks/secret-storage-and-memory-drift.md`
 - Continuous improvement: `.okf/improvements/continuous-improvement-repository.md`
 - Validation plan: `.okf/tests/okf-validation-plan.md`
+- [OKF v0.2 conformance guide](../docs/okf-v02-conformance.md)
 - Initial release: `.okf/releases/2026-06-24-initial-bootstrap.md`
-- Current handoff: `.okf/handoffs/2026-06-28-dispatch-ergonomics.md`
+- [Current handoff](handoffs/2026-08-16-okf-v02-conformance.md)
+- [Current validation evidence](tests/2026-08-16-okf-v02-conformance.md)
 - Prior handoff: `.okf/handoffs/2026-06-28-xcode-step4-dry-verification.md`
 - Prior handoff: `.okf/handoffs/2026-06-28-scaffold-parity.md`
 

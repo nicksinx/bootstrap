@@ -2,7 +2,7 @@
 type: Agent Rule
 title: Ollama OKF Agent Rule
 description: Ollama-specific rules for using compact OKF context packs.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, ollama, agent-rule]
 applies_to: [ollama]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Purpose

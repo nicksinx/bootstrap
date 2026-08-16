@@ -2,7 +2,7 @@
 type: Risk
 title: Xcode Live Verification Pending
 description: Service 4 agent rule and step-4 setup may be dry-verified only until real Xcode build and test evidence exists.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, risk, xcode, verification, dispatch]
 applies_to: [xcode-claude, cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Risk

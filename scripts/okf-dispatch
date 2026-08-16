@@ -424,7 +424,7 @@ def cmd_overflow(args, root, base):
 type: Handoff
 title: {title}
 description: Overflow failover from {primary_runner} to Perplexity for packet {packet['packet_id']}.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -433,7 +433,7 @@ tags: [okf, handoff, overflow, perplexity]
 applies_to: [cursor, claude, codex, perplexity, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: {timestamp}
+generated: {{ by: process:okf-dispatch, at: "{timestamp}" }}
 ---
 
 # Current State

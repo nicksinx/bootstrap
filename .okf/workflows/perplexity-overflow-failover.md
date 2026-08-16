@@ -2,7 +2,7 @@
 type: Workflow
 title: Perplexity Overflow Failover
 description: Ad hoc workflow when Perplexity substitutes for a blocked primary OKF dispatch runner.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, workflow, perplexity, overflow, failover, dispatch]
 applies_to: [perplexity, cursor, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T21:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T21:00:00+01:00 }
 ---
 
 # Purpose

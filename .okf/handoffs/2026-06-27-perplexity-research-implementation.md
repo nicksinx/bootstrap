@@ -2,7 +2,7 @@
 type: Handoff
 title: Perplexity Research Implementation Handoff
 description: Cursor implementation of P0/P1 items from Perplexity OKF shared services research pack.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, perplexity, research, implementation]
 applies_to: [cursor, codex, claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T20:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T20:00:00+02:00 }
 ---
 
 # Current State

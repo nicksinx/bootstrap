@@ -2,7 +2,7 @@
 type: Release
 title: Initial OKF Bootstrap Kit
 description: Initial Project-1 release containing OKF bundle, adapters, scripts, templates, and skills.
-status: active
+status: stable
 lifecycle_stage: release
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, release, bootstrap]
 applies_to: [codex, claude, cursor, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-24T15:54:09+01:00 }
 ---
 
 # Summary

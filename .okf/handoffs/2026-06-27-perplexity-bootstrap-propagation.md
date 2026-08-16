@@ -2,7 +2,7 @@
 type: Handoff
 title: Perplexity Bootstrap Propagation
 description: Handoff for propagating Perplexity integration and five-service setup lessons into the OKF bootstrap kit.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, perplexity, scaffold, xcode]
 applies_to: [cursor, claude, codex, xcode-claude, perplexity, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T22:45:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T22:45:00+01:00 }
 ---
 
 # Current State

@@ -2,7 +2,7 @@
 type: Requirement
 title: OKF Bootstrap Kit
 description: Project-1 shall provide a reusable OKF bootstrap kit for software and agentic projects.
-status: active
+status: stable
 lifecycle_stage: build
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, requirement, bootstrap]
 applies_to: [cursor, claude, codex, chatgpt, ollama, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-24T15:54:09+01:00
+generated: { by: process:okf-v02-conformance, at: 2026-08-16T17:02:47+01:00 }
 ---
 
 # Intent
@@ -36,6 +36,9 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 10. Project-critical concepts include status, lifecycle stage, sensitivity, and verification status.
 11. No durable project decision is stored only in chat.
 12. External claims are represented through reference concepts or citations.
+13. Generated bundles conform to OKF v0.2 reserved-file and concept metadata rules.
+14. `scripts/okf-validate --strict` uses a real YAML parser and passes without warnings.
+15. CI validates both the bootstrap bundle and a freshly generated project.
 
 # Dependencies
 
@@ -51,7 +54,7 @@ Project-1 shall contain an operational OKF bundle, thin tool adapters, helper sc
 
 # Verification
 
-Run `scripts/okf-validate` and validate each skill with the Codex skill validator.
+Run `make check`, `scripts/okf-validate --strict`, and validate each skill with the Codex skill validator.
 
 # Citations
 

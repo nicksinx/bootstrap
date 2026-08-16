@@ -1,8 +1,8 @@
 ---
 type: Handoff
-title: {{Task Title}} — Reviewer Handoff
-description: {{One-sentence summary of review verdict and any critical findings}}
-status: active
+title: "{{Task Title}} - Reviewer Handoff"
+description: "{{One-sentence summary of review verdict and any critical findings}}"
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,12 +11,12 @@ tags: [okf, handoff, reviewer]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-28T12:00:00+00:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T12:00:00+00:00 }
 ---
 
 Copy to `.okf/handoffs/YYYY-MM-DD-reviewer-<task-slug>.md`. Use when the `reviewer` role (default runner: `cursor`) completes review and hands off to the `integrator` (default runner: `codex`).
 
-Replace `timestamp` and frontmatter placeholders before saving.
+Replace `generated.at` and frontmatter placeholders before saving.
 
 # Current State
 

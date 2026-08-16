@@ -2,7 +2,7 @@
 type: Handoff
 title: Scaffold Parity — Wave 1 Complete
 description: Cursor closed Wave 1 scaffold parity; Claude to verify test evidence and confirm full-kit vs sparse behavior.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, handoff, scaffold, bootstrap, wave-1]
 applies_to: [claude, cursor, codex]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T15:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T15:00:00+02:00 }
 ---
 
 # Current State

@@ -2,7 +2,7 @@
 type: Reference
 title: Perplexity Overflow Failover Prompt
 description: Copy-paste prompt for Perplexity when substituting for a blocked primary OKF dispatch runner.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, perplexity, overflow, failover]
 applies_to: [perplexity, cursor, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-27T21:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T21:00:00+01:00 }
 ---
 
 # Purpose

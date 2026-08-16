@@ -2,7 +2,7 @@
 type: Reference
 title: Codex Prompt — Update GitHub OKF Bootstrap Repo
 description: Copy-paste prompt for Codex to commit and push the current branch of the OKF Project Bootstrap GitHub repository with all 2026-06-28 refinement changes.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, codex, github, bootstrap, publish]
 applies_to: [codex, cursor, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T23:30:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T23:30:00+02:00 }
 ---
 
 # Purpose

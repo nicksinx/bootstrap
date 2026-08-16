@@ -124,7 +124,7 @@ def test_okf_concept_example() -> None:
         "type": "Improvement",
         "title": "Continuous Improvement Repository",
         "description": "Captures lessons learned and reusable process improvements.",
-        "status": "active",
+        "status": "stable",
         "lifecycle_stage": "operate",
         "owner": "project",
         "source_of_truth": True,
@@ -133,7 +133,10 @@ def test_okf_concept_example() -> None:
         "applies_to": ["cursor", "claude", "codex", "mcp", "local-agent"],
         "sensitivity": "internal",
         "verification_status": "reviewed",
-        "timestamp": "2026-04-28T22:00:00Z",
+        "generated": {
+            "by": "process:launch-project",
+            "at": "2026-04-28T22:00:00Z",
+        },
     }
     assert_valid(schema, concept, "okf-concept/example")
 

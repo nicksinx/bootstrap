@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Shared OKF Skills Validation Evidence
 description: Validation evidence for the shared OKF skills operating model added on 2026-06-27.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, validation, evidence, shared-skills]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-27T12:00:00+01:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+01:00 }
 ---
 
 # Validation Performed

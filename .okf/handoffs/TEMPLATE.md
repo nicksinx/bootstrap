@@ -1,8 +1,8 @@
 ---
 type: Handoff
-title: {{Task Title}}
-description: {{One-sentence summary}}
-status: active
+title: "{{Task Title}}"
+description: "{{One-sentence summary}}"
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,10 +11,10 @@ tags: [okf, handoff]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: unverified
-timestamp: 2026-06-27T12:00:00+00:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-27T12:00:00+00:00 }
 ---
 
-Replace `timestamp` and frontmatter placeholders before saving. Copy to `.okf/handoffs/YYYY-MM-DD-task-slug.md`.
+Replace `generated.at` and frontmatter placeholders before saving. Copy to `.okf/handoffs/YYYY-MM-DD-task-slug.md`.
 
 # Current State
 

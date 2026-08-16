@@ -2,7 +2,7 @@
 type: Reference
 title: Xcode Step 4 Dry Verification Checklist
 description: Repo-only verification for OKF service 4 before live Xcode build/test evidence exists.
-status: active
+status: stable
 lifecycle_stage: operate
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, prompt, xcode, verification, dry-run, step-4]
 applies_to: [cursor, claude, codex, xcode-claude, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-06-28T16:00:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T16:00:00+02:00 }
 ---
 
 # Purpose

@@ -2,7 +2,7 @@
 type: Test Evidence
 title: Dispatch Dry Run — Wave 2 Ergonomics
 description: Live dry run of init-pipeline, tester flow, overflow metadata stub, and full pipeline completion for dispatch ergonomics validation.
-status: active
+status: stable
 lifecycle_stage: test
 owner: project
 source_of_truth: true
@@ -11,7 +11,7 @@ tags: [okf, test-evidence, dispatch, ergonomics, tester, overflow]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: tested
-timestamp: 2026-06-28T22:58:00+02:00
+generated: { by: process:bootstrap-v02-migration, at: 2026-06-28T22:58:00+02:00 }
 ---
 
 # Test Objective

@@ -24,7 +24,7 @@ After triage, apply the correct layer:
 
 | Trigger | Layer |
 |---------|--------|
-| Lifecycle planning | Forge MCP in **Cursor** → promote to OKF |
+| Lifecycle planning | Forge MCP in **Cursor** via HTTP `forge-collection` (Cloud Agents must register the URL; they do not inherit Desktop MCP) → promote to OKF |
 | Implementation | `scripts/okf-dispatch` |
 | External research | Perplexity → `.okf/references/` |
 | Curated truth | `.okf/` Markdown (not `.okf/forge/` runtime JSON) |

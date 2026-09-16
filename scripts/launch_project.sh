@@ -332,7 +332,7 @@ else
   if [[ "$DRY_RUN" != "1" ]]; then
     if [[ -f "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" ]]; then
       cp "${TARGET_DIR}/.cursor/mcp-forge-lifecycle.json.example" "${TARGET_DIR}/.cursor/mcp.json"
-      bs_log_info "wrote .cursor/mcp.json from forge-lifecycle example (gitignored)"
+      bs_log_info "wrote .cursor/mcp.json from HTTP forge-collection example (gitignored)"
     else
       bs_die "E0007" "$BS_EXIT_MCP_REGISTER" "missing .cursor/mcp-forge-lifecycle.json.example"
     fi

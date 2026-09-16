@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import tempfile
 from pathlib import Path
@@ -9,6 +10,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LAUNCH = ROOT / "scripts" / "launch_project.sh"
+FORGE_COLLECTION_URL = (
+    "https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp"
+)
+
+
+def _assert_http_forge_collection(path: Path) -> None:
+    cfg = json.loads(path.read_text())
+    server = (cfg.get("mcpServers") or {}).get("forge-collection") or {}
+    if server.get("url") != FORGE_COLLECTION_URL:
+        raise SystemExit(f"expected HTTP forge-collection in {path}: {server}")
+    if "command" in server:
+        raise SystemExit(f"forge-collection must be HTTP, not stdio: {server}")
 
 
 def run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -72,6 +85,9 @@ def test_launch_and_validate() -> None:
         missing = [rel for rel in expected_okf if not (target / rel).exists()]
         if missing:
             raise SystemExit(f"missing OKF scaffold files: {missing}")
+        _assert_http_forge_collection(target / ".cursor" / "mcp.json")
+        if not (target / ".cursor" / "mcp-forge-stdio-siblings.json.example").exists():
+            raise SystemExit("missing .cursor/mcp-forge-stdio-siblings.json.example")
 
 
 def test_okf_dispatch_status() -> None:
@@ -140,11 +156,13 @@ def test_forge_lifecycle_alias_launch_and_validate() -> None:
             "scripts/forge-clone-siblings.sh",
             ".okf/decisions/0002-okf-forge-integration.md",
             ".cursor/mcp-forge-lifecycle.json.example",
+            ".cursor/mcp-forge-stdio-siblings.json.example",
             ".cursor/mcp.json",
         ]
         missing = [rel for rel in expected_forge if not (target / rel).exists()]
         if missing:
             raise SystemExit(f"missing forge-lifecycle scaffold files: {missing}")
+        _assert_http_forge_collection(target / ".cursor" / "mcp.json")
 
 
 def main() -> int:

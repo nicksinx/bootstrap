@@ -33,6 +33,7 @@ files:
     - .cursor/rules/okf-dispatch.mdc
     - .cursor/rules/okf-forge-promotion.mdc
     - .cursor/mcp-forge-lifecycle.json.example
+    - .cursor/mcp-forge-stdio-siblings.json.example
     - .codex/hooks.json
     - docs/okf-integration.md
     - docs/agent-operating-model.md

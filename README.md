@@ -12,7 +12,7 @@ Validated patterns come from real integration work in the [Project-1 harness](ht
 |------------|-------------|
 | **Deterministic scaffold** | Versioned templates, JSON schemas, and profile contracts—same inputs produce the same tree |
 | **OKF bundle** | `.okf/` curated memory: requirements, decisions, workflows, handoffs, risks, improvements |
-| **Forge lifecycle MCP** | Eleven Forge launchers, sibling-clone helper, auto-written `.cursor/mcp.json` |
+| **Forge lifecycle MCP** | HTTP `forge-collection` (Vercel gateway) plus sibling-clone / stdio launchers for the Node host |
 | **OKF dispatch** | `scripts/okf-dispatch` multi-role delivery pipeline (Project-1 aligned) |
 | **Agent adapters** | Thin `AGENTS.md`, `CLAUDE.md`, Cursor rules—pointing at OKF, not duplicating it |
 | **Legacy ai-task path** | Deprecated `legacy-task` profile only—see [migration doc](docs/migration-from-legacy-bootstrap.md) |
@@ -45,13 +45,14 @@ flowchart TB
   subgraph product [Generated product repo]
     OKF[.okf/ curated memory]
     SCR[scripts/ okf-dispatch forge launchers]
-    MCP[.cursor/mcp.json Forge]
+    MCP[.cursor/mcp.json HTTP forge-collection]
     BL[backlog/ schemas/]
   end
 
   subgraph optional [Optional siblings — not vendored]
     FC[ConceptForge … SunsetForge]
     FLC[ForgeLifecycleContracts]
+    COL[Vercel forge-collection gateway]
   end
 
   LP --> PROF
@@ -59,7 +60,8 @@ flowchart TB
   PROF -->|legacy-task only| LEG
   TPL --> product
   LEG --> product
-  MCP -->|stdio launchers| FC
+  MCP -->|HTTP /api/mcp| COL
+  COL -.->|FORGE_RUNTIME_URL / stdio Node host| FC
   FC --> FLC
   OKF -->|one-way promotion| OKF
 ```
@@ -68,7 +70,7 @@ flowchart TB
 2. **Run** [`scripts/launch_project.sh`](scripts/launch_project.sh) with `--name`, `--target-dir`, and flags.
 3. **Render** templates from [`templates/new-project/`](templates/new-project/) (plus `legacy-task` overlay when applicable).
 4. **Validate** with `make check` in bootstrap, then `scripts/validate_launch.sh` and `scripts/okf-validate` in the new project.
-5. **Clone and build** Forge siblings, then reload Cursor MCP.
+5. **Clone and build** Forge siblings on the Node host that should run stage servers. Cursor clients use HTTP `forge-collection`; Cloud Agents need that URL registered separately.
 
 ---
 
@@ -117,7 +119,7 @@ scripts/okf-validate
 scripts/okf-dispatch status
 ```
 
-Forge `.cursor/mcp.json` is written automatically. Build sibling Forge repos and reload Cursor MCP before calling Forge tools.
+Forge `.cursor/mcp.json` is written automatically as HTTP `forge-collection` (`https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`). Desktop: user MCP and/or project file. Cloud Agents: custom HTTP MCP on cursor.com/agents — they do **not** inherit Desktop `~/.cursor/mcp.json`. Sibling clones + stdio launchers remain the Node-host path. See [docs/forge-collection-mcp.md](docs/forge-collection-mcp.md).
 
 Sync OKF skills from the bootstrap kit when needed: `scripts/okf-sync-skills --dry-run` then `scripts/okf-sync-skills`.
 
@@ -165,7 +167,7 @@ To extend OKF on a generated project:
 
 ## Forge MCP augmentation
 
-The **Forge portfolio** (`nicksinx/*Forge`) provides one MCP server per lifecycle stage. Shared contracts live in [ForgeLifecycleContracts](https://github.com/nicksinx/ForgeLifecycleContracts). [ForgeRelay](https://github.com/nicksinx/ForgeRelay) handles cross-tool session continuity—orthogonal to OKF dispatch.
+The **Forge portfolio** (`nicksinx/*Forge`) provides one MCP server per lifecycle stage. Cursor talks to them through HTTP **`forge-collection`** on Vercel (map/gateway), not by assuming Cloud Agents inherit Desktop MCP. Shared contracts live in [ForgeLifecycleContracts](https://github.com/nicksinx/ForgeLifecycleContracts). [ForgeRelay](https://github.com/nicksinx/ForgeRelay) handles cross-tool session continuity—orthogonal to OKF dispatch.
 
 ### Option C integration (default policy)
 
@@ -197,7 +199,7 @@ parent/
 └── ForgeLifecycleContracts/
 ```
 
-Launchers in `scripts/*-mcp.sh` resolve `../<Repo>`, pin versions, set `FORGE_WORKSPACE` under `.okf/forge/<stage>/` (gitignored), and assert contracts alignment.
+Launchers in `scripts/*-mcp.sh` resolve `../<Repo>`, pin versions, set `FORGE_WORKSPACE` under `.okf/forge/<stage>/` (gitignored), and assert contracts alignment. Use those stdio launchers only on a Node host with built siblings. Default Cursor `mcp.json` is HTTP collection.
 
 ### Lifecycle spine (conceptual)
 
@@ -319,6 +321,7 @@ Signing key layout: see Project-1 `.okf/references/forge-signing-keys-operator-r
 | Repository | Role |
 |------------|------|
 | [nicksinx/bootstrap](https://github.com/nicksinx/bootstrap) | This toolkit |
+| [nicksinx/forge-collection-mcp-server](https://github.com/nicksinx/forge-collection-mcp-server) | Hosted HTTP gateway (`/api/mcp`) for Desktop and Cloud Agents |
 | [nicksinx/Project-1](https://github.com/nicksinx/Project-1) | OKF + Forge integration harness (full policy & evidence) |
 | [nicksinx/ForgeLifecycleContracts](https://github.com/nicksinx/ForgeLifecycleContracts) | Shared envelopes, signing, compatibility boundaries |
 | [nicksinx/ForgeRelay](https://github.com/nicksinx/ForgeRelay) | Cross-tool agent continuity (INT-001) |

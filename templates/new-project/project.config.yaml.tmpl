@@ -14,10 +14,9 @@ github:
   create_templates: __GITHUB_CREATE_TEMPLATES__
 mcp:
   enabled: true
-  server_name: "forge-lifecycle"
-  transport: "stdio"
-  command: "bash"
-  url: ""
+  server_name: "forge-collection"
+  transport: "http"
+  url: "https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp"
   data_dir: ".okf/forge"
   auth_profile: "none"
   token_source: "env"

@@ -118,10 +118,11 @@ The agent collects **three required phases** (identity, paths, GitHub), applies 
 
 1. **Open the product folder** as the Cursor workspace root (not bootstrap, not a monorepo parent).
 2. **Reload the Cursor window** so MCP and project rules load.
-3. **Run** `scripts/operator-ready-check.sh` (rules, skills, validation in one pass).
-4. **Read** `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`.
-5. **Service setup guides** — only for services you will configure first (usually `docs/create-new-okf-project-in-cursor.md`, then codex/claude).
-6. **Forge siblings** — skip if `apply` already ran `forge-clone-siblings.sh`. Optional slow step: build siblings (`npm ci && npm run build` per repo) when you need MCP servers immediately.
+3. **Forge MCP (HTTP collection):** Desktop → Settings → MCP (user) and/or project `.cursor/mcp.json` (launcher writes HTTP `forge-collection`). Cloud Agents → custom HTTP URL `https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp` on cursor.com/agents. Cloud does **not** see `~/.cursor/mcp.json` and does **not** inherit Desktop MCP. Details: [forge-collection-mcp.md](forge-collection-mcp.md).
+4. **Run** `scripts/operator-ready-check.sh` (rules, skills, validation in one pass).
+5. **Read** `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`.
+6. **Service setup guides** — only for services you will configure first (usually `docs/create-new-okf-project-in-cursor.md`, then codex/claude).
+7. **Forge siblings (Node host)** — skip clone if `apply` already ran `forge-clone-siblings.sh`. Build siblings (`npm ci && npm run build` per repo) on the Mac/runtime that should run stage servers. Stdio MCP example is that path only; Vercel collection is the map/gateway.
 
 You do **not** need to run `okf-sync-skills` or install Cursor rules unless something looks stale or missing.
 
@@ -170,6 +171,7 @@ In Cursor **Settings → Rules**, confirm project rules are listed. Sanity check
 
 ## Related
 
+- [forge-collection-mcp.md](forge-collection-mcp.md) — Desktop vs Cloud HTTP MCP
 - [install-bootstrap-okf-forge-skill.md](install-bootstrap-okf-forge-skill.md) — skill install options
 - [install-cursor-rules.md](install-cursor-rules.md) — repair guide for older products
 - [migration-from-legacy-bootstrap.md](migration-from-legacy-bootstrap.md)

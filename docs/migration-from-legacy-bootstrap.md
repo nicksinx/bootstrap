@@ -6,7 +6,7 @@ Bootstrap **v2.0.0** unifies OKF + Forge + OKF dispatch in the `default` profile
 
 | Area | v1.x (`default` v1.1.0) | v2.0.0 (`default`) |
 |------|-------------------------|---------------------|
-| MCP | Optional ai-task (`--with-mcp`) | Forge lifecycle MCP (auto `.cursor/mcp.json`) |
+| MCP | Optional ai-task (`--with-mcp`) | HTTP `forge-collection` (auto `.cursor/mcp.json`); stdio siblings = Node-host path |
 | Delivery | `scripts/workers/*` + `scripts/mcp/*` | `scripts/okf-dispatch` |
 | Profile `forge-lifecycle` | Overlay on default | Alias for `default` v2 |
 | Template version | `1.1.0` | `2.0.0` |
@@ -25,7 +25,7 @@ Use `default` profile (no flags required for Forge MCP config):
 2. Compare your tree to a fresh v2 launch (`--dry-run` diff).
 3. Adopt incrementally:
    - Copy Forge launchers and `scripts/okf-dispatch*` from a v2 scaffold.
-   - Replace `.cursor/mcp.json` with forge-lifecycle example.
+   - Replace `.cursor/mcp.json` with the HTTP `forge-collection` example (not stdio siblings unless this machine is the Node host).
    - Remove or archive `scripts/mcp/` and `scripts/workers/` if unused.
    - Update `Makefile` targets to `okf-dispatch-status` instead of `worker-*`.
 4. Re-run `scripts/validate_launch.sh`.

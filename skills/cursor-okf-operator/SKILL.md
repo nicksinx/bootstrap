@@ -13,7 +13,7 @@ Cursor is **service 1** in the five-service order. Default dispatch role: **revi
 
 | Job | Use | Do not use |
 |-----|-----|------------|
-| Lifecycle planning (Concept→Sunset) | Forge MCP via `.cursor/mcp.json` | `scripts/okf-dispatch` for planning |
+| Lifecycle planning (Concept→Sunset) | HTTP `forge-collection` MCP (Vercel gateway); stdio siblings only on a Node host | `scripts/okf-dispatch` for planning |
 | Code delivery review | Dispatch `reviewer` role | Forge stage tools for implementation |
 | Promote Forge → OKF | Integrator-reviewed concepts + checklists | Auto `verification_status: accepted` |
 | Cross-tool resume | ForgeRelay MCP | Dispatch role order |
@@ -24,7 +24,8 @@ Rules: `.cursor/rules/okf-ecosystem-routing.mdc`, `okf-forge-operator.mdc`, `okf
 
 1. `skills/okf-reader/SKILL.md`
 2. `.okf/workflows/okf-forge-lifecycle-bridge.md`
-3. Sibling Forge repos built; reload MCP after config changes.
+3. HTTP `forge-collection` attached: Desktop user/project MCP, Cloud Agents custom URL on cursor.com/agents (Cloud does **not** inherit `~/.cursor/mcp.json`).
+4. For emit/import, sibling Forge repos built on a Node host; stdio launchers are that host path only. Reload MCP after config changes.
 
 ## Dispatch (reviewer)
 

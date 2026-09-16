@@ -21,7 +21,7 @@ Use on **product projects** after OKF bootstrap. Forge is the **lifecycle planni
 # Prerequisites
 
 1. OKF five-service setup complete (or minimum Forge-only OKF per `docs/okf-ways-of-working-brief.md` § Forge-only minimum).
-2. Sibling Forge repos built; Cursor MCP launchers resolve (`scripts/*-mcp.sh`).
+2. Sibling Forge repos built on the Node host that runs stage servers (`scripts/*-mcp.sh`). Cursor clients use HTTP `forge-collection` by default; Cloud Agents must register that URL (they do not inherit Desktop MCP).
 3. `scripts/okf-validate` passes before and after promotion.
 
 # Layer selection

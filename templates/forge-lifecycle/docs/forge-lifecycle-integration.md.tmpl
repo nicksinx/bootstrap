@@ -23,11 +23,21 @@ Validated integration patterns come from the Project-1 harness (`nicksinx` Forge
 # Architecture
 
 ```text
-Sibling clones (../ConceptForge, ../LaunchForge, …)
-        ↑
+Cursor Desktop ──► user MCP (~/.cursor/mcp.json) and/or project .cursor/mcp.json
+Cursor Cloud Agents ──► custom HTTP MCP on cursor.com/agents
+        │  (Cloud does not see ~/.cursor/mcp.json; Desktop MCP is not inherited)
+        ▼
+HTTPS  https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp
+        │  forge-collection  (Vercel map / gateway — not a Forge reimplementation)
+        ▼
+Optional FORGE_RUNTIME_URL → Node host with sibling clones + built dist/
+  scripts/*-mcp.sh (stdio) → ../ConceptForge, ../LaunchForge, …
+
 Product project (this repo)
+  .cursor/mcp-forge-lifecycle.json.example  → HTTP collection (committed)
+  .cursor/mcp.json                          → gitignored copy of the HTTP example
+  .cursor/mcp-forge-stdio-siblings.json.example → Node-host stdio launchers only
   scripts/*-mcp.sh     → resolve sibling paths, pin versions
-  .cursor/mcp.json     → Cursor MCP launchers (gitignored)
   .okf/forge/*         → per-server workspaces (gitignored)
   .okf/                → curated memory (promotion target)
 ```
@@ -36,16 +46,30 @@ Product project (this repo)
 
 Forge is **not** a sixth OKF bootstrap service. Enable Forge **after** the five-service OKF setup (Cursor → Codex → Claude → Xcode → Perplexity).
 
+A new Forge-enabled product gets OKF + MCP **wiring** only. It does **not** spawn sibling servers. Forge runs where siblings were cloned and built: Desktop next to the project, each Cloud Agent environment, or one shared always-on runtime that the Vercel collection can forward to.
+
+| Need | What must be running |
+|------|----------------------|
+| Catalog / packet map only | Vercel `/api/mcp` |
+| Cloud Agents emit/import | Vercel **and** a reachable Node runtime (`FORGE_RUNTIME_URL`) |
+| Desktop only with local stdio Forge | Sibling clones + `mcp-forge-stdio-siblings.json.example` — neither Vercel nor Docker required |
+
+Bearer token on the public collection URL is **on hold**. Do not add `MCP_BEARER_TOKEN` to product templates.
+
 # Setup order
 
 1. Complete OKF bootstrap validation: `scripts/okf-validate`, `scripts/validate_launch.sh`.
-2. Clone Forge siblings (optional helper): `scripts/forge-clone-siblings.sh` or manual clones as peers of this project.
-3. Build each Forge repo: `cd ../<Repo> && npm ci && npm run build`.
-4. Copy MCP config: `cp .cursor/mcp-forge-lifecycle.json.example .cursor/mcp.json`.
-5. Reload Cursor MCP; confirm launchers resolve sibling `dist/index.js` (LaunchForge uses `mcp-server/dist/index.js`).
-6. Run server smokes in sibling repos before relying on cross-MCP handoffs.
+2. **Cursor Desktop:** confirm HTTP `forge-collection` in Settings → MCP (user) and/or project `.cursor/mcp.json` (launcher copies the committed example).
+3. **Cursor Cloud Agents:** add a **custom HTTP MCP** with URL `https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`. Do not assume Desktop MCP or `~/.cursor/mcp.json` is visible.
+4. Clone Forge siblings when you need real stage tools (optional helper): `scripts/forge-clone-siblings.sh`.
+5. Build each Forge repo on the **Node host** that will run them: `cd ../<Repo> && npm ci && npm run build`.
+6. Stdio launchers are the Node-host path only: `cp .cursor/mcp-forge-stdio-siblings.json.example .cursor/mcp.json` **instead of** the HTTP example if this Cursor session should spawn local siblings. Prefer keeping HTTP collection as the default project `mcp.json`.
+7. Reload Cursor MCP. For stdio, confirm launchers resolve sibling `dist/index.js` (LaunchForge uses `mcp-server/dist/index.js`).
+8. Run server smokes in sibling repos before relying on cross-MCP handoffs.
 
 # Launcher conventions
+
+Stdio bash launchers are the **Node-host** path (Mac, Cloud Agent snapshot, or always-on runtime). Default Cursor wiring is HTTP `forge-collection`, not these stdio entries.
 
 | Pattern | Rationale |
 |---------|-----------|

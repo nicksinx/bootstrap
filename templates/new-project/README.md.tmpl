@@ -17,11 +17,14 @@ will preserve everything between the protected markers on subsequent runs.
 make validate-launch   # scaffold validation
 scripts/okf-validate   # OKF bundle validation
 scripts/okf-dispatch status
-scripts/forge-clone-siblings.sh   # optional — clone nicksinx/*Forge peers
-cp .cursor/mcp-forge-lifecycle.json.example .cursor/mcp.json   # if not auto-written
+scripts/forge-clone-siblings.sh   # optional — clone nicksinx/*Forge peers on the Node host
+# Default .cursor/mcp.json is HTTP forge-collection (Vercel). Cloud Agents need the same
+# URL as custom HTTP MCP; they do not inherit ~/.cursor/mcp.json.
+# Stdio siblings only if this session hosts Node Forge locally:
+# cp .cursor/mcp-forge-stdio-siblings.json.example .cursor/mcp.json
 ```
 
-After cloning Forge siblings, build each repo (`npm ci && npm run build`) and reload Cursor MCP.
+After cloning Forge siblings, build each repo on the Node host (`npm ci && npm run build`). Reload Cursor MCP. Catalog tools use Vercel `forge-collection`; emit/import needs a reachable runtime.
 
 Sync OKF skills from the bootstrap kit when needed:
 

@@ -11,7 +11,7 @@ Recorded before/after expectations for OKF + Forge bootstrap alignment.
 
 ## Post-alignment (v2.0.0 default)
 
-- Ships Forge MCP launchers, `.cursor/mcp-forge-lifecycle.json.example`, auto-written `.cursor/mcp.json`
+- Ships HTTP `forge-collection` MCP example (Vercel `/api/mcp`), auto-written `.cursor/mcp.json`, plus stdio sibling example for the Node host
 - Ships `scripts/okf-dispatch`, adapter checks, forge receipt checks, `okf-sync-skills`
 - Ships five-service operator docs and OKF workflows (bridge, multi-agent pipeline, Perplexity)
 - No `scripts/mcp/*` or `scripts/workers/*` in default tree

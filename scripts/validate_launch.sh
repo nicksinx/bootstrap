@@ -62,6 +62,7 @@ v2_files = [
     "docs/okf-dispatch-orchestration.md",
     "docs/okf-ways-of-working-brief.md",
     ".cursor/mcp-forge-lifecycle.json.example",
+    ".cursor/mcp-forge-stdio-siblings.json.example",
     "scripts/forgerelay-mcp.sh",
     "scripts/conceptforge-mcp.sh",
     "scripts/forge-clone-siblings.sh",

@@ -50,7 +50,7 @@ echo ""
 if [[ -f .cursor/mcp.json ]]; then
   printf 'OK   .cursor/mcp.json\n'
 else
-  printf 'WARN .cursor/mcp.json (copy from .cursor/mcp-forge-lifecycle.json.example after MCP setup)\n'
+  printf 'WARN .cursor/mcp.json (copy from .cursor/mcp-forge-lifecycle.json.example — HTTP forge-collection)\n'
 fi
 
 echo ""

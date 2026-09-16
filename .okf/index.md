@@ -79,6 +79,7 @@ Project-1 is a reusable OKF bootstrap kit for software development and agentic p
 - Step 3, Claude Code: `docs/create-new-okf-project-in-claude.md`
 - Step 4, Xcode: `docs/create-new-okf-project-in-xcode.md`, `.okf/prompts/xcode-step4-verification-checklist.md`
 - Step 5, Perplexity: `docs/create-new-okf-project-in-perplexity.md`, `docs/configure-perplexity-okf.md`
+- Forge collection MCP (Desktop + Cloud HTTP): `docs/forge-collection-mcp.md`
 - Codex bootstrap update prompt: `.okf/prompts/codex-update-okf-bootstrap-perplexity-integration.md`
 - Codex GitHub publish prompt: `.okf/prompts/codex-update-github-bootstrap-repo.md`
 - Codex share ways of working: `.okf/prompts/codex-share-okf-ways-of-working-updates.md`

@@ -11,7 +11,7 @@ tags: [okf, forge, bootstrap, lessons-learned, mcp, integration]
 applies_to: [cursor, claude, codex, local-agent]
 sensitivity: internal
 verification_status: reviewed
-timestamp: 2026-07-04T01:40:00+01:00
+timestamp: 2026-09-16T07:00:00Z
 ---
 
 # Context
@@ -59,7 +59,9 @@ OKF substrate + Forge lifecycle engine + **one-way** promotion after review. For
 
 ## 5. Cursor MCP config template
 
-`.cursor/mcp-forge-lifecycle.json.example` lists all eleven Forge servers. Auto-copied to gitignored `.cursor/mcp.json` when profile is `forge-lifecycle`.
+`.cursor/mcp-forge-lifecycle.json.example` is HTTP `forge-collection` (`https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`). Auto-copied to gitignored `.cursor/mcp.json`. Cloud Agents must register the same URL as custom HTTP MCP; they do not inherit Desktop `~/.cursor/mcp.json`.
+
+`.cursor/mcp-forge-stdio-siblings.json.example` lists the eleven stdio bash launchers. Use it only on a Node host with sibling clones and built `dist/`. Vercel collection is the map/gateway, not a reimplementation of Forge.
 
 ## 6. Packet registry reference
 

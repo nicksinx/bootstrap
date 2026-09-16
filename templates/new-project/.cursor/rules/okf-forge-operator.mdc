@@ -9,8 +9,11 @@ alwaysApply: false
 ## Layout
 
 - Forge repos are **sibling clones** (`../ConceptForge`, etc.) — not vendored into the product repo. See `.okf/references/forge-sibling-layout.md`.
-- Run stage servers via `scripts/*-mcp.sh` / `scripts/forgerelay-mcp.sh`; do not edit Forge server source from the product repo.
-- Cursor MCP config: `.cursor/mcp-forge-lifecycle.json.example` (launchers use stdio + sibling paths).
+- Cursor MCP for Desktop **and** Cloud Agents: HTTP `forge-collection` at `https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp` (committed example: `.cursor/mcp-forge-lifecycle.json.example`, auto-copied to gitignored `.cursor/mcp.json`).
+- Cloud Agents do **not** inherit Desktop user MCP. They do not read `~/.cursor/mcp.json`. Register the same HTTP URL as a **custom MCP** on cursor.com/agents.
+- Vercel collection is the **map/gateway** (catalog, routing, later proxy). It does not run Forge processes or sign envelopes.
+- Stage servers actually run on a **Node host**: sibling clones + `scripts/*-mcp.sh` stdio (Mac, Cloud Agent environment, or always-on runtime via `FORGE_RUNTIME_URL`). Optional local Cursor config: `.cursor/mcp-forge-stdio-siblings.json.example`.
+- Do not edit Forge server source from the product repo. Do not require `MCP_BEARER_TOKEN` in project templates (bearer auth is on hold).
 
 ## Workspaces
 

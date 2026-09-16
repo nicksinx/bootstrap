@@ -6,7 +6,7 @@ Thin **per-service** skills align Codex, Claude, Xcode, Cursor, and Perplexity w
 
 | Service | Operator skill | Dispatch role | Forge MCP |
 |---------|----------------|---------------|-----------|
-| Cursor | `cursor-okf-operator` | reviewer (+ integrator promotion) | **Yes — host** |
+| Cursor | `cursor-okf-operator` | reviewer (+ integrator promotion) | **Yes — HTTP `forge-collection` host** (stdio siblings on Node host only) |
 | Codex | `codex-okf-operator` | builder, integrator | No — read promoted OKF |
 | Claude | `claude-okf-operator` | tester | No |
 | Xcode | `xcode-okf-operator` | `xcode-claude` runner | No |
@@ -60,6 +60,6 @@ Do not copy into product repos.
 ## Related
 
 - `docs/shared-okf-skills.md`
-- `docs/forge-mcp-hosting-policy.md` (if added)
+- `docs/forge-collection-mcp.md`
 - `.cursor/rules/okf-ecosystem-routing.mdc`
 - `docs/migration-from-legacy-bootstrap.md`

@@ -7,7 +7,7 @@ Curated operator documentation for standing up OKF + Forge v2 products.
 | [new-okf-forge-project-standup.md](new-okf-forge-project-standup.md) | **Canonical** cheat sheet — edit here first |
 | [new-okf-forge-project-standup-offline.md](new-okf-forge-project-standup-offline.md) | **Offline export** — copy into Apple Notes, Obsidian, etc. |
 | [install-bootstrap-okf-forge-skill.md](install-bootstrap-okf-forge-skill.md) | Cursor skill install (personal vs repo) |
-| [install-cursor-rules.md](install-cursor-rules.md) | Repair rules on pre-v2 products only |
+| [forge-collection-mcp.md](forge-collection-mcp.md) | HTTP `forge-collection` for Desktop + Cloud Agents; stdio siblings = Node-host path |
 
 **Workflow:** express CLI (`project-intake quick`) or guided agent (`bootstrap-okf-forge-project` skill).
 

@@ -2,7 +2,7 @@
 
 **Purpose:** Self-contained copy for notes apps (Apple Notes, Obsidian, Bear, etc.).  
 **Canonical source (edit there first):** `bootstrap/docs/new-okf-forge-project-standup.md`  
-**Last synced with canonical:** 2026-07-04  
+**Last synced with canonical:** 2026-09-16  
 **Bootstrap profile:** `default` v2.0.0
 
 ---
@@ -137,10 +137,11 @@ Start with Phase A.
 
 1. Open **product folder** as Cursor workspace root (not bootstrap).
 2. Reload Cursor window (MCP + rules).
-3. Run `scripts/operator-ready-check.sh`.
-4. Read `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`.
-5. Service guides for enabled services you configure first (`docs/create-new-okf-project-in-cursor.md`, etc.).
-6. Forge siblings — skip if apply already cloned.
+3. Forge MCP: Desktop user MCP and/or project `.cursor/mcp.json` = HTTP `forge-collection` at `https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`. Cloud Agents: **custom HTTP URL** on cursor.com/agents. Cloud does **not** see `~/.cursor/mcp.json` and does not inherit Desktop MCP. See `docs/forge-collection-mcp.md`.
+4. Run `scripts/operator-ready-check.sh`.
+5. Read `.okf/handoffs/*-operator-standup.md` and `docs/okf-service-operator-skills.md`.
+6. Service guides for enabled services you configure first (`docs/create-new-okf-project-in-cursor.md`, etc.).
+7. Forge siblings on the Node host — skip clone if apply already cloned. Stdio MCP example is the Node-host path only.
 
 Do **not** re-run `okf-sync-skills` or install rules unless something looks stale.
 

@@ -201,3 +201,11 @@ timestamp: 2026-06-24T15:54:09+01:00
 - Added `scripts/operator-ready-check.sh` to v2 scaffold and `validate_launch.sh`.
 - Compressed guided intake phases in skill and `user-intake-prompt.md`; fixed install doc stale rules step.
 - Added `docs/operator-guides.md` and `docs/new-okf-forge-project-standup-offline.md` for notes-app continuity export.
+
+## 2026-09-16 (HTTP forge-collection MCP)
+
+- Generated Cursor MCP is HTTP `forge-collection` on Vercel (`https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`), not eleven local stdio servers.
+- Stdio sibling launchers remain the Node-host path (`.cursor/mcp-forge-stdio-siblings.json.example`).
+- Documented: Desktop user MCP + Cloud Agents custom HTTP URL; Cloud does not see `~/.cursor/mcp.json`. Vercel collection is the map/gateway; sibling clone + Mac/runtime is how Forge runs.
+- Bearer token on hold — templates do not require `MCP_BEARER_TOKEN`.
+- Lessons: `.okf/improvements/forge-lifecycle-bootstrap-lessons.md` §5.

@@ -26,10 +26,11 @@ Record **project-specific** Forge outcomes under this directory (promotion failu
 
 # First actions
 
-1. `scripts/forge-clone-siblings.sh` (or clone manually)
-2. Build siblings; copy `.cursor/mcp-forge-lifecycle.json.example` → `.cursor/mcp.json`
-3. Read `docs/forge-lifecycle-integration.md` and `.okf/decisions/0002-okf-forge-integration.md`
-4. Run sibling smokes before cross-MCP handoffs
+1. Confirm HTTP `forge-collection` in Desktop MCP and, for Cloud Agents, the custom URL on cursor.com/agents (Cloud does not inherit `~/.cursor/mcp.json`).
+2. `scripts/forge-clone-siblings.sh` on the Node host that will run Forge (or clone manually)
+3. Build siblings. Use `.cursor/mcp-forge-stdio-siblings.json.example` only when this Cursor session should spawn local stdio servers.
+4. Read `docs/forge-lifecycle-integration.md` and `.okf/decisions/0002-okf-forge-integration.md`
+5. Run sibling smokes before cross-MCP handoffs. Catalog-only work needs Vercel `/api/mcp` only.
 
 # Related
 

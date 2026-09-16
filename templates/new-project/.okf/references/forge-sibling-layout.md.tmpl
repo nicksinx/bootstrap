@@ -16,14 +16,14 @@ timestamp: __GENERATED_AT__
 
 # Layout
 
-Place Forge repos as **siblings** of the product project. Launchers default to `../<RepoName>`.
+Place Forge repos as **siblings** of the product project. Launchers default to `../<RepoName>`. Sibling clones plus a Node runtime are **how Forge actually runs**. The Vercel `forge-collection` server is the **map/gateway** Cursor talks to over HTTP; it does not vendor or execute those repos.
 
 ```text
 parent/
   __PROJECT_ID__/          ← this product project
     scripts/*-mcp.sh
     .okf/
-    .cursor/mcp.json       ← gitignored
+    .cursor/mcp.json       ← gitignored HTTP forge-collection (default)
   ForgeLifecycleContracts/
   ForgeRelay/
   ConceptForge/
@@ -37,6 +37,19 @@ parent/
   InsightForge/
   SunsetForge/
 ```
+
+# Cursor MCP (Desktop vs Cloud)
+
+Default project example `.cursor/mcp-forge-lifecycle.json.example` registers HTTP:
+
+`https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp`
+
+| Client | How to attach |
+|--------|----------------|
+| Cursor Desktop | User MCP (`~/.cursor/mcp.json`) **and/or** project `.cursor/mcp.json` |
+| Cursor Cloud Agents | Custom HTTP URL on cursor.com/agents (same `/api/mcp`). Cloud **does not** see `~/.cursor/mcp.json` and does not inherit Desktop MCP |
+
+Stdio siblings: `.cursor/mcp-forge-stdio-siblings.json.example` — only on a host that has clones and built `dist/`.
 
 # Clone helper
 

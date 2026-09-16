@@ -36,6 +36,8 @@ Read OKF → invoke Forge MCP (planning) → promote to OKF (integrator review)
 - Operator guide: `docs/forge-lifecycle-integration.md`
 - Forge workspaces live under `.okf/forge/` (gitignored) until promoted
 - Sibling Forge repos are cloned separately — not vendored in this repository
+- Cursor talks to HTTP `forge-collection` on Vercel (`/api/mcp`) as the map/gateway. Cloud Agents must register that URL themselves; they do not inherit Desktop `~/.cursor/mcp.json`.
+- Stdio sibling launchers (`scripts/*-mcp.sh`) run only on a Node host that has clones and built `dist/`
 
 # Related
 

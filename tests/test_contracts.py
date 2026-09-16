@@ -74,9 +74,9 @@ def test_project_example() -> None:
         },
         "mcp": {
             "enabled": True,
-            "server_name": "forge-lifecycle",
-            "transport": "stdio",
-            "command": "bash",
+            "server_name": "forge-collection",
+            "transport": "http",
+            "url": "https://forge-collection-mcp-server-nicksinxs-projects.vercel.app/api/mcp",
             "data_dir": ".okf/forge",
             "auth_profile": "none",
             "token_source": "env",

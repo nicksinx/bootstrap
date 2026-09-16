@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Default Cursor MCP is HTTP `forge-collection` on Vercel (`/api/mcp`), not eleven stdio siblings in `.cursor/mcp.json`
+- Stdio sibling launchers remain as `.cursor/mcp-forge-stdio-siblings.json.example` (Node-host path)
+- Documented Desktop user MCP vs Cloud Agents custom HTTP URL (Cloud does not inherit `~/.cursor/mcp.json`)
+- Bearer token is on hold — templates do not require `MCP_BEARER_TOKEN`
+
 ## 2.0.0 — 2026-06-27
 
 **Breaking:** `default` profile v2.0.0 replaces ai-task MCP and worker orchestration with OKF + Forge + `okf-dispatch`.
